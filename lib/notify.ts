@@ -143,6 +143,23 @@ function extractEmailAddress(value: string): string {
   return (match?.[1] || value).trim().toLowerCase();
 }
 
+/** Practical format check so Resend does not reject reply_to / confirmation to. */
+function isValidEmailAddress(value: string | null | undefined): boolean {
+  const email = (value || "").trim();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+/** Staff alerts must send even if the submitter typed a bad address. */
+function getStaffReplyTo(userEmail?: string | null): string | null {
+  const email = (userEmail || "").trim();
+  if (!email) return null;
+  if (!isValidEmailAddress(email)) {
+    console.warn(`Staff reply-to omitted: invalid submitter email "${email}"`);
+    return null;
+  }
+  return email;
+}
+
 function getFromAddress(): string {
   return (
     process.env.RESEND_FROM_EMAIL || "New Creation Living <onboarding@resend.dev>"
@@ -259,6 +276,25 @@ async function sendResendEmail(opts: {
   }
 }
 
+async function sendStaffEmailToRecipient(opts: {
+  to: string;
+  from: string;
+  replyTo: string | null;
+  subject: string;
+  text: string;
+  html: string;
+}): Promise<void> {
+  try {
+    await sendResendEmail(opts);
+  } catch (error) {
+    if (!opts.replyTo) throw error;
+    console.warn(
+      `Staff email failed with reply-to=${opts.replyTo}; retrying without reply-to`
+    );
+    await sendResendEmail({ ...opts, replyTo: null });
+  }
+}
+
 async function sendStaffEmail(payload: NotificationPayload): Promise<void> {
   const recipients = getStaffNotifyEmails();
   const from = getStaffFromAddress(recipients[0]);
@@ -277,13 +313,15 @@ async function sendStaffEmail(payload: NotificationPayload): Promise<void> {
     `Sending staff ${payload.kind} email to [${recipients.join(", ")}] from ${from}`
   );
 
+  const replyTo = getStaffReplyTo(payload.userEmail);
+
   // Send individually so one bad recipient doesn't block the rest.
   const results = await Promise.allSettled(
     recipients.map((to) =>
-      sendResendEmail({
+      sendStaffEmailToRecipient({
         to,
         from,
-        replyTo: payload.userEmail,
+        replyTo,
         subject,
         text: body,
         html,
@@ -417,6 +455,12 @@ async function sendUserConfirmation(payload: NotificationPayload): Promise<void>
     );
     return;
   }
+  if (!isValidEmailAddress(to)) {
+    console.warn(
+      `User confirmation skipped for ${payload.kind}: invalid submitter email "${to}"`
+    );
+    return;
+  }
 
   const message = buildUserConfirmation(payload);
   if (!message) return;
@@ -475,6 +519,7 @@ async function sendSms(payload: NotificationPayload): Promise<void> {
 
 /**
  * Notify staff (email + SMS) and send the submitter a confirmation email.
+ * Staff email always goes out, even if the submitter address is invalid.
  * Failures are logged only — they never fail the visitor's submission.
  */
 export async function notifyNewSubmission(payload: NotificationPayload): Promise<void> {
