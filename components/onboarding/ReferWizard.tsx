@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { submitReferral } from "@/app/actions/forms";
+import { trackGoogleAdsContactConversion } from "@/lib/google-ads";
 import {
   BENEFIT_OPTIONS,
   GENDER_OPTIONS,
@@ -168,6 +169,7 @@ export default function ReferWizard() {
 
     const result = await submitReferral(formData);
     if (result.ok) {
+      trackGoogleAdsContactConversion();
       setStatus("success");
     } else {
       setStatus("error");

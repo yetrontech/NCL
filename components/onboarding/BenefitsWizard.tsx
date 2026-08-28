@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { submitBenefitsScreening } from "@/app/actions/forms";
+import { trackGoogleAdsContactConversion } from "@/lib/google-ads";
 import { YES_NO } from "@/lib/residency-fields";
 import OnboardingShell from "./OnboardingShell";
 import { NavButtons, RadioGroup } from "./FieldHelpers";
@@ -91,6 +92,7 @@ export default function BenefitsWizard() {
 
     const result = await submitBenefitsScreening(formData);
     if (result.ok) {
+      trackGoogleAdsContactConversion();
       setStatus("success");
     } else {
       setStatus("error");

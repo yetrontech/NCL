@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
+import { GOOGLE_ADS_ID } from "@/lib/google-ads";
 import { loadSiteContent } from "@/lib/site-content-server";
-
-const GOOGLE_ADS_ID = "AW-18405665580";
 
 const SITE_URL = "https://www.newcreationliving.org";
 
