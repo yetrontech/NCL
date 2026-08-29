@@ -1,3 +1,4 @@
+import { createClient } from "@supabase/supabase-js";
 import { readFileSync } from "fs";
 import { join } from "path";
 
@@ -14,6 +15,8 @@ export type NotificationPayload = {
   /** Submitter email — receives a confirmation after successful insert */
   userEmail?: string | null;
   userName?: string | null;
+  /** Row id, when available — lets an owner push open that submission directly */
+  rowId?: string | null;
 };
 
 const KIND_LABEL: Record<SubmissionKind, string> = {
@@ -22,6 +25,15 @@ const KIND_LABEL: Record<SubmissionKind, string> = {
   tour_request: "Tour Request",
   benefits_screening: "Benefits Screening",
 };
+
+const INBOX_KIND: Record<SubmissionKind, string> = {
+  application: "applications",
+  referral: "referrals",
+  tour_request: "tours",
+  benefits_screening: "screenings",
+};
+
+const EXPO_PUSH_TOKEN = /^Exp(o|onent)PushToken\[[A-Za-z0-9_-]{1,120}\]$/;
 
 const SUPPORT_PHONE = "(404) 731-2371";
 const DEFAULT_SITE_URL = "https://www.newcreationliving.org";
@@ -137,6 +149,8 @@ function formatDetails(details: NotificationPayload["details"]): string {
 const DEFAULT_NOTIFY_EMAIL = "support@newcreationliving.org";
 const DEFAULT_STAFF_FROM =
   "New Creation Living Alerts <notifications@newcreationliving.org>";
+/** Always alerted, even if NOTIFY_EMAIL is unset or points at a broken mailbox. */
+const ALWAYS_NOTIFY_EMAIL = "nclresidences@gmail.com";
 
 function extractEmailAddress(value: string): string {
   const match = value.match(/<([^>]+)>/);
@@ -189,7 +203,8 @@ function getStaffNotifyEmails(): string[] {
     .map((value) => value.trim().toLowerCase())
     .filter(Boolean);
 
-  return emails.length > 0 ? [...new Set(emails)] : [DEFAULT_NOTIFY_EMAIL];
+  const configured = emails.length > 0 ? emails : [DEFAULT_NOTIFY_EMAIL];
+  return [...new Set([...configured, ALWAYS_NOTIFY_EMAIL])];
 }
 
 function buildStaffEmailHtml(payload: NotificationPayload, label: string): string {
@@ -519,8 +534,115 @@ async function sendSms(payload: NotificationPayload): Promise<void> {
   }
 }
 
+function getOwnerPushSecret(): string | null {
+  const secret = (process.env.NOTIFY_OWNER_PUSH_SECRET || "").trim();
+  return secret.length >= 16 ? secret : null;
+}
+
+function ownerPushClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !anonKey) return null;
+  return createClient(url, anonKey);
+}
+
+async function listOwnerPushTokens(secret: string): Promise<string[]> {
+  const supabase = ownerPushClient();
+  if (!supabase) return [];
+
+  const { data, error } = await supabase.rpc("house_list_owner_push_tokens", {
+    p_secret: secret,
+  });
+  if (error) {
+    throw new Error(`Owner push tokens failed: ${error.message}`);
+  }
+
+  const row = data as { ok?: boolean; tokens?: unknown; error?: string } | null;
+  if (!row?.ok) {
+    throw new Error(row?.error || "Owner push tokens were not returned.");
+  }
+
+  return Array.isArray(row.tokens)
+    ? row.tokens.filter(
+        (token): token is string => typeof token === "string" && EXPO_PUSH_TOKEN.test(token)
+      )
+    : [];
+}
+
+async function dropOwnerPushToken(secret: string, expoToken: string): Promise<void> {
+  const supabase = ownerPushClient();
+  if (!supabase) return;
+  const { error } = await supabase.rpc("house_drop_push_token", {
+    p_secret: secret,
+    p_expo_token: expoToken,
+  });
+  if (error) {
+    console.warn(`Could not drop stale push token: ${error.message}`);
+  }
+}
+
+type ExpoPushTicket = {
+  status?: string;
+  message?: string;
+  details?: { error?: string };
+};
+
+async function sendOwnerPush(payload: NotificationPayload): Promise<void> {
+  const secret = getOwnerPushSecret();
+  if (!secret) {
+    console.warn(
+      "Owner push skipped: set NOTIFY_OWNER_PUSH_SECRET (16+ chars) to match house_settings.owner_push_secret"
+    );
+    return;
+  }
+
+  const tokens = await listOwnerPushTokens(secret);
+  if (tokens.length === 0) {
+    console.info("Owner push skipped: no registered owner devices");
+    return;
+  }
+
+  const label = KIND_LABEL[payload.kind];
+  const messages = tokens.map((to) => ({
+    to,
+    sound: "default",
+    channelId: "inbox",
+    title: `New NCL ${label}`,
+    body: payload.summary,
+    data: {
+      kind: INBOX_KIND[payload.kind],
+      ...(payload.rowId ? { id: payload.rowId } : {}),
+    },
+  }));
+
+  const response = await fetch("https://exp.host/--/api/v2/push/send", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Accept-encoding": "gzip, deflate",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(messages),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Expo push failed (${response.status}): ${errorText}`);
+  }
+
+  const body = (await response.json()) as { data?: ExpoPushTicket[] };
+  const tickets = Array.isArray(body.data) ? body.data : [];
+  for (let i = 0; i < tickets.length; i += 1) {
+    const ticket = tickets[i];
+    const token = tokens[i];
+    if (ticket?.status === "error" && ticket.details?.error === "DeviceNotRegistered" && token) {
+      await dropOwnerPushToken(secret, token);
+    }
+  }
+}
+
 /**
- * Notify staff (email + SMS) and send the submitter a confirmation email.
+ * Notify staff (email + SMS + owner push) and send the submitter a confirmation email.
  * Staff email always goes out, even if the submitter address is invalid.
  * Failures are logged only — they never fail the visitor's submission.
  */
@@ -529,6 +651,7 @@ export async function notifyNewSubmission(payload: NotificationPayload): Promise
     sendStaffEmail(payload),
     sendSms(payload),
     sendUserConfirmation(payload),
+    sendOwnerPush(payload),
   ]);
 
   for (const result of results) {
