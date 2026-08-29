@@ -26,6 +26,11 @@ function text(formData: FormData, key: string): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function answer(value: string | null | undefined): string {
+  const trimmed = (value || "").trim();
+  return trimmed || "—";
+}
+
 function requireYesExplain(
   answer: string,
   explanation: string,
@@ -135,18 +140,47 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
       userName: payload.first_name,
       details: {
         "Favorability score": `${favorability.display} — ${favorability.label}`,
-        Name: `${payload.first_name} ${payload.last_name}`,
-        Phone: payload.phone,
-        Email: payload.email,
+        "First name": payload.first_name,
+        "Last name": payload.last_name,
+        "Phone number": payload.phone,
+        "Email address": payload.email,
+        "Date of birth": payload.date_of_birth,
         Gender: payload.gender,
-        DOB: payload.date_of_birth,
         "Benefit type": payload.benefit_type,
-        "Monthly benefits": payload.monthly_benefit_amount,
-        "Move timeline": payload.move_timeline,
-        Situation: payload.situation_explanation,
-        "Drug-free commitment": payload.drug_free_commitment,
-        "Payee agreement": payload.payee_agreement,
-        "Emergency contact": payload.emergency_contact || "—",
+        "How much are you receiving from your benefits monthly?":
+          payload.monthly_benefit_amount,
+        "How soon are you looking to move into one of our homes?":
+          payload.move_timeline,
+        "Please state how you heard about us": payload.how_heard,
+        "Please give us a quick explanation of your current situation":
+          payload.situation_explanation,
+        "Are you applying for yourself only, or will others be living with you?":
+          payload.living_with_others,
+        "If this is a referral, please state the referring party, phone number, and organization":
+          payload.referring_party_info,
+        "Do you have any mobility limitations?": payload.mobility_limitations,
+        "Mobility limitations explanation": answer(payload.mobility_explanation),
+        "Do you have any mental limitations?": payload.mental_limitations,
+        "Mental limitations explanation": answer(payload.mental_explanation),
+        "Do you manage medications independently?":
+          payload.medications_independent,
+        "Do you have any medical prescriptions/diagnosis?":
+          payload.medical_prescriptions,
+        "Medical prescriptions/diagnosis explanation": answer(
+          payload.medical_explanation
+        ),
+        "Have you been convicted of a crime within the past 7 years?":
+          payload.crime_conviction,
+        "Conviction explanation": answer(payload.crime_explanation),
+        "Can you commit to a drug- and alcohol-free home? Random drug testing is part of house rules.":
+          payload.drug_free_commitment,
+        "Do you understand that at $25 a day, NCL provides more value than a motel (~$1,800/month) or shelter — a real home with peace and stability?":
+          payload.value_understanding,
+        "Do you understand that this is a home and not short-term housing?":
+          payload.home_not_short_term,
+        "Representative payee agreement": payload.payee_agreement,
+        "Roommate-style housing commitment": payload.roommate_commitment,
+        "Emergency contact": answer(payload.emergency_contact),
       },
     });
 
@@ -272,23 +306,55 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
       userName: payload.referrer_name,
       details: {
         "Favorability score": `${favorability.display} — ${favorability.label}`,
-        Referrer: payload.referrer_name,
-        Role: payload.referrer_role,
-        Organization: payload.organization || "—",
+        "Referrer name": payload.referrer_name,
+        "Referrer role": payload.referrer_role,
+        Organization: answer(payload.organization),
         "Referrer phone": payload.phone,
         "Referrer email": payload.email,
-        Referee: `${payload.referee_first_name} ${payload.referee_last_name}`,
-        "Referee phone": payload.referee_phone || "—",
-        "Referee email": payload.referee_email || "—",
+        "Referee first name": payload.referee_first_name,
+        "Referee last name": payload.referee_last_name,
+        "Referee phone": answer(payload.referee_phone),
+        "Referee email": answer(payload.referee_email),
+        "Referee date of birth": payload.date_of_birth,
         "Referee gender": payload.gender,
-        "Referee DOB": payload.date_of_birth,
-        "Benefit type": payload.benefit_type,
-        "Move timeline": payload.move_timeline,
-        Situation: payload.situation_explanation,
-        "Aggression history": payload.aggression_history,
-        "Elopement risk": payload.elopement_risk,
-        "Communal living interference": payload.communal_living_interference,
-        "Living with others": payload.living_with_others,
+        "Referee's benefit type": payload.benefit_type,
+        "How much is the referee receiving from benefits monthly?":
+          payload.monthly_benefit_amount,
+        "How soon is the referee looking to move in?": payload.move_timeline,
+        "How did you hear about us?": payload.how_heard,
+        "Please give us a quick explanation of the referee's current situation":
+          payload.situation_explanation,
+        "Is the individual applying for themselves only, or will others be living with them?":
+          payload.living_with_others,
+        "Does the referee have any mobility limitations?":
+          payload.mobility_limitations,
+        "Mobility limitations explanation": answer(payload.mobility_explanation),
+        "Does the referee have any mental limitations?":
+          payload.mental_limitations,
+        "Mental limitations explanation": answer(payload.mental_explanation),
+        "Does the referee manage medications independently?":
+          payload.medications_independent,
+        "Does the referee have any medical prescriptions/diagnosis?":
+          payload.medical_prescriptions,
+        "Medical prescriptions/diagnosis explanation": answer(
+          payload.medical_explanation
+        ),
+        "Has the referee been convicted of a crime within the past 7 years?":
+          payload.crime_conviction,
+        "Conviction explanation": answer(payload.crime_explanation),
+        "Have they had any history of Aggression?": payload.aggression_history,
+        "Do they have any elopement (wandering) risk?": payload.elopement_risk,
+        "Have they shown any behaviors that would interfere with communal living?":
+          payload.communal_living_interference,
+        "Is the referee able to commit to a drug- and alcohol-free home? Random drug testing is part of house rules.":
+          payload.drug_free_commitment,
+        "Does the referee understand that at $25 a day, NCL provides more value than a motel (~$1,800/month) or shelter — a real home with peace and stability?":
+          payload.value_understanding,
+        "Does the referee understand that this is a home and not short-term housing?":
+          payload.home_not_short_term,
+        "Representative payee agreement": payload.payee_agreement,
+        "Roommate-style housing commitment": payload.roommate_commitment,
+        "Emergency contact": answer(payload.emergency_contact),
       },
     });
 
@@ -335,11 +401,12 @@ export async function submitTourRequest(formData: FormData): Promise<FormActionR
       userEmail: email,
       userName: first_name,
       details: {
-        Name: `${first_name} ${last_name}`,
-        Phone: phone,
-        Email: email,
-        "Preferred date": preferred_date,
+        "First name": first_name,
+        "Last name": last_name,
+        "Phone number": phone,
+        "Email address": email,
         Gender: gender,
+        "Preferred tour date": preferred_date,
       },
     });
 
@@ -412,17 +479,21 @@ export async function submitBenefitsScreening(
       userEmail: email,
       userName: first_name,
       details: {
-        Name: `${first_name} ${last_name}`,
-        Phone: phone,
-        Email: email,
-        "Benefit type": benefit_type,
-        "Applied before": applied_before,
-        "Served in military": served_military,
-        "Disability 12+ months": disability_12_months,
-        "SS work history": ss_work_history,
-        "Last worked": last_worked,
-        "Income & assets": monthly_income_assets,
-        Notes: notes || "—",
+        "First name": first_name,
+        "Last name": last_name,
+        "Phone number": phone,
+        "Email address": email,
+        "Which benefit are you seeking help with?": benefit_type,
+        "Have you ever applied for this benefit in the past?": applied_before,
+        "Have you ever served in the U.S. military?": served_military,
+        "Do you have a disability or medical condition that prevents you from working, lasting (or expected to last) at least 12 months?":
+          disability_12_months,
+        "How long have you worked and paid into Social Security?":
+          ss_work_history,
+        "When was the last time you worked?": last_worked,
+        "What is your total monthly income and the rough value of your assets?":
+          monthly_income_assets,
+        "Briefly describe your situation or health conditions": answer(notes),
       },
     });
 

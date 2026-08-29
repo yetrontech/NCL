@@ -198,8 +198,10 @@ function buildStaffEmailHtml(payload: NotificationPayload, label: string): strin
     .map(
       ([key, value]) =>
         `<tr>
-          <td style="padding:8px 12px;border-bottom:1px solid #E8E2D6;color:#5B6478;font-size:14px;width:38%;">${escapeHtml(key)}</td>
-          <td style="padding:8px 12px;border-bottom:1px solid #E8E2D6;color:#1B2B5E;font-size:14px;font-weight:600;">${escapeHtml(String(value))}</td>
+          <td style="padding:12px;border-bottom:1px solid #E8E2D6;">
+            <p style="margin:0 0 4px;color:#5B6478;font-size:13px;line-height:1.4;">${escapeHtml(key)}</p>
+            <p style="margin:0;color:#1B2B5E;font-size:15px;font-weight:600;line-height:1.45;white-space:pre-wrap;">${escapeHtml(String(value))}</p>
+          </td>
         </tr>`
     )
     .join("");
