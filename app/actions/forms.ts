@@ -8,6 +8,10 @@ export type FormActionResult =
   | { ok: true }
   | { ok: false; error: string };
 
+function newRowId(): string {
+  return crypto.randomUUID();
+}
+
 function getServerSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -115,7 +119,9 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
   const favorability = scoreApplication(payload);
 
   try {
+    const rowId = newRowId();
     const { error } = await getServerSupabase().from("applications").insert({
+      id: rowId,
       ...payload,
       mobility_explanation: payload.mobility_explanation || null,
       mental_explanation: payload.mental_explanation || null,
@@ -135,6 +141,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
 
     await notifyNewSubmission({
       kind: "application",
+      rowId,
       summary: `${payload.first_name} ${payload.last_name} (${favorability.display})`,
       userEmail: payload.email,
       userName: payload.first_name,
@@ -278,7 +285,9 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
   const favorability = scoreReferral(payload);
 
   try {
+    const rowId = newRowId();
     const { error } = await getServerSupabase().from("referrals").insert({
+      id: rowId,
       ...payload,
       organization: payload.organization || null,
       referee_phone: payload.referee_phone || null,
@@ -301,6 +310,7 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
 
     await notifyNewSubmission({
       kind: "referral",
+      rowId,
       summary: `${payload.referrer_name} referred ${payload.referee_first_name} ${payload.referee_last_name} (${favorability.display})`,
       userEmail: payload.email,
       userName: payload.referrer_name,
@@ -381,7 +391,9 @@ export async function submitTourRequest(formData: FormData): Promise<FormActionR
   }
 
   try {
+    const rowId = newRowId();
     const { error } = await getServerSupabase().from("tour_requests").insert({
+      id: rowId,
       first_name,
       last_name,
       phone,
@@ -397,6 +409,7 @@ export async function submitTourRequest(formData: FormData): Promise<FormActionR
 
     await notifyNewSubmission({
       kind: "tour_request",
+      rowId,
       summary: `${first_name} ${last_name} — ${preferred_date}`,
       userEmail: email,
       userName: first_name,
@@ -453,7 +466,9 @@ export async function submitBenefitsScreening(
   }
 
   try {
+    const rowId = newRowId();
     const { error } = await getServerSupabase().from("benefits_screenings").insert({
+      id: rowId,
       first_name,
       last_name,
       phone,
@@ -475,6 +490,7 @@ export async function submitBenefitsScreening(
 
     await notifyNewSubmission({
       kind: "benefits_screening",
+      rowId,
       summary: `${first_name} ${last_name}`,
       userEmail: email,
       userName: first_name,

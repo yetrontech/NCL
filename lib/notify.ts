@@ -646,6 +646,52 @@ async function sendOwnerPush(payload: NotificationPayload): Promise<void> {
  * Staff email always goes out, even if the submitter address is invalid.
  * Failures are logged only — they never fail the visitor's submission.
  */
+export type DecisionEmailInput = {
+  status: "accepted" | "denied";
+  table: "applications" | "referrals";
+  firstName: string;
+  email: string | null | undefined;
+};
+
+export async function notifyApplicantDecision(input: DecisionEmailInput): Promise<void> {
+  const to = (input.email || "").trim();
+  if (!to) {
+    console.warn(`Decision email skipped for ${input.table}: no applicant email`);
+    return;
+  }
+  if (!isValidEmailAddress(to)) {
+    console.warn(`Decision email skipped for ${input.table}: invalid email "${to}"`);
+    return;
+  }
+
+  const name = input.firstName.trim() || "there";
+  const accepted = input.status === "accepted";
+  const subject = accepted
+    ? "You've been accepted to New Creation Living"
+    : "An update on your New Creation Living application";
+  const paragraphs = accepted
+    ? [
+        `Hi ${name},`,
+        "We're happy to let you know that your application to New Creation Living has been accepted.",
+        "Our team will be in touch shortly about next steps, including move-in.",
+        `If you have questions, call us at ${SUPPORT_PHONE}.`,
+      ]
+    : [
+        `Hi ${name},`,
+        "Thank you for applying to New Creation Living. After careful review, we are not able to offer you a place at this time.",
+        `If you have questions, call us at ${SUPPORT_PHONE}.`,
+      ];
+
+  const logoAttachment = getInlineLogoAttachment();
+  await sendResendEmail({
+    to,
+    subject,
+    text: [...paragraphs, "", "— New Creation Living"].join("\n\n"),
+    html: wrapUserEmailHtml(paragraphs),
+    attachments: logoAttachment ? [logoAttachment] : undefined,
+  });
+}
+
 export async function notifyNewSubmission(payload: NotificationPayload): Promise<void> {
   const results = await Promise.allSettled([
     sendStaffEmail(payload),
