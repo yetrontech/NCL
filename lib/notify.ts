@@ -656,12 +656,10 @@ export type DecisionEmailInput = {
 export async function notifyApplicantDecision(input: DecisionEmailInput): Promise<void> {
   const to = (input.email || "").trim();
   if (!to) {
-    console.warn(`Decision email skipped for ${input.table}: no applicant email`);
-    return;
+    throw new Error("This application has no email address.");
   }
   if (!isValidEmailAddress(to)) {
-    console.warn(`Decision email skipped for ${input.table}: invalid email "${to}"`);
-    return;
+    throw new Error("This application does not have a usable email address.");
   }
 
   const name = input.firstName.trim() || "there";
@@ -682,14 +680,27 @@ export async function notifyApplicantDecision(input: DecisionEmailInput): Promis
         `If you have questions, call us at ${SUPPORT_PHONE}.`,
       ];
 
+  const text = [...paragraphs, "", "— New Creation Living"].join("\n\n");
+  const html = wrapUserEmailHtml(paragraphs);
   const logoAttachment = getInlineLogoAttachment();
-  await sendResendEmail({
-    to,
-    subject,
-    text: [...paragraphs, "", "— New Creation Living"].join("\n\n"),
-    html: wrapUserEmailHtml(paragraphs),
-    attachments: logoAttachment ? [logoAttachment] : undefined,
-  });
+
+  if (process.env.RESEND_API_KEY) {
+    try {
+      await sendResendEmail({
+        to,
+        subject,
+        text,
+        html,
+        attachments: logoAttachment ? [logoAttachment] : undefined,
+      });
+      return;
+    } catch (err) {
+      console.error("Resend decision email failed, trying Gmail backup:", err);
+    }
+  }
+
+  const { sendGmailBackup } = await import("@/lib/gmail-backup");
+  await sendGmailBackup({ to, subject, text, html });
 }
 
 export async function notifyNewSubmission(payload: NotificationPayload): Promise<void> {

@@ -77,6 +77,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("Applicant decision email failed:", err);
-    return NextResponse.json({ ok: false, error: "Could not send the email." }, { status: 500 });
+    const message = err instanceof Error ? err.message : "";
+    const safe =
+      message.startsWith("Email is not set up") ||
+      message.startsWith("Gmail backup") ||
+      message.startsWith("This application has no") ||
+      message.startsWith("This application does not")
+        ? message
+        : "Could not send the email.";
+    return NextResponse.json({ ok: false, error: safe }, { status: 500 });
   }
 }
