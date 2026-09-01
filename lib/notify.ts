@@ -301,15 +301,40 @@ async function sendStaffEmailToRecipient(opts: {
   text: string;
   html: string;
 }): Promise<void> {
+  let resendError: unknown;
+
   try {
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error("RESEND_API_KEY missing");
+    }
     await sendResendEmail(opts);
+    return;
   } catch (error) {
-    if (!opts.replyTo) throw error;
-    console.warn(
-      `Staff email failed with reply-to=${opts.replyTo}; retrying without reply-to`
-    );
-    await sendResendEmail({ ...opts, replyTo: null });
+    resendError = error;
+    if (opts.replyTo && process.env.RESEND_API_KEY) {
+      try {
+        console.warn(
+          `Staff email failed with reply-to=${opts.replyTo}; retrying without reply-to`
+        );
+        await sendResendEmail({ ...opts, replyTo: null });
+        return;
+      } catch (retryError) {
+        resendError = retryError;
+      }
+    }
   }
+
+  console.warn(
+    `Staff Resend failed to=${opts.to}; using Gmail backup:`,
+    resendError
+  );
+  const { sendGmailBackup } = await import("@/lib/gmail-backup");
+  await sendGmailBackup({
+    to: opts.to,
+    subject: opts.subject,
+    text: opts.text,
+    html: opts.html,
+  });
 }
 
 async function sendStaffEmail(payload: NotificationPayload): Promise<void> {
@@ -644,6 +669,7 @@ async function sendOwnerPush(payload: NotificationPayload): Promise<void> {
 /**
  * Notify staff (email + SMS + owner push) and send the submitter a confirmation email.
  * Staff email always goes out, even if the submitter address is invalid.
+ * If Resend fails, staff alerts fall back to Gmail SMTP.
  * Failures are logged only — they never fail the visitor's submission.
  */
 export type DecisionEmailInput = {
