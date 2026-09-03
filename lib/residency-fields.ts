@@ -4,6 +4,7 @@ export const BENEFIT_OPTIONS = [
   "VA Benefits",
   "Social Security",
   "Not yet approved",
+  "Other",
 ] as const;
 
 export const GENDER_OPTIONS = ["Male", "Female"] as const;

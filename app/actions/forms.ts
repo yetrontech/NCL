@@ -46,7 +46,14 @@ function requireYesExplain(
   return null;
 }
 
+function storedBenefitType(benefitType: string, incomeSource: string): string {
+  return benefitType === "Other" && incomeSource
+    ? `Other — ${incomeSource}`
+    : benefitType;
+}
+
 export async function submitApplication(formData: FormData): Promise<FormActionResult> {
+  const income_source = text(formData, "income_source");
   const payload = {
     first_name: text(formData, "first_name"),
     last_name: text(formData, "last_name"),
@@ -108,6 +115,10 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
     return { ok: false, error: "Please fill in all required fields." };
   }
 
+  if (payload.benefit_type === "Other" && !income_source) {
+    return { ok: false, error: "Please tell us how you are receiving income." };
+  }
+
   const explainError =
     requireYesExplain(payload.mobility_limitations, payload.mobility_explanation, "mobility limitations") ||
     requireYesExplain(payload.mental_limitations, payload.mental_explanation, "mental limitations") ||
@@ -117,12 +128,14 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
   if (explainError) return { ok: false, error: explainError };
 
   const favorability = scoreApplication(payload);
+  const benefit_type = storedBenefitType(payload.benefit_type, income_source);
 
   try {
     const rowId = newRowId();
     const { error } = await getServerSupabase().from("applications").insert({
       id: rowId,
       ...payload,
+      benefit_type,
       mobility_explanation: payload.mobility_explanation || null,
       mental_explanation: payload.mental_explanation || null,
       crime_explanation: payload.crime_explanation || null,
@@ -153,7 +166,9 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
         "Email address": payload.email,
         "Date of birth": payload.date_of_birth,
         Gender: payload.gender,
-        "Benefit type": payload.benefit_type,
+        "Benefit type": benefit_type,
+        "How are you receiving income?":
+          payload.benefit_type === "Other" ? income_source : undefined,
         "How much are you receiving from your benefits monthly?":
           payload.monthly_benefit_amount,
         "How soon are you looking to move into one of our homes?":
@@ -202,6 +217,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
 }
 
 export async function submitReferral(formData: FormData): Promise<FormActionResult> {
+  const income_source = text(formData, "income_source");
   const payload = {
     referrer_name: text(formData, "referrer_name"),
     referrer_role: text(formData, "referrer_role"),
@@ -274,6 +290,10 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
     return { ok: false, error: "Please fill in all required fields." };
   }
 
+  if (payload.benefit_type === "Other" && !income_source) {
+    return { ok: false, error: "Please tell us how the referee is receiving income." };
+  }
+
   const explainError =
     requireYesExplain(payload.mobility_limitations, payload.mobility_explanation, "mobility limitations") ||
     requireYesExplain(payload.mental_limitations, payload.mental_explanation, "mental limitations") ||
@@ -283,12 +303,14 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
   if (explainError) return { ok: false, error: explainError };
 
   const favorability = scoreReferral(payload);
+  const benefit_type = storedBenefitType(payload.benefit_type, income_source);
 
   try {
     const rowId = newRowId();
     const { error } = await getServerSupabase().from("referrals").insert({
       id: rowId,
       ...payload,
+      benefit_type,
       organization: payload.organization || null,
       referee_phone: payload.referee_phone || null,
       referee_email: payload.referee_email || null,
@@ -327,7 +349,9 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
         "Referee email": answer(payload.referee_email),
         "Referee date of birth": payload.date_of_birth,
         "Referee gender": payload.gender,
-        "Referee's benefit type": payload.benefit_type,
+        "Referee's benefit type": benefit_type,
+        "How are you receiving income?":
+          payload.benefit_type === "Other" ? income_source : undefined,
         "How much is the referee receiving from benefits monthly?":
           payload.monthly_benefit_amount,
         "How soon is the referee looking to move in?": payload.move_timeline,

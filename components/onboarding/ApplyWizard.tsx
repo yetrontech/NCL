@@ -35,6 +35,7 @@ const initial = {
   gender: "",
   date_of_birth: "",
   benefit_type: "",
+  income_source: "",
   monthly_benefit_amount: "",
   move_timeline: "",
   how_heard: "",
@@ -77,6 +78,9 @@ export default function ApplyWizard() {
     if (step === 1) {
       if (!data.benefit_type || !data.monthly_benefit_amount || !data.move_timeline || !data.how_heard) {
         return "Please complete all fields on this step.";
+      }
+      if (data.benefit_type === "Other" && !data.income_source) {
+        return "Please tell us how you are receiving income.";
       }
     }
     if (step === 2) {
@@ -259,8 +263,22 @@ export default function ApplyWizard() {
               label="Benefit type"
               options={BENEFIT_OPTIONS}
               value={data.benefit_type}
-              onChange={(v) => setField("benefit_type", v)}
+              onChange={(v) => {
+                setField("benefit_type", v);
+                if (v !== "Other") setField("income_source", "");
+              }}
             />
+            {data.benefit_type === "Other" && (
+              <div className="field">
+                <label htmlFor="income_source">How are you receiving income?</label>
+                <input
+                  id="income_source"
+                  required
+                  value={data.income_source}
+                  onChange={(e) => setField("income_source", e.target.value)}
+                />
+              </div>
+            )}
             {data.benefit_type === "Not yet approved" && <BenefitsFormLink />}
             <div className="field">
               <label htmlFor="monthly_benefit_amount">
