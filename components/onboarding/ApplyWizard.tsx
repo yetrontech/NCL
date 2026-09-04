@@ -51,6 +51,8 @@ const initial = {
   medical_explanation: "",
   crime_conviction: "",
   crime_explanation: "",
+  substance_abuse_history: "",
+  substance_abuse_explanation: "",
   drug_free_commitment: "",
   value_understanding: "",
   home_not_short_term: "",
@@ -111,6 +113,10 @@ export default function ApplyWizard() {
       if (!data.crime_conviction) return "Please answer the conviction question.";
       if (data.crime_conviction === "Yes" && !data.crime_explanation) {
         return "Please explain the conviction.";
+      }
+      if (!data.substance_abuse_history) return "Please answer the drug or alcohol abuse question.";
+      if (data.substance_abuse_history === "Yes" && !data.substance_abuse_explanation) {
+        return "Please explain the drug or alcohol abuse history.";
       }
     }
     if (step === 5) {
@@ -389,14 +395,24 @@ export default function ApplyWizard() {
         )}
 
         {step === 4 && (
-          <YesNoExplain
-            name="crime_conviction"
-            label="Have you been convicted of a crime within the past 7 years?"
-            value={data.crime_conviction}
-            explainValue={data.crime_explanation}
-            onChange={(v) => setField("crime_conviction", v)}
-            onExplainChange={(v) => setField("crime_explanation", v)}
-          />
+          <>
+            <YesNoExplain
+              name="crime_conviction"
+              label="Have you been convicted of a crime within the past 7 years?"
+              value={data.crime_conviction}
+              explainValue={data.crime_explanation}
+              onChange={(v) => setField("crime_conviction", v)}
+              onExplainChange={(v) => setField("crime_explanation", v)}
+            />
+            <YesNoExplain
+              name="substance_abuse_history"
+              label="Have you had a history of drug or alcohol abuse?"
+              value={data.substance_abuse_history}
+              explainValue={data.substance_abuse_explanation}
+              onChange={(v) => setField("substance_abuse_history", v)}
+              onExplainChange={(v) => setField("substance_abuse_explanation", v)}
+            />
+          </>
         )}
 
         {step === 5 && (

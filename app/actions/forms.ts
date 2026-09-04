@@ -70,6 +70,8 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
     medications_independent: text(formData, "medications_independent"),
     crime_conviction: text(formData, "crime_conviction"),
     crime_explanation: text(formData, "crime_explanation"),
+    substance_abuse_history: text(formData, "substance_abuse_history"),
+    substance_abuse_explanation: text(formData, "substance_abuse_explanation"),
     monthly_benefit_amount: text(formData, "monthly_benefit_amount"),
     medical_prescriptions: text(formData, "medical_prescriptions"),
     medical_explanation: text(formData, "medical_explanation"),
@@ -98,6 +100,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
     "mental_limitations",
     "medications_independent",
     "crime_conviction",
+    "substance_abuse_history",
     "monthly_benefit_amount",
     "medical_prescriptions",
     "drug_free_commitment",
@@ -123,6 +126,11 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
     requireYesExplain(payload.mobility_limitations, payload.mobility_explanation, "mobility limitations") ||
     requireYesExplain(payload.mental_limitations, payload.mental_explanation, "mental limitations") ||
     requireYesExplain(payload.crime_conviction, payload.crime_explanation, "crime conviction") ||
+    requireYesExplain(
+      payload.substance_abuse_history,
+      payload.substance_abuse_explanation,
+      "drug or alcohol abuse history"
+    ) ||
     requireYesExplain(payload.medical_prescriptions, payload.medical_explanation, "medical prescriptions");
 
   if (explainError) return { ok: false, error: explainError };
@@ -139,6 +147,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
       mobility_explanation: payload.mobility_explanation || null,
       mental_explanation: payload.mental_explanation || null,
       crime_explanation: payload.crime_explanation || null,
+      substance_abuse_explanation: payload.substance_abuse_explanation || null,
       medical_explanation: payload.medical_explanation || null,
       emergency_contact: payload.emergency_contact || null,
       favorability_score: favorability.score,
@@ -194,6 +203,9 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
         "Have you been convicted of a crime within the past 7 years?":
           payload.crime_conviction,
         "Conviction explanation": answer(payload.crime_explanation),
+        "Have you had a history of drug or alcohol abuse?":
+          payload.substance_abuse_history,
+        "Drug or alcohol abuse explanation": answer(payload.substance_abuse_explanation),
         "Can you commit to a drug- and alcohol-free home? Random drug testing is part of house rules.":
           payload.drug_free_commitment,
         "Do you understand that at $25 a day, NCL provides more value than a motel (~$1,800/month) or shelter — a real home with peace and stability?":
@@ -239,6 +251,8 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
     medications_independent: text(formData, "medications_independent"),
     crime_conviction: text(formData, "crime_conviction"),
     crime_explanation: text(formData, "crime_explanation"),
+    substance_abuse_history: text(formData, "substance_abuse_history"),
+    substance_abuse_explanation: text(formData, "substance_abuse_explanation"),
     aggression_history: text(formData, "aggression_history"),
     elopement_risk: text(formData, "elopement_risk"),
     communal_living_interference: text(formData, "communal_living_interference"),
@@ -271,6 +285,7 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
     "mental_limitations",
     "medications_independent",
     "crime_conviction",
+    "substance_abuse_history",
     "aggression_history",
     "elopement_risk",
     "communal_living_interference",
@@ -298,6 +313,11 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
     requireYesExplain(payload.mobility_limitations, payload.mobility_explanation, "mobility limitations") ||
     requireYesExplain(payload.mental_limitations, payload.mental_explanation, "mental limitations") ||
     requireYesExplain(payload.crime_conviction, payload.crime_explanation, "crime conviction") ||
+    requireYesExplain(
+      payload.substance_abuse_history,
+      payload.substance_abuse_explanation,
+      "drug or alcohol abuse history"
+    ) ||
     requireYesExplain(payload.medical_prescriptions, payload.medical_explanation, "medical prescriptions");
 
   if (explainError) return { ok: false, error: explainError };
@@ -317,6 +337,7 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
       mobility_explanation: payload.mobility_explanation || null,
       mental_explanation: payload.mental_explanation || null,
       crime_explanation: payload.crime_explanation || null,
+      substance_abuse_explanation: payload.substance_abuse_explanation || null,
       medical_explanation: payload.medical_explanation || null,
       emergency_contact: payload.emergency_contact || null,
       favorability_score: favorability.score,
@@ -376,6 +397,9 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
         "Has the referee been convicted of a crime within the past 7 years?":
           payload.crime_conviction,
         "Conviction explanation": answer(payload.crime_explanation),
+        "Has the referee had a history of drug or alcohol abuse?":
+          payload.substance_abuse_history,
+        "Drug or alcohol abuse explanation": answer(payload.substance_abuse_explanation),
         "Have they had any history of Aggression?": payload.aggression_history,
         "Do they have any elopement (wandering) risk?": payload.elopement_risk,
         "Have they shown any behaviors that would interfere with communal living?":

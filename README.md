@@ -68,6 +68,7 @@ Owner push uses the Expo push service. The token table and the secret-gated look
 - `supabase/schema.sql` — database schema + RLS policies
 - `supabase/migrate_site_content.sql` — creates and seeds editable website copy
 - `supabase/migrate_residency_fields.sql` — migration if older tables already exist
+- `supabase/migrate-substance-abuse.sql` — drug/alcohol abuse history on apply and refer
 - `public/img/` — site images
 
 ## Production build

@@ -5,6 +5,7 @@ const IDEAL_RESPONSES = {
   medications_independent: "Yes",
   medical_prescriptions: "No",
   crime_conviction: "No",
+  substance_abuse_history: "No",
   drug_free_commitment: "Yes",
   value_understanding: "Yes",
   home_not_short_term: "Yes",
@@ -21,6 +22,7 @@ const APPLICATION_CRITERIA = [
   "medications_independent",
   "medical_prescriptions",
   "crime_conviction",
+  "substance_abuse_history",
   "drug_free_commitment",
   "value_understanding",
   "home_not_short_term",
@@ -46,6 +48,13 @@ export type FavorabilityScore = {
   display: string;
 };
 
+function answeredCriteria(
+  input: ResidencyScoreFields,
+  criteria: readonly (keyof typeof IDEAL_RESPONSES)[]
+) {
+  return criteria.filter((key) => (input[key] || "").trim() !== "");
+}
+
 function scoreCriteria(
   input: ResidencyScoreFields,
   criteria: readonly (keyof typeof IDEAL_RESPONSES)[]
@@ -67,8 +76,9 @@ function buildScore(
   input: ResidencyScoreFields,
   criteria: readonly (keyof typeof IDEAL_RESPONSES)[]
 ): FavorabilityScore {
-  const max_score = criteria.length;
-  const score = scoreCriteria(input, criteria);
+  const present = answeredCriteria(input, criteria);
+  const max_score = present.length;
+  const score = scoreCriteria(input, present);
   const percent = max_score === 0 ? 0 : Math.round((score / max_score) * 100);
 
   return {

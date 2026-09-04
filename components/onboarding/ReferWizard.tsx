@@ -57,6 +57,8 @@ const initial = {
   medical_explanation: "",
   crime_conviction: "",
   crime_explanation: "",
+  substance_abuse_history: "",
+  substance_abuse_explanation: "",
   aggression_history: "",
   elopement_risk: "",
   communal_living_interference: "",
@@ -130,6 +132,10 @@ export default function ReferWizard() {
       if (!data.crime_conviction) return "Please answer the conviction question.";
       if (data.crime_conviction === "Yes" && !data.crime_explanation) {
         return "Please explain the conviction.";
+      }
+      if (!data.substance_abuse_history) return "Please answer the drug or alcohol abuse question.";
+      if (data.substance_abuse_history === "Yes" && !data.substance_abuse_explanation) {
+        return "Please explain the drug or alcohol abuse history.";
       }
       if (
         !data.aggression_history ||
@@ -466,6 +472,14 @@ export default function ReferWizard() {
               explainValue={data.crime_explanation}
               onChange={(v) => setField("crime_conviction", v)}
               onExplainChange={(v) => setField("crime_explanation", v)}
+            />
+            <YesNoExplain
+              name="substance_abuse_history"
+              label="Has the referee had a history of drug or alcohol abuse?"
+              value={data.substance_abuse_history}
+              explainValue={data.substance_abuse_explanation}
+              onChange={(v) => setField("substance_abuse_history", v)}
+              onExplainChange={(v) => setField("substance_abuse_explanation", v)}
             />
             <RadioGroup
               name="aggression_history"
