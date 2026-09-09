@@ -6,7 +6,9 @@ import { useCopy, useCopyList } from "@/components/SiteContentProvider";
 export default function LocationsPage({ onWatchVideo }: { onWatchVideo: () => void }) {
   const copy = useCopy();
   const copyList = useCopyList();
-  const features = copyList("locations.features");
+  const southFultonFeatures = copyList("locations.features");
+  const beltlineFeatures = copyList("locations.beltline.features");
+
   return (
     <div className="page" id="page-locations">
       <section className="band" style={{ paddingTop: 56 }}>
@@ -28,7 +30,7 @@ export default function LocationsPage({ onWatchVideo }: { onWatchVideo: () => vo
               <span className="loc-status">{copy("locations.status")}</span>
               <h3>{copy("locations.name")}</h3>
               <div className="loc-feats">
-                {features.map((feat) => (
+                {southFultonFeatures.map((feat) => (
                   <span className="loc-feat" key={feat}>
                     {feat}
                   </span>
@@ -56,6 +58,35 @@ export default function LocationsPage({ onWatchVideo }: { onWatchVideo: () => vo
                     <polygon points="5 3 19 12 5 21 5 3" />
                   </svg>
                   {copy("locations.video_cta")}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="loc-card">
+            <div className="loc-photo">
+              <img
+                src="/img/atlanta-beltline.jpg"
+                alt="Atlanta BeltLine Access location"
+              />
+            </div>
+            <div className="loc-body">
+              <span className="loc-status">{copy("locations.status")}</span>
+              <h3>{copy("locations.beltline.name")}</h3>
+              <div className="loc-feats">
+                {beltlineFeatures.map((feat) => (
+                  <span className="loc-feat" key={feat}>
+                    {feat}
+                  </span>
+                ))}
+              </div>
+              <div className="loc-actions">
+                <button
+                  className="btn btn-primary"
+                  type="button"
+                  onClick={() => scrollToId("apply-options")}
+                >
+                  {copy("locations.apply_cta")}
                 </button>
               </div>
             </div>

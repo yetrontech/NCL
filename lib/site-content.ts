@@ -844,10 +844,29 @@ export const SITE_CONTENT_FIELDS: SiteContentField[] = [
   {
     key: "locations.features",
     section: "Locations",
-    label: "Property features (one per line)",
+    label: "South Fulton features (one per line)",
     type: "list",
     defaultValue: [
       "Near MARTA bus routes",
+      "All-inclusive $25/day",
+      "On-site house manager",
+      "Shared common areas",
+    ].join("\n"),
+  },
+  {
+    key: "locations.beltline.name",
+    section: "Locations",
+    label: "Atlanta BeltLine property name",
+    type: "text",
+    defaultValue: "Atlanta BeltLine Access",
+  },
+  {
+    key: "locations.beltline.features",
+    section: "Locations",
+    label: "Atlanta BeltLine features (one per line)",
+    type: "list",
+    defaultValue: [
+      "Atlanta BeltLine access",
       "All-inclusive $25/day",
       "On-site house manager",
       "Shared common areas",
