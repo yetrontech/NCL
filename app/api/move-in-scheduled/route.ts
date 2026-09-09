@@ -10,6 +10,7 @@ type InboxRow = {
   email?: string | null;
   referee_first_name?: string;
   referee_email?: string | null;
+  assigned_house_id?: string | null;
 };
 
 type InboxRpc = {
@@ -77,7 +78,13 @@ export async function POST(request: Request) {
   const email = table === "applications" ? row.email : row.referee_email;
 
   try {
-    await notifyMoveInDate({ firstName, email, date, time });
+    await notifyMoveInDate({
+      firstName,
+      email,
+      date,
+      time,
+      houseId: typeof row.assigned_house_id === "string" ? row.assigned_house_id : null,
+    });
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("Move-in date email failed:", err);

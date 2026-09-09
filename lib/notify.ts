@@ -773,6 +773,7 @@ export async function notifyMoveInDate(input: {
   email: string | null | undefined;
   date: string;
   time: string;
+  houseId?: string | null;
 }): Promise<void> {
   const to = (input.email || "").trim();
   if (!to) {
@@ -782,17 +783,20 @@ export async function notifyMoveInDate(input: {
     throw new Error("This application does not have a usable email address.");
   }
 
-  const name = input.firstName.trim() || "there";
-  const when = formatMoveInWhen(input.date, input.time);
-  const subject = "Your New Creation Living move-in date";
-  const paragraphs = [
-    `Hi ${name},`,
-    `Your move-in at New Creation Living is scheduled for ${when}.`,
-    `If you have questions, call us at ${SUPPORT_PHONE}.`,
-  ];
-  const text = [...paragraphs, "", "— New Creation Living"].join("\n\n");
-  const html = wrapUserEmailHtml(paragraphs);
-  await sendApplicantMail({ to, subject, text, html });
+  const { buildMoveInConfirmation } = await import("@/lib/move-in-confirmation");
+  const confirmation = buildMoveInConfirmation({
+    firstName: input.firstName,
+    whenLabel: formatMoveInWhen(input.date, input.time),
+    date: input.date,
+    houseId: input.houseId,
+  });
+  const html = wrapUserEmailHtml(confirmation.paragraphs, confirmation.extraHtml);
+  await sendApplicantMail({
+    to,
+    subject: confirmation.subject,
+    text: confirmation.text,
+    html,
+  });
 }
 
 export async function notifyNewSubmission(payload: NotificationPayload): Promise<void> {
