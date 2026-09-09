@@ -861,6 +861,13 @@ export const SITE_CONTENT_FIELDS: SiteContentField[] = [
     defaultValue: "Atlanta BeltLine Access",
   },
   {
+    key: "locations.beltline.gallery_cta",
+    section: "Locations",
+    label: "Atlanta BeltLine gallery button",
+    type: "text",
+    defaultValue: "See the home",
+  },
+  {
     key: "locations.beltline.features",
     section: "Locations",
     label: "Atlanta BeltLine features (one per line)",

@@ -21,5 +21,13 @@ Shared common areas',
     'Atlanta BeltLine features (one per line)',
     'list',
     107
+  ),
+  (
+    'locations.beltline.gallery_cta',
+    'See the home',
+    'Locations',
+    'Atlanta BeltLine gallery button',
+    'text',
+    108
   )
 on conflict (key) do nothing;

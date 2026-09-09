@@ -2,8 +2,18 @@
 
 import { scrollToId } from "@/lib/scroll";
 import { useCopy, useCopyList } from "@/components/SiteContentProvider";
+import {
+  LOCATION_GALLERIES,
+  type LocationGalleryId,
+} from "@/lib/location-galleries";
 
-export default function LocationsPage({ onWatchVideo }: { onWatchVideo: () => void }) {
+export default function LocationsPage({
+  onWatchVideo,
+  onOpenGallery,
+}: {
+  onWatchVideo: () => void;
+  onOpenGallery: (galleryId: LocationGalleryId) => void;
+}) {
   const copy = useCopy();
   const copyList = useCopyList();
   const southFultonFeatures = copyList("locations.features");
@@ -88,6 +98,27 @@ export default function LocationsPage({ onWatchVideo }: { onWatchVideo: () => vo
                 >
                   {copy("locations.apply_cta")}
                 </button>
+                {LOCATION_GALLERIES.beltline.photos.length > 0 ? (
+                  <button
+                    className="btn btn-ghost"
+                    type="button"
+                    onClick={() => onOpenGallery("beltline")}
+                    style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      style={{ width: 18, height: 18, color: "var(--gold)" }}
+                    >
+                      <rect x="3" y="5" width="18" height="14" rx="2" />
+                      <circle cx="8.5" cy="10" r="1.4" />
+                      <path d="M21 16l-5-5-8 8" />
+                    </svg>
+                    {copy("locations.beltline.gallery_cta")}
+                  </button>
+                ) : null}
               </div>
             </div>
           </div>
