@@ -3,6 +3,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { scoreApplication, scoreReferral } from "@/lib/favorability-score";
 import { notifyNewSubmission } from "@/lib/notify";
+import { ensureReviewTask } from "@/lib/staff-tasks";
 
 export type FormActionResult =
   | { ok: true }
@@ -161,6 +162,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
       return { ok: false, error: error.message };
     }
 
+    await ensureReviewTask("application", rowId);
     await notifyNewSubmission({
       kind: "application",
       rowId,
@@ -351,6 +353,7 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
       return { ok: false, error: error.message };
     }
 
+    await ensureReviewTask("referral", rowId);
     await notifyNewSubmission({
       kind: "referral",
       rowId,

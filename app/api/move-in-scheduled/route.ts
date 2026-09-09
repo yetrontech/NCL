@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import { notifyApplicantDecision } from "@/lib/notify";
+import { notifyMoveInDate } from "@/lib/notify";
 import { getSupabase } from "@/lib/supabase";
 
 type ReviewableTable = "applications" | "referrals";
-type ReviewStatus = "accepted" | "denied";
 
 type InboxRow = {
   id?: string;
@@ -11,7 +10,6 @@ type InboxRow = {
   email?: string | null;
   referee_first_name?: string;
   referee_email?: string | null;
-  schedule_token?: string | null;
 };
 
 type InboxRpc = {
@@ -25,12 +23,16 @@ function isTable(value: unknown): value is ReviewableTable {
   return value === "applications" || value === "referrals";
 }
 
-function isDecision(value: unknown): value is ReviewStatus {
-  return value === "accepted" || value === "denied";
-}
-
 function isUuid(value: unknown): value is string {
   return typeof value === "string" && /^[0-9a-f-]{36}$/i.test(value);
+}
+
+function isDate(value: unknown): value is string {
+  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value);
+}
+
+function isTime(value: unknown): value is string {
+  return typeof value === "string" && /^\d{2}:\d{2}$/.test(value);
 }
 
 export async function POST(request: Request) {
@@ -44,9 +46,10 @@ export async function POST(request: Request) {
   const token = typeof body.token === "string" ? body.token.trim() : "";
   const table = body.table;
   const id = body.id;
-  const status = body.status;
+  const date = body.date;
+  const time = body.time;
 
-  if (!isUuid(token) || !isTable(table) || !isUuid(id) || !isDecision(status)) {
+  if (!isUuid(token) || !isTable(table) || !isUuid(id) || !isDate(date) || !isTime(time)) {
     return NextResponse.json({ ok: false, error: "Invalid request." }, { status: 400 });
   }
 
@@ -74,16 +77,10 @@ export async function POST(request: Request) {
   const email = table === "applications" ? row.email : row.referee_email;
 
   try {
-    await notifyApplicantDecision({
-      status,
-      table,
-      firstName,
-      email,
-      scheduleToken: row.schedule_token,
-    });
+    await notifyMoveInDate({ firstName, email, date, time });
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("Applicant decision email failed:", err);
+    console.error("Move-in date email failed:", err);
     const message = err instanceof Error ? err.message : "";
     const safe =
       message.startsWith("Email is not set up") ||

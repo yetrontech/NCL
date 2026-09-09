@@ -117,7 +117,7 @@ function buildEmailSignatureHtml(): string {
 </table>`.trim();
 }
 
-function wrapUserEmailHtml(bodyParagraphs: string[]): string {
+function wrapUserEmailHtml(bodyParagraphs: string[], extraHtml = ""): string {
   return `<!DOCTYPE html>
 <html lang="en">
   <body style="margin:0;padding:0;background:#F7F4EE;">
@@ -128,6 +128,7 @@ function wrapUserEmailHtml(bodyParagraphs: string[]): string {
             <tr>
               <td style="padding:32px 28px 28px;font-family:Arial,Helvetica,sans-serif;">
                 ${paragraphsToHtml(bodyParagraphs)}
+                ${extraHtml}
                 ${buildEmailSignatureHtml()}
               </td>
             </tr>
@@ -666,17 +667,67 @@ async function sendOwnerPush(payload: NotificationPayload): Promise<void> {
   }
 }
 
-/**
- * Notify staff (email + SMS + owner push) and send the submitter a confirmation email.
- * Staff email always goes out, even if the submitter address is invalid.
- * If Resend fails, staff alerts fall back to Gmail SMTP.
- * Failures are logged only — they never fail the visitor's submission.
- */
+function scheduleUrl(token: string) {
+  return `${getSiteUrl()}/schedule/${encodeURIComponent(token)}`;
+}
+
+function scheduleCtaHtml(url: string): string {
+  return `<p style="margin:8px 0 20px;">
+    <a href="${escapeHtml(url)}" style="display:inline-block;background:#1B2B5E;color:#ffffff;padding:12px 22px;border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;">Schedule your move-in</a>
+  </p>
+  <p style="margin:0 0 16px;font-size:14px;line-height:1.65;color:#5B6478;">If the button does not work, open this link:<br />
+  <a href="${escapeHtml(url)}" style="color:#1B2B5E;word-break:break-all;">${escapeHtml(url)}</a></p>`;
+}
+
+function formatMoveInWhen(date: string, time: string) {
+  const [year, month, day] = date.split("-").map(Number);
+  const [hour, minute] = time.split(":").map(Number);
+  const dt = new Date(year, (month || 1) - 1, day || 1, hour || 0, minute || 0);
+  const dayLabel = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }).format(dt);
+  const clock = new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(dt);
+  return `${dayLabel} at ${clock} Eastern`;
+}
+
+async function sendApplicantMail(opts: {
+  to: string;
+  subject: string;
+  text: string;
+  html: string;
+}) {
+  const logoAttachment = getInlineLogoAttachment();
+  if (process.env.RESEND_API_KEY) {
+    try {
+      await sendResendEmail({
+        to: opts.to,
+        subject: opts.subject,
+        text: opts.text,
+        html: opts.html,
+        attachments: logoAttachment ? [logoAttachment] : undefined,
+      });
+      return;
+    } catch (err) {
+      console.error("Resend applicant email failed, trying Gmail backup:", err);
+    }
+  }
+
+  const { sendGmailBackup } = await import("@/lib/gmail-backup");
+  await sendGmailBackup(opts);
+}
+
 export type DecisionEmailInput = {
   status: "accepted" | "denied";
   table: "applications" | "referrals";
   firstName: string;
   email: string | null | undefined;
+  scheduleToken?: string | null;
 };
 
 export async function notifyApplicantDecision(input: DecisionEmailInput): Promise<void> {
@@ -690,6 +741,8 @@ export async function notifyApplicantDecision(input: DecisionEmailInput): Promis
 
   const name = input.firstName.trim() || "there";
   const accepted = input.status === "accepted";
+  const token = (input.scheduleToken || "").trim();
+  const link = token ? scheduleUrl(token) : "";
   const subject = accepted
     ? "You've been accepted to New Creation Living"
     : "An update on your New Creation Living application";
@@ -697,36 +750,49 @@ export async function notifyApplicantDecision(input: DecisionEmailInput): Promis
     ? [
         `Hi ${name},`,
         "We're happy to let you know that your application to New Creation Living has been accepted.",
-        "Our team will be in touch shortly about next steps, including move-in.",
-        `If you have questions, call us at ${SUPPORT_PHONE}.`,
+        link
+          ? "Please choose a move-in date within 35 days. Staff will confirm your request and email you the booked date."
+          : "Our team will be in touch shortly about next steps, including move-in.",
       ]
     : [
         `Hi ${name},`,
         "Thank you for applying to New Creation Living. After careful review, we are not able to offer you a place at this time.",
-        `If you have questions, call us at ${SUPPORT_PHONE}.`,
       ];
+  const closing = `If you have questions, call us at ${SUPPORT_PHONE}.`;
+  const extraHtml = `${link ? scheduleCtaHtml(link) : ""}<p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#2D3748;">${escapeHtml(closing)}</p>`;
 
-  const text = [...paragraphs, "", "— New Creation Living"].join("\n\n");
-  const html = wrapUserEmailHtml(paragraphs);
-  const logoAttachment = getInlineLogoAttachment();
+  const text = [...paragraphs, ...(link ? ["Schedule your move-in:", link] : []), closing, "", "— New Creation Living"].join(
+    "\n\n"
+  );
+  const html = wrapUserEmailHtml(paragraphs, extraHtml);
+  await sendApplicantMail({ to, subject, text, html });
+}
 
-  if (process.env.RESEND_API_KEY) {
-    try {
-      await sendResendEmail({
-        to,
-        subject,
-        text,
-        html,
-        attachments: logoAttachment ? [logoAttachment] : undefined,
-      });
-      return;
-    } catch (err) {
-      console.error("Resend decision email failed, trying Gmail backup:", err);
-    }
+export async function notifyMoveInDate(input: {
+  firstName: string;
+  email: string | null | undefined;
+  date: string;
+  time: string;
+}): Promise<void> {
+  const to = (input.email || "").trim();
+  if (!to) {
+    throw new Error("This application has no email address.");
+  }
+  if (!isValidEmailAddress(to)) {
+    throw new Error("This application does not have a usable email address.");
   }
 
-  const { sendGmailBackup } = await import("@/lib/gmail-backup");
-  await sendGmailBackup({ to, subject, text, html });
+  const name = input.firstName.trim() || "there";
+  const when = formatMoveInWhen(input.date, input.time);
+  const subject = "Your New Creation Living move-in date";
+  const paragraphs = [
+    `Hi ${name},`,
+    `Your move-in at New Creation Living is scheduled for ${when}.`,
+    `If you have questions, call us at ${SUPPORT_PHONE}.`,
+  ];
+  const text = [...paragraphs, "", "— New Creation Living"].join("\n\n");
+  const html = wrapUserEmailHtml(paragraphs);
+  await sendApplicantMail({ to, subject, text, html });
 }
 
 export async function notifyNewSubmission(payload: NotificationPayload): Promise<void> {
