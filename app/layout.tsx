@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { GOOGLE_ADS_ID, GOOGLE_TAG_MANAGER_ID } from "@/lib/google-ads";
+import { GOOGLE_TAG_MANAGER_ID } from "@/lib/google-ads";
+import { META_PIXEL_ID } from "@/lib/meta-pixel";
+import MetaPixel from "@/components/MetaPixel";
 import { loadSiteContent } from "@/lib/site-content-server";
 
 const SITE_URL = "https://www.newcreationliving.org";
@@ -55,15 +57,20 @@ export default function RootLayout({
             `,
           }}
         />
-        <script async src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`} />
+        {/* Meta Pixel base code, server-rendered so Pixel Helper sees it on first paint. */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              window.dataLayer=window.dataLayer||[];
-              function gtag(){dataLayer.push(arguments);}
-              window.gtag=gtag;
-              gtag('js',new Date());
-              gtag('config','${GOOGLE_ADS_ID}');
+              !function(f,b,e,v,n,t,s)
+              {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+              n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+              if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+              n.queue=[];t=b.createElement(e);t.async=!0;
+              t.src=v;s=b.getElementsByTagName(e)[0];
+              s.parentNode.insertBefore(t,s)}(window,document,'script',
+              'https://connect.facebook.net/en_US/fbevents.js');
+              fbq('init','${META_PIXEL_ID}');
+              fbq('track','PageView');
             `,
           }}
         />
@@ -83,6 +90,16 @@ export default function RootLayout({
             title="Google Tag Manager"
           />
         </noscript>
+        <noscript>
+          <img
+            height="1"
+            width="1"
+            style={{ display: "none" }}
+            src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
+            alt=""
+          />
+        </noscript>
+        <MetaPixel />
         {children}
       </body>
     </html>
