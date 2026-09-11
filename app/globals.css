@@ -3146,6 +3146,14 @@
       margin: 0;
     }
 
+    .onboarding-locked {
+      position: relative;
+      pointer-events: none;
+      user-select: none;
+      filter: blur(4px);
+      opacity: 0.45;
+    }
+
     @media (max-width: 640px) {
       .onboarding-card {
         padding: 26px 20px;

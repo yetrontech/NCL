@@ -87,13 +87,17 @@ export function NavButtons({
   onBack,
   nextLabel = "Continue",
   showBack = true,
+  showNext = true,
   submitting = false,
 }: {
   onBack?: () => void;
   nextLabel?: string;
   showBack?: boolean;
+  showNext?: boolean;
   submitting?: boolean;
 }) {
+  if (!showBack && !showNext) return null;
+
   return (
     <div className="onboarding-nav">
       {showBack ? (
@@ -103,9 +107,13 @@ export function NavButtons({
       ) : (
         <span />
       )}
-      <button type="submit" className="btn btn-primary" disabled={submitting}>
-        {submitting ? "Submitting..." : nextLabel}
-      </button>
+      {showNext ? (
+        <button type="submit" className="btn btn-primary" disabled={submitting}>
+          {submitting ? "Submitting..." : nextLabel}
+        </button>
+      ) : (
+        <span />
+      )}
     </div>
   );
 }

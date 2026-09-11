@@ -68,6 +68,8 @@ export default function ApplyWizard() {
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
 
+  const benefitsNotApproved = data.benefit_type === "Not yet approved";
+
   function setField<K extends keyof typeof initial>(key: K, value: string) {
     setData((prev) => ({ ...prev, [key]: value }));
   }
@@ -79,6 +81,9 @@ export default function ApplyWizard() {
       }
     }
     if (step === 1) {
+      if (data.benefit_type === "Not yet approved") {
+        return "You'll need approved benefits before you can apply. Start the benefits screening below.";
+      }
       if (!data.benefit_type || !data.monthly_benefit_amount || !data.move_timeline || !data.how_heard) {
         return "Please complete all fields on this step.";
       }
@@ -287,34 +292,42 @@ export default function ApplyWizard() {
                 />
               </div>
             )}
-            {data.benefit_type === "Not yet approved" && <BenefitsFormLink />}
-            <div className="field">
-              <label htmlFor="monthly_benefit_amount">
-                How much are you receiving from your benefits monthly?
-              </label>
-              <input
-                id="monthly_benefit_amount"
-                required
-                placeholder="e.g. $943"
-                value={data.monthly_benefit_amount}
-                onChange={(e) => setField("monthly_benefit_amount", e.target.value)}
+            {benefitsNotApproved && <BenefitsFormLink />}
+            <div
+              className={benefitsNotApproved ? "onboarding-locked" : undefined}
+              aria-hidden={benefitsNotApproved}
+            >
+              <div className="field">
+                <label htmlFor="monthly_benefit_amount">
+                  How much are you receiving from your benefits monthly?
+                </label>
+                <input
+                  id="monthly_benefit_amount"
+                  required={!benefitsNotApproved}
+                  tabIndex={benefitsNotApproved ? -1 : undefined}
+                  placeholder="e.g. $943"
+                  value={data.monthly_benefit_amount}
+                  onChange={(e) => setField("monthly_benefit_amount", e.target.value)}
+                />
+              </div>
+              <RadioGroup
+                name="move_timeline"
+                label="How soon are you looking to move into one of our homes?"
+                options={MOVE_TIMELINE_OPTIONS}
+                value={data.move_timeline}
+                onChange={(v) => setField("move_timeline", v)}
+                required={!benefitsNotApproved}
               />
-            </div>
-            <RadioGroup
-              name="move_timeline"
-              label="How soon are you looking to move into one of our homes?"
-              options={MOVE_TIMELINE_OPTIONS}
-              value={data.move_timeline}
-              onChange={(v) => setField("move_timeline", v)}
-            />
-            <div className="field">
-              <label htmlFor="how_heard">Please state how you heard about us</label>
-              <input
-                id="how_heard"
-                required
-                value={data.how_heard}
-                onChange={(e) => setField("how_heard", e.target.value)}
-              />
+              <div className="field">
+                <label htmlFor="how_heard">Please state how you heard about us</label>
+                <input
+                  id="how_heard"
+                  required={!benefitsNotApproved}
+                  tabIndex={benefitsNotApproved ? -1 : undefined}
+                  value={data.how_heard}
+                  onChange={(e) => setField("how_heard", e.target.value)}
+                />
+              </div>
             </div>
           </>
         )}
@@ -510,6 +523,7 @@ export default function ApplyWizard() {
 
         <NavButtons
           showBack={step > 0}
+          showNext={!(step === 1 && benefitsNotApproved)}
           onBack={() => {
             setError("");
             setStep((s) => s - 1);
