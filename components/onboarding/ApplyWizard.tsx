@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { submitApplication } from "@/app/actions/forms";
 import { trackGoogleAdsContactConversion } from "@/lib/google-ads";
-import { trackMetaLead } from "@/lib/meta-pixel";
+import { trackMetaSubmitApplication } from "@/lib/meta-pixel";
 import {
   BENEFIT_OPTIONS,
   GENDER_OPTIONS,
@@ -155,7 +155,7 @@ export default function ApplyWizard() {
     const result = await submitApplication(formData);
     if (result.ok) {
       trackGoogleAdsContactConversion();
-      trackMetaLead();
+      trackMetaSubmitApplication();
       setStatus("success");
     } else {
       setStatus("error");

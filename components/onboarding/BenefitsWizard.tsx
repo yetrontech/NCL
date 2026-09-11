@@ -94,7 +94,7 @@ export default function BenefitsWizard() {
     const result = await submitBenefitsScreening(formData);
     if (result.ok) {
       trackGoogleAdsContactConversion();
-      trackMetaLead();
+      trackMetaLead("Benefits screening");
       setStatus("success");
     } else {
       setStatus("error");

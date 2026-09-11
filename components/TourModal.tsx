@@ -3,7 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { submitTourRequest } from "@/app/actions/forms";
 import { trackGoogleAdsContactConversion } from "@/lib/google-ads";
-import { trackMetaLead } from "@/lib/meta-pixel";
+import { trackMetaSchedule } from "@/lib/meta-pixel";
 
 const GENDER_OPTIONS = ["Male", "Female"];
 
@@ -43,7 +43,7 @@ export default function TourModal({
     const result = await submitTourRequest(data);
     if (result.ok) {
       trackGoogleAdsContactConversion();
-      trackMetaLead();
+      trackMetaSchedule();
       setStatus("success");
     } else {
       console.error("Tour request submission failed:", result.error);

@@ -181,7 +181,7 @@ export default function ReferWizard() {
     const result = await submitReferral(formData);
     if (result.ok) {
       trackGoogleAdsContactConversion();
-      trackMetaLead();
+      trackMetaLead("Referral");
       setStatus("success");
     } else {
       setStatus("error");
