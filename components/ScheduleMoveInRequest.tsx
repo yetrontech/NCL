@@ -6,24 +6,6 @@ import { TIME_SLOTS, type BusySlot } from "@/lib/schedule-link";
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-function easternNow() {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/New_York",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  }).formatToParts(new Date());
-  const get = (type: string) => parts.find((part) => part.type === type)?.value || "0";
-  return {
-    date: `${get("year")}-${get("month")}-${get("day")}`,
-    hour: Number(get("hour")),
-    minute: Number(get("minute")),
-  };
-}
-
 function addMonths(yearMonth: string, offset: number) {
   const [year, month] = yearMonth.split("-").map(Number);
   const next = new Date(year, (month || 1) - 1 + offset, 1);
@@ -41,6 +23,15 @@ function monthDays(yearMonth: string) {
   const startOffset = new Date(`${first}T00:00:00Z`).getUTCDay();
   const start = addDaysKey(first, -startOffset);
   return Array.from({ length: 42 }, (_, i) => addDaysKey(start, i));
+}
+
+function easternDateFromIso(iso: string) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/New_York",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(iso));
 }
 
 /** Instant for YYYY-MM-DD HH:mm as America/New_York. */
@@ -71,14 +62,10 @@ function slotConflicts(date: string, time: string, busy: BusySlot[]) {
   return busy.some((item) => Date.parse(item.startsAt) < end && Date.parse(item.endsAt) > start);
 }
 
-function slotStillOpen(date: string, time: string, now: { date: string; hour: number; minute: number }) {
-  if (date < now.date) return false;
-  if (date === now.date) {
-    const slotHour = Number(time.slice(0, 2));
-    if (slotHour < now.hour) return false;
-    if (slotHour === now.hour && now.minute > 0) return false;
-  }
-  return true;
+function slotOpen(date: string, time: string, earliestMs: number, windowEnd: string, busy: BusySlot[]) {
+  if (date > windowEnd) return false;
+  if (easternSlotStart(date, time) < earliestMs) return false;
+  return !slotConflicts(date, time, busy);
 }
 
 function formatWindowEnd(value: string) {
@@ -113,17 +100,19 @@ export default function ScheduleMoveInRequest({
   token,
   firstName,
   windowEnd,
+  earliestAt,
   requestedMoveInAt,
   busy,
 }: {
   token: string;
   firstName: string;
   windowEnd: string;
+  earliestAt: string;
   requestedMoveInAt: string | null;
   busy: BusySlot[];
 }) {
-  const now = useMemo(() => easternNow(), []);
-  const firstDate = now.hour < 16 ? now.date : addDaysKey(now.date, 1);
+  const earliestMs = Date.parse(earliestAt);
+  const firstDate = easternDateFromIso(earliestAt);
   const [month, setMonth] = useState(firstDate.slice(0, 7));
   const [date, setDate] = useState(firstDate);
   const [time, setTime] = useState("10:00");
@@ -140,12 +129,8 @@ export default function ScheduleMoveInRequest({
   }, [month]);
 
   const availableTimes = useMemo(
-    () =>
-      TIME_SLOTS.filter(
-        (slot) =>
-          date >= firstDate && date <= windowEnd && slotStillOpen(date, slot, now) && !slotConflicts(date, slot, busy)
-      ),
-    [busy, date, firstDate, now, windowEnd]
+    () => TIME_SLOTS.filter((slot) => slotOpen(date, slot, earliestMs, windowEnd, busy)),
+    [busy, date, earliestMs, windowEnd]
   );
 
   useEffect(() => {
@@ -179,9 +164,10 @@ export default function ScheduleMoveInRequest({
       }}
     >
       <p className="schedule-lead">
-        Hi{firstName ? ` ${firstName}` : ""}, pick a move-in day and time within 35 days
-        {windowEnd ? ` (through ${formatWindowEnd(windowEnd)})` : ""}. Staff will confirm this request
-        and email you the booked date.
+        Hi{firstName ? ` ${firstName}` : ""}, pick a move-in day and time at least 24 hours from now
+        {windowEnd ? ` (through ${formatWindowEnd(windowEnd)})` : ""}. Same-day move-in is not available
+        — if this is urgent, call (404) 731-2371. Staff will confirm this request and email you the booked
+        date.
       </p>
       {requestedMoveInAt ? (
         <p className="schedule-current">
@@ -209,9 +195,7 @@ export default function ScheduleMoveInRequest({
         {days.map((key) => {
           const inMonth = key.slice(0, 7) === month;
           const inWindow = key >= firstDate && key <= windowEnd;
-          const dayOpen =
-            inWindow &&
-            TIME_SLOTS.some((slot) => slotStillOpen(key, slot, now) && !slotConflicts(key, slot, busy));
+          const dayOpen = inWindow && TIME_SLOTS.some((slot) => slotOpen(key, slot, earliestMs, windowEnd, busy));
           return (
             <button
               key={key}

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
 import ScheduleMoveInRequest from "@/components/ScheduleMoveInRequest";
-import { loadScheduleLink, SCHEDULE_PHONE } from "@/lib/schedule-link";
+import { formatEasternWhen, loadScheduleLink, SCHEDULE_PHONE } from "@/lib/schedule-link";
 
 export const metadata: Metadata = {
   title: "Schedule your move-in — New Creation Living",
@@ -45,9 +45,18 @@ export default async function SchedulePage({
               token={token}
               firstName={info.firstName}
               windowEnd={info.windowEnd}
+              earliestAt={info.earliestAt}
               requestedMoveInAt={info.requestedMoveInAt}
               busy={info.busy}
             />
+          ) : info.confirmed ? (
+            <div className="onboarding-callout">
+              <p>
+                {info.firstName ? `Hi ${info.firstName}, ` : ""}your move-in is scheduled for{" "}
+                <strong>{formatEasternWhen(info.moveInAt)} Eastern</strong>. To change it, call{" "}
+                <a href="tel:+14047312371">{SCHEDULE_PHONE}</a>.
+              </p>
+            </div>
           ) : (
             <div className="onboarding-callout">
               <p>

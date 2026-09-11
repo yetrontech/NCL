@@ -3,13 +3,27 @@ import { createClient } from "@supabase/supabase-js";
 export const SCHEDULE_PHONE = "(404) 731-2371";
 export const TIME_SLOTS = [
   "09:00",
+  "09:30",
   "10:00",
+  "10:30",
   "11:00",
+  "11:30",
   "12:00",
+  "12:30",
   "13:00",
+  "13:30",
   "14:00",
+  "14:30",
   "15:00",
+  "15:30",
   "16:00",
+  "16:30",
+  "17:00",
+  "17:30",
+  "18:00",
+  "18:30",
+  "19:00",
+  "19:30",
 ];
 
 export type BusySlot = {
@@ -20,17 +34,27 @@ export type BusySlot = {
 
 export type ScheduleLinkOpen = {
   open: true;
+  confirmed?: false;
   firstName: string;
   windowEnd: string;
+  earliestAt: string;
   requestedMoveInAt: string | null;
   busy: BusySlot[];
 };
 
-export type ScheduleLinkClosed = {
+export type ScheduleLinkConfirmed = {
   open: false;
+  confirmed: true;
+  firstName: string;
+  moveInAt: string;
 };
 
-export type ScheduleLinkInfo = ScheduleLinkOpen | ScheduleLinkClosed;
+export type ScheduleLinkClosed = {
+  open: false;
+  confirmed?: false;
+};
+
+export type ScheduleLinkInfo = ScheduleLinkOpen | ScheduleLinkConfirmed | ScheduleLinkClosed;
 
 const TOKEN_RE = /^[a-f0-9]{32,64}$/i;
 
@@ -58,6 +82,18 @@ function asBusy(value: unknown): BusySlot[] {
     .filter((item): item is BusySlot => Boolean(item));
 }
 
+export function formatEasternWhen(iso: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(iso));
+}
+
 export async function loadScheduleLink(token: string): Promise<ScheduleLinkInfo> {
   if (!isScheduleToken(token)) return { open: false };
   try {
@@ -71,16 +107,29 @@ export async function loadScheduleLink(token: string): Promise<ScheduleLinkInfo>
     const row = data as {
       ok?: boolean;
       open?: boolean;
+      confirmed?: boolean;
       firstName?: string;
       windowEnd?: string;
+      earliestAt?: string;
       requestedMoveInAt?: string | null;
+      moveInAt?: string | null;
       busy?: unknown;
     } | null;
-    if (!row?.ok || !row.open || !row.windowEnd) return { open: false };
+    if (!row?.ok) return { open: false };
+    if (row.confirmed && row.moveInAt) {
+      return {
+        open: false,
+        confirmed: true,
+        firstName: row.firstName || "",
+        moveInAt: row.moveInAt,
+      };
+    }
+    if (!row.open || !row.windowEnd) return { open: false };
     return {
       open: true,
       firstName: row.firstName || "",
       windowEnd: String(row.windowEnd).slice(0, 10),
+      earliestAt: row.earliestAt || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       requestedMoveInAt: row.requestedMoveInAt || null,
       busy: asBusy(row.busy),
     };

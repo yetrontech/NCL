@@ -749,9 +749,9 @@ export async function notifyApplicantDecision(input: DecisionEmailInput): Promis
   const paragraphs = accepted
     ? [
         `Hi ${name},`,
-        "We're happy to let you know that your application to New Creation Living has been accepted.",
+        "We're happy to let you know your housing application to New Creation Living has been accepted.",
         link
-          ? "Please choose a move-in date within 35 days. Staff will confirm your request and email you the booked date."
+          ? "Please choose a move-in date ASAP as spots are getting filled."
           : "Our team will be in touch shortly about next steps, including move-in.",
       ]
     : [
