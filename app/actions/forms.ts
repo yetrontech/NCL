@@ -53,8 +53,15 @@ function storedBenefitType(benefitType: string, incomeSource: string): string {
     : benefitType;
 }
 
+function storedHowHeard(howHeard: string, howHeardOther: string): string {
+  return howHeard === "Other" && howHeardOther
+    ? `Other — ${howHeardOther}`
+    : howHeard;
+}
+
 export async function submitApplication(formData: FormData): Promise<FormActionResult> {
   const income_source = text(formData, "income_source");
+  const how_heard_other = text(formData, "how_heard_other");
   const payload = {
     first_name: text(formData, "first_name"),
     last_name: text(formData, "last_name"),
@@ -123,6 +130,10 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
     return { ok: false, error: "Please tell us how you are receiving income." };
   }
 
+  if (payload.how_heard === "Other" && !how_heard_other) {
+    return { ok: false, error: "Please tell us how you heard about us." };
+  }
+
   const explainError =
     requireYesExplain(payload.mobility_limitations, payload.mobility_explanation, "mobility limitations") ||
     requireYesExplain(payload.mental_limitations, payload.mental_explanation, "mental limitations") ||
@@ -138,6 +149,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
 
   const favorability = scoreApplication(payload);
   const benefit_type = storedBenefitType(payload.benefit_type, income_source);
+  const how_heard = storedHowHeard(payload.how_heard, how_heard_other);
 
   try {
     const rowId = newRowId();
@@ -145,6 +157,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
       id: rowId,
       ...payload,
       benefit_type,
+      how_heard,
       mobility_explanation: payload.mobility_explanation || null,
       mental_explanation: payload.mental_explanation || null,
       crime_explanation: payload.crime_explanation || null,
@@ -184,7 +197,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
           payload.monthly_benefit_amount,
         "How soon are you looking to move into one of our homes?":
           payload.move_timeline,
-        "Please state how you heard about us": payload.how_heard,
+        "How did you hear about us?": how_heard,
         "Please give us a quick explanation of your current situation":
           payload.situation_explanation,
         "Are you applying for yourself only, or will others be living with you?":
@@ -232,6 +245,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
 
 export async function submitReferral(formData: FormData): Promise<FormActionResult> {
   const income_source = text(formData, "income_source");
+  const how_heard_other = text(formData, "how_heard_other");
   const payload = {
     referrer_name: text(formData, "referrer_name"),
     referrer_role: text(formData, "referrer_role"),
@@ -311,6 +325,10 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
     return { ok: false, error: "Please tell us how the referee is receiving income." };
   }
 
+  if (payload.how_heard === "Other" && !how_heard_other) {
+    return { ok: false, error: "Please tell us how you heard about us." };
+  }
+
   const explainError =
     requireYesExplain(payload.mobility_limitations, payload.mobility_explanation, "mobility limitations") ||
     requireYesExplain(payload.mental_limitations, payload.mental_explanation, "mental limitations") ||
@@ -326,6 +344,7 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
 
   const favorability = scoreReferral(payload);
   const benefit_type = storedBenefitType(payload.benefit_type, income_source);
+  const how_heard = storedHowHeard(payload.how_heard, how_heard_other);
 
   try {
     const rowId = newRowId();
@@ -333,6 +352,7 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
       id: rowId,
       ...payload,
       benefit_type,
+      how_heard,
       organization: payload.organization || null,
       referee_phone: payload.referee_phone || null,
       referee_email: payload.referee_email || null,
@@ -379,7 +399,7 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
         "How much is the referee receiving from benefits monthly?":
           payload.monthly_benefit_amount,
         "How soon is the referee looking to move in?": payload.move_timeline,
-        "How did you hear about us?": payload.how_heard,
+        "How did you hear about us?": how_heard,
         "Please give us a quick explanation of the referee's current situation":
           payload.situation_explanation,
         "Is the individual applying for themselves only, or will others be living with them?":

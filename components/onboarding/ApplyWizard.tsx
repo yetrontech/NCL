@@ -7,6 +7,7 @@ import { trackMetaSubmitApplication } from "@/lib/meta-pixel";
 import {
   BENEFIT_OPTIONS,
   GENDER_OPTIONS,
+  HOW_HEARD_OPTIONS,
   MOVE_TIMELINE_OPTIONS,
   PAYEE_OPTIONS,
   ROOMMATE_OPTIONS,
@@ -40,6 +41,7 @@ const initial = {
   monthly_benefit_amount: "",
   move_timeline: "",
   how_heard: "",
+  how_heard_other: "",
   situation_explanation: "",
   living_with_others: "",
   referring_party_info: "",
@@ -89,6 +91,9 @@ export default function ApplyWizard() {
       }
       if (data.benefit_type === "Other" && !data.income_source) {
         return "Please tell us how you are receiving income.";
+      }
+      if (data.how_heard === "Other" && !data.how_heard_other.trim()) {
+        return "Please tell us how you heard about us.";
       }
     }
     if (step === 2) {
@@ -319,15 +324,38 @@ export default function ApplyWizard() {
                 required={!benefitsNotApproved}
               />
               <div className="field">
-                <label htmlFor="how_heard">Please state how you heard about us</label>
-                <input
+                <label htmlFor="how_heard">How did you hear about us?</label>
+                <select
                   id="how_heard"
                   required={!benefitsNotApproved}
                   tabIndex={benefitsNotApproved ? -1 : undefined}
                   value={data.how_heard}
-                  onChange={(e) => setField("how_heard", e.target.value)}
-                />
+                  onChange={(e) => {
+                    setField("how_heard", e.target.value);
+                    if (e.target.value !== "Other") setField("how_heard_other", "");
+                  }}
+                >
+                  <option value="">Select one</option>
+                  {HOW_HEARD_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
               </div>
+              {data.how_heard === "Other" && (
+                <div className="field">
+                  <label htmlFor="how_heard_other">Please tell us how you heard about us</label>
+                  <input
+                    id="how_heard_other"
+                    required={!benefitsNotApproved}
+                    tabIndex={benefitsNotApproved ? -1 : undefined}
+                    placeholder="e.g. flyer, church, TikTok"
+                    value={data.how_heard_other}
+                    onChange={(e) => setField("how_heard_other", e.target.value)}
+                  />
+                </div>
+              )}
             </div>
           </>
         )}

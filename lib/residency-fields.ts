@@ -11,6 +11,15 @@ export const GENDER_OPTIONS = ["Male", "Female"] as const;
 
 export const YES_NO = ["Yes", "No"] as const;
 
+export const HOW_HEARD_OPTIONS = [
+  "Instagram",
+  "Facebook",
+  "Google",
+  "YouTube",
+  "Word of Mouth",
+  "Other",
+] as const;
+
 export const MOVE_TIMELINE_OPTIONS = [
   "ASAP (0-48 HRS)",
   "7 Days",
