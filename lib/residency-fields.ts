@@ -11,6 +11,22 @@ export const GENDER_OPTIONS = ["Male", "Female"] as const;
 
 export const YES_NO = ["Yes", "No"] as const;
 
+export const APPLYING_FOR_OPTIONS = [
+  "Myself",
+  "Myself and dependants",
+  "Myself and my spouse",
+  "Myself and my pets",
+] as const;
+
+export const DEPENDENT_KIND_OPTIONS = [
+  "Adults on a fixed income",
+  "Underage dependents",
+] as const;
+
+export const APPLYING_WITH_DEPENDANTS = "Myself and dependants";
+export const DEPENDENTS_ADULTS = "Adults on a fixed income";
+export const DEPENDENTS_UNDERAGE = "Underage dependents";
+
 export const HOW_HEARD_OPTIONS = [
   "Instagram",
   "Facebook",

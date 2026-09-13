@@ -3146,6 +3146,14 @@
       margin: 0;
     }
 
+    .onboarding-aside {
+      color: #6B7280;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      font-style: italic;
+      opacity: 0.88;
+    }
+
     .onboarding-locked {
       position: relative;
       pointer-events: none;

@@ -3,7 +3,19 @@
 import { createClient } from "@supabase/supabase-js";
 import { scoreApplication, scoreReferral } from "@/lib/favorability-score";
 import { notifyNewSubmission } from "@/lib/notify";
+import {
+  APPLYING_FOR_OPTIONS,
+  APPLYING_WITH_DEPENDANTS,
+  DEPENDENT_KIND_OPTIONS,
+  DEPENDENTS_ADULTS,
+  DEPENDENTS_UNDERAGE,
+  YES_NO,
+} from "@/lib/residency-fields";
 import { ensureReviewTask } from "@/lib/staff-tasks";
+
+function isAllowed(value: string, options: readonly string[]) {
+  return options.includes(value);
+}
 
 export type FormActionResult =
   | { ok: true }
@@ -86,6 +98,10 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
     drug_free_commitment: text(formData, "drug_free_commitment"),
     value_understanding: text(formData, "value_understanding"),
     living_with_others: text(formData, "living_with_others"),
+    dependents_kind: text(formData, "dependents_kind"),
+    dependent_name: text(formData, "dependent_name"),
+    dependent_income: text(formData, "dependent_income"),
+    memory_loss: text(formData, "memory_loss"),
     home_not_short_term: text(formData, "home_not_short_term"),
     payee_agreement: text(formData, "payee_agreement"),
     roommate_commitment: text(formData, "roommate_commitment"),
@@ -111,6 +127,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
     "substance_abuse_history",
     "monthly_benefit_amount",
     "medical_prescriptions",
+    "memory_loss",
     "drug_free_commitment",
     "value_understanding",
     "living_with_others",
@@ -132,6 +149,39 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
 
   if (payload.how_heard === "Other" && !how_heard_other) {
     return { ok: false, error: "Please tell us how you heard about us." };
+  }
+
+  if (!isAllowed(payload.living_with_others, APPLYING_FOR_OPTIONS)) {
+    return { ok: false, error: "Please select who you are applying for." };
+  }
+
+  if (!isAllowed(payload.memory_loss, YES_NO)) {
+    return { ok: false, error: "Please answer the memory loss question." };
+  }
+
+  const applyingWithDependants = payload.living_with_others === APPLYING_WITH_DEPENDANTS;
+  if (applyingWithDependants) {
+    if (payload.dependents_kind === DEPENDENTS_UNDERAGE) {
+      return {
+        ok: false,
+        error: "Unfortunately we aren't the best fit for households with underage dependents.",
+      };
+    }
+    if (!isAllowed(payload.dependents_kind, DEPENDENT_KIND_OPTIONS)) {
+      return {
+        ok: false,
+        error: "Please tell us whether the dependants are adults on a fixed income.",
+      };
+    }
+    if (
+      payload.dependents_kind === DEPENDENTS_ADULTS &&
+      (!payload.dependent_name || !payload.dependent_income)
+    ) {
+      return {
+        ok: false,
+        error: "Please share the adult dependant's name and how much they receive.",
+      };
+    }
   }
 
   const explainError =
@@ -164,6 +214,15 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
       substance_abuse_explanation: payload.substance_abuse_explanation || null,
       medical_explanation: payload.medical_explanation || null,
       emergency_contact: payload.emergency_contact || null,
+      dependents_kind: applyingWithDependants ? payload.dependents_kind : null,
+      dependent_name:
+        applyingWithDependants && payload.dependents_kind === DEPENDENTS_ADULTS
+          ? payload.dependent_name
+          : null,
+      dependent_income:
+        applyingWithDependants && payload.dependents_kind === DEPENDENTS_ADULTS
+          ? payload.dependent_income
+          : null,
       favorability_score: favorability.score,
       favorability_max_score: favorability.max_score,
       favorability_percent: favorability.percent,
@@ -202,6 +261,17 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
           payload.situation_explanation,
         "Are you applying for yourself only, or will others be living with you?":
           payload.living_with_others,
+        "Are the dependants adults on a fixed income, or underage?": applyingWithDependants
+          ? payload.dependents_kind
+          : undefined,
+        "Dependent's name":
+          applyingWithDependants && payload.dependents_kind === DEPENDENTS_ADULTS
+            ? payload.dependent_name
+            : undefined,
+        "How much do they receive?":
+          applyingWithDependants && payload.dependents_kind === DEPENDENTS_ADULTS
+            ? payload.dependent_income
+            : undefined,
         "If this is a referral, please state the referring party, phone number, and organization":
           payload.referring_party_info,
         "Do you have any mobility limitations?": payload.mobility_limitations,
@@ -215,6 +285,8 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
         "Medical prescriptions/diagnosis explanation": answer(
           payload.medical_explanation
         ),
+        "Have you ever been diagnosed with memory loss, dementia, Alzheimer’s disease, or another condition that affects your memory or ability to remember things?":
+          payload.memory_loss,
         "Have you been convicted of a crime within the past 7 years?":
           payload.crime_conviction,
         "Conviction explanation": answer(payload.crime_explanation),

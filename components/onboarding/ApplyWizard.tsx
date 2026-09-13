@@ -5,7 +5,12 @@ import { submitApplication } from "@/app/actions/forms";
 import { trackGoogleAdsContactConversion } from "@/lib/google-ads";
 import { trackMetaSubmitApplication } from "@/lib/meta-pixel";
 import {
+  APPLYING_FOR_OPTIONS,
+  APPLYING_WITH_DEPENDANTS,
   BENEFIT_OPTIONS,
+  DEPENDENT_KIND_OPTIONS,
+  DEPENDENTS_ADULTS,
+  DEPENDENTS_UNDERAGE,
   GENDER_OPTIONS,
   HOW_HEARD_OPTIONS,
   MOVE_TIMELINE_OPTIONS,
@@ -44,6 +49,9 @@ const initial = {
   how_heard_other: "",
   situation_explanation: "",
   living_with_others: "",
+  dependents_kind: "",
+  dependent_name: "",
+  dependent_income: "",
   referring_party_info: "",
   mobility_limitations: "",
   mobility_explanation: "",
@@ -52,6 +60,7 @@ const initial = {
   medications_independent: "",
   medical_prescriptions: "",
   medical_explanation: "",
+  memory_loss: "",
   crime_conviction: "",
   crime_explanation: "",
   substance_abuse_history: "",
@@ -71,6 +80,8 @@ export default function ApplyWizard() {
   const [error, setError] = useState("");
 
   const benefitsNotApproved = data.benefit_type === "Not yet approved";
+  const applyingWithDependants = data.living_with_others === APPLYING_WITH_DEPENDANTS;
+  const dependantsNotAFit = data.dependents_kind === DEPENDENTS_UNDERAGE;
 
   function setField<K extends keyof typeof initial>(key: K, value: string) {
     setData((prev) => ({ ...prev, [key]: value }));
@@ -97,7 +108,21 @@ export default function ApplyWizard() {
       }
     }
     if (step === 2) {
-      if (!data.situation_explanation || !data.living_with_others || !data.referring_party_info) {
+      if (!data.situation_explanation || !data.living_with_others) {
+        return "Please complete all fields on this step.";
+      }
+      if (applyingWithDependants) {
+        if (dependantsNotAFit) {
+          return "Unfortunately we aren't the best fit for households with underage dependents.";
+        }
+        if (data.dependents_kind !== DEPENDENTS_ADULTS) {
+          return "Please tell us whether the dependants are adults on a fixed income.";
+        }
+        if (!data.dependent_name || !data.dependent_income) {
+          return "Please share the adult dependant's name and how much they receive.";
+        }
+      }
+      if (!data.referring_party_info) {
         return "Please complete all fields on this step.";
       }
     }
@@ -106,7 +131,8 @@ export default function ApplyWizard() {
         !data.mobility_limitations ||
         !data.mental_limitations ||
         !data.medications_independent ||
-        !data.medical_prescriptions
+        !data.medical_prescriptions ||
+        !data.memory_loss
       ) {
         return "Please complete all fields on this step.";
       }
@@ -378,26 +404,101 @@ export default function ApplyWizard() {
               <label htmlFor="living_with_others">
                 Are you applying for yourself only, or will others be living with you?
               </label>
-              <input
+              <select
                 id="living_with_others"
                 required
                 value={data.living_with_others}
-                onChange={(e) => setField("living_with_others", e.target.value)}
-              />
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setData((prev) => ({
+                    ...prev,
+                    living_with_others: value,
+                    dependents_kind: value === APPLYING_WITH_DEPENDANTS ? prev.dependents_kind : "",
+                    dependent_name: value === APPLYING_WITH_DEPENDANTS ? prev.dependent_name : "",
+                    dependent_income:
+                      value === APPLYING_WITH_DEPENDANTS ? prev.dependent_income : "",
+                  }));
+                }}
+              >
+                <option value="">Select one</option>
+                {APPLYING_FOR_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
             </div>
-            <div className="field">
-              <label htmlFor="referring_party_info">
-                If this is a referral, please state the referring party, phone number, and
-                organization. (Type N/A if none)
-              </label>
-              <textarea
-                id="referring_party_info"
-                rows={3}
-                required
-                value={data.referring_party_info}
-                onChange={(e) => setField("referring_party_info", e.target.value)}
-              />
-            </div>
+            {applyingWithDependants && (
+              <>
+                <p className="onboarding-aside">
+                  This housing is best for serving adults with no underage dependents. If the
+                  dependants are of legal age, they must be on a fixed income.
+                </p>
+                <RadioGroup
+                  name="dependents_kind"
+                  label="Are the dependants adults on a fixed income, or underage?"
+                  options={DEPENDENT_KIND_OPTIONS}
+                  value={data.dependents_kind}
+                  onChange={(value) => {
+                    setData((prev) => ({
+                      ...prev,
+                      dependents_kind: value,
+                      dependent_name: value === DEPENDENTS_ADULTS ? prev.dependent_name : "",
+                      dependent_income: value === DEPENDENTS_ADULTS ? prev.dependent_income : "",
+                    }));
+                  }}
+                />
+                {data.dependents_kind === DEPENDENTS_ADULTS && (
+                  <>
+                    <div className="field">
+                      <label htmlFor="dependent_name">Dependent&apos;s name</label>
+                      <input
+                        id="dependent_name"
+                        required
+                        placeholder="If more than one, list each name"
+                        value={data.dependent_name}
+                        onChange={(e) => setField("dependent_name", e.target.value)}
+                      />
+                    </div>
+                    <div className="field">
+                      <label htmlFor="dependent_income">
+                        How much do they receive?
+                      </label>
+                      <input
+                        id="dependent_income"
+                        required
+                        placeholder="e.g. $943 / month"
+                        value={data.dependent_income}
+                        onChange={(e) => setField("dependent_income", e.target.value)}
+                      />
+                    </div>
+                  </>
+                )}
+                {dependantsNotAFit && (
+                  <div
+                    className="field onboarding-callout"
+                    style={{ marginTop: 8, borderColor: "var(--gold)" }}
+                  >
+                    <p>Unfortunately we aren&apos;t the best fit for you.</p>
+                  </div>
+                )}
+              </>
+            )}
+            {data.dependents_kind !== DEPENDENTS_UNDERAGE && (
+              <div className="field">
+                <label htmlFor="referring_party_info">
+                  If this is a referral, please state the referring party, phone number, and
+                  organization. (Type N/A if none)
+                </label>
+                <textarea
+                  id="referring_party_info"
+                  rows={3}
+                  required
+                  value={data.referring_party_info}
+                  onChange={(e) => setField("referring_party_info", e.target.value)}
+                />
+              </div>
+            )}
           </>
         )}
 
@@ -433,6 +534,13 @@ export default function ApplyWizard() {
               explainValue={data.medical_explanation}
               onChange={(v) => setField("medical_prescriptions", v)}
               onExplainChange={(v) => setField("medical_explanation", v)}
+            />
+            <RadioGroup
+              name="memory_loss"
+              label="Have you ever been diagnosed with memory loss, dementia, Alzheimer’s disease, or another condition that affects your memory or ability to remember things?"
+              options={YES_NO}
+              value={data.memory_loss}
+              onChange={(v) => setField("memory_loss", v)}
             />
           </>
         )}
@@ -551,7 +659,7 @@ export default function ApplyWizard() {
 
         <NavButtons
           showBack={step > 0}
-          showNext={!(step === 1 && benefitsNotApproved)}
+          showNext={!((step === 1 && benefitsNotApproved) || (step === 2 && dependantsNotAFit))}
           onBack={() => {
             setError("");
             setStep((s) => s - 1);
