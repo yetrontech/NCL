@@ -76,7 +76,7 @@ export default function LocationsPage({
           <div className="loc-card">
             <div className="loc-photo">
               <img
-                src="/img/atlanta-beltline.jpg"
+                src="/img/locations/beltline/atlanta-beltline.png"
                 alt="Atlanta BeltLine Access location"
               />
             </div>

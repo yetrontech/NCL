@@ -14,6 +14,11 @@ export const LOCATION_GALLERIES = {
     name: "Atlanta BeltLine Access",
     photos: [
       {
+        src: "/img/locations/beltline/atlanta-beltline.png",
+        alt: "Atlanta BeltLine Access exterior",
+        caption: "The home",
+      },
+      {
         src: "/img/locations/beltline/IMG_9167.jpeg",
         alt: "Atlanta BeltLine Access exterior",
         caption: "The home",
