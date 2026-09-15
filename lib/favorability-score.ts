@@ -3,7 +3,6 @@ const IDEAL_RESPONSES = {
   mobility_limitations: "No",
   mental_limitations: "No",
   medications_independent: "Yes",
-  medical_prescriptions: "No",
   crime_conviction: "No",
   substance_abuse_history: "No",
   drug_free_commitment: "Yes",
@@ -16,11 +15,11 @@ const IDEAL_RESPONSES = {
   communal_living_interference: "No",
 } as const;
 
+/** Shared apply/refer score keys. Diagnosis/prescriptions stay on the form but are not scored. */
 const APPLICATION_CRITERIA = [
   "mobility_limitations",
   "mental_limitations",
   "medications_independent",
-  "medical_prescriptions",
   "crime_conviction",
   "substance_abuse_history",
   "drug_free_commitment",
