@@ -69,6 +69,11 @@ export default function Footer() {
       <div className="footer-bottom">
         <span>© 2026 New Creation Living. All rights reserved.</span>
         <span>
+          <Link href="/privacy" className="footer-credit-link">
+            Privacy Policy
+          </Link>
+        </span>
+        <span>
           Built by{" "}
           <a
             href="https://yetrontech.com"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { submitBenefitsScreening } from "@/app/actions/forms";
 import { trackGoogleAdsContactConversion } from "@/lib/google-ads";
 import { trackMetaLead } from "@/lib/meta-pixel";
@@ -267,7 +268,8 @@ export default function BenefitsWizard() {
             </div>
             <p className="form-note">
               Free screening. No obligation. Confidential submission. We typically follow up within
-              72 hours.
+              72 hours. See our <Link href="/privacy">Privacy Policy</Link> for how we handle this
+              information.
             </p>
           </>
         )}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { submitReferral } from "@/app/actions/forms";
 import { trackGoogleAdsContactConversion } from "@/lib/google-ads";
 import { trackMetaLead } from "@/lib/meta-pixel";
@@ -611,7 +612,8 @@ export default function ReferWizard() {
             </div>
             <p className="form-note">
               Submit this referral and our team will follow up within a few hours during business
-              hours.
+              hours. We use this information to review housing fit as described in our{" "}
+              <Link href="/privacy">Privacy Policy</Link>.
             </p>
           </>
         )}

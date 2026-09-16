@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { submitApplication } from "@/app/actions/forms";
 import { trackGoogleAdsContactConversion } from "@/lib/google-ads";
 import { trackMetaSubmitApplication } from "@/lib/meta-pixel";
@@ -646,7 +647,8 @@ export default function ApplyWizard() {
             </div>
             <p className="form-note">
               Almost done. Submit your application and our team will follow up within a few hours
-              during business hours.
+              during business hours. We use this information to review housing fit as described in
+              our <Link href="/privacy">Privacy Policy</Link>.
             </p>
           </>
         )}

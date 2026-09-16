@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import Link from "next/link";
 import { submitTourRequest } from "@/app/actions/forms";
 import { trackGoogleAdsContactConversion } from "@/lib/google-ads";
 import { trackMetaSchedule } from "@/lib/meta-pixel";
@@ -125,7 +126,10 @@ export default function TourModal({
                 Something went wrong. Please try again or call (404) 731-2371.
               </p>
             )}
-            <p className="form-note">We&apos;ll confirm your tour time by phone or email.</p>
+            <p className="form-note">
+              We&apos;ll confirm your tour time by phone or email. See our{" "}
+              <Link href="/privacy">Privacy Policy</Link>.
+            </p>
           </form>
 
           <div className={`confirm-box${status === "success" ? " show" : ""}`} id="tour-confirm">
