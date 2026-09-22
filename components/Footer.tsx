@@ -8,6 +8,7 @@ import { useCopy } from "@/components/SiteContentProvider";
 const FOOTER_LINKS: { page: string; label: string; href?: string; scrollId?: string }[] = [
   { page: "about", label: "About Us" },
   { page: "life", label: "Life at NCL" },
+  { page: "resources", label: "Resident Resources", href: "/resources" },
   { page: "benefits", label: "Get Benefits", href: "/benefits" },
   { page: "faq", label: "FAQ" },
   { page: "referral", label: "Residency", scrollId: "apply-options" },

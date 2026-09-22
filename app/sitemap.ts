@@ -22,6 +22,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
+      url: "https://www.newcreationliving.org/resources",
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
       url: "https://www.newcreationliving.org/benefits",
       lastModified: now,
       changeFrequency: "monthly",

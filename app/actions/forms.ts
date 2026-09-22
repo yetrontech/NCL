@@ -65,6 +65,64 @@ function storedBenefitType(benefitType: string, incomeSource: string): string {
     : benefitType;
 }
 
+const COVERAGE_BENEFITS = ["SSI", "SSDI", "Social Security"];
+
+function intakeFollowUp(formData: FormData, benefitType: string) {
+  const mental_diagnosis = text(formData, "mental_diagnosis");
+  const has_care_provider =
+    mental_diagnosis === "Yes" ? text(formData, "has_care_provider") : "";
+  const asksCoverage = COVERAGE_BENEFITS.includes(benefitType);
+  return {
+    former_address: text(formData, "former_address"),
+    former_contact: text(formData, "former_contact"),
+    mental_diagnosis,
+    has_care_provider,
+    care_provider_contact:
+      has_care_provider === "Yes" ? text(formData, "care_provider_contact") : "",
+    care_provider_address:
+      has_care_provider === "Yes" ? text(formData, "care_provider_address") : "",
+    medicare_medicaid: asksCoverage ? text(formData, "medicare_medicaid") : "",
+  };
+}
+
+function intakeFollowUpError(fields: ReturnType<typeof intakeFollowUp>, benefitType: string): string | null {
+  if (!fields.former_address || !fields.former_contact) {
+    return "Please share the most recent address and a contact there.";
+  }
+  if (!isAllowed(fields.mental_diagnosis, YES_NO)) {
+    return "Please answer the mental health diagnosis question.";
+  }
+  if (fields.mental_diagnosis === "Yes" && !isAllowed(fields.has_care_provider, YES_NO)) {
+    return "Please say whether there is a therapist or doctor.";
+  }
+  if (
+    fields.has_care_provider === "Yes" &&
+    (!fields.care_provider_contact || !fields.care_provider_address)
+  ) {
+    return "Please share the therapist or doctor's contact and address.";
+  }
+  if (COVERAGE_BENEFITS.includes(benefitType) && !isAllowed(fields.medicare_medicaid, YES_NO)) {
+    return "Please answer the Medicare or Medicaid question.";
+  }
+  return null;
+}
+
+function intakeFollowUpDetails(fields: ReturnType<typeof intakeFollowUp>) {
+  return {
+    "Most recent address": fields.former_address,
+    "Contact at that address": fields.former_contact,
+    "Have you been diagnosed with a mental health condition?": fields.mental_diagnosis,
+    "Do you have a therapist or doctor?": fields.has_care_provider || undefined,
+    "Therapist or doctor contact": fields.care_provider_contact
+      ? answer(fields.care_provider_contact)
+      : undefined,
+    "Therapist or doctor address": fields.care_provider_address
+      ? answer(fields.care_provider_address)
+      : undefined,
+    "Do you have Medicare or Medicaid?": fields.medicare_medicaid || undefined,
+  };
+}
+
 function storedHowHeard(howHeard: string, howHeardOther: string): string {
   return howHeard === "Other" && howHeardOther
     ? `Other — ${howHeardOther}`
@@ -74,6 +132,7 @@ function storedHowHeard(howHeard: string, howHeardOther: string): string {
 export async function submitApplication(formData: FormData): Promise<FormActionResult> {
   const income_source = text(formData, "income_source");
   const how_heard_other = text(formData, "how_heard_other");
+  const followUp = intakeFollowUp(formData, text(formData, "benefit_type"));
   const payload = {
     first_name: text(formData, "first_name"),
     last_name: text(formData, "last_name"),
@@ -109,6 +168,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
     how_heard: text(formData, "how_heard"),
     move_timeline: text(formData, "move_timeline"),
     emergency_contact: text(formData, "emergency_contact"),
+    ...followUp,
   };
 
   const required: (keyof typeof payload)[] = [
@@ -196,6 +256,9 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
     requireYesExplain(payload.medical_prescriptions, payload.medical_explanation, "medical prescriptions");
 
   if (explainError) return { ok: false, error: explainError };
+
+  const followError = intakeFollowUpError(followUp, payload.benefit_type);
+  if (followError) return { ok: false, error: followError };
 
   const favorability = scoreApplication(payload);
   const benefit_type = storedBenefitType(payload.benefit_type, income_source);
@@ -302,6 +365,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
         "Representative payee agreement": payload.payee_agreement,
         "Roommate-style housing commitment": payload.roommate_commitment,
         "Emergency contact": answer(payload.emergency_contact),
+        ...intakeFollowUpDetails(followUp),
       },
     });
 
@@ -318,6 +382,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
 export async function submitReferral(formData: FormData): Promise<FormActionResult> {
   const income_source = text(formData, "income_source");
   const how_heard_other = text(formData, "how_heard_other");
+  const followUp = intakeFollowUp(formData, text(formData, "benefit_type"));
   const payload = {
     referrer_name: text(formData, "referrer_name"),
     referrer_role: text(formData, "referrer_role"),
@@ -356,6 +421,7 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
     how_heard: text(formData, "how_heard"),
     move_timeline: text(formData, "move_timeline"),
     emergency_contact: text(formData, "emergency_contact"),
+    ...followUp,
   };
 
   const required: (keyof typeof payload)[] = [
@@ -413,6 +479,9 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
     requireYesExplain(payload.medical_prescriptions, payload.medical_explanation, "medical prescriptions");
 
   if (explainError) return { ok: false, error: explainError };
+
+  const followError = intakeFollowUpError(followUp, payload.benefit_type);
+  if (followError) return { ok: false, error: followError };
 
   const favorability = scoreReferral(payload);
   const benefit_type = storedBenefitType(payload.benefit_type, income_source);
@@ -508,6 +577,7 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
         "Representative payee agreement": payload.payee_agreement,
         "Roommate-style housing commitment": payload.roommate_commitment,
         "Emergency contact": answer(payload.emergency_contact),
+        ...intakeFollowUpDetails(followUp),
       },
     });
 

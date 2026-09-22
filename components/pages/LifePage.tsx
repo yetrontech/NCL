@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { scrollToId } from "@/lib/scroll";
 import { useCopy, useCopyList } from "@/components/SiteContentProvider";
 
@@ -126,6 +127,26 @@ export default function LifePage() {
               <span className="culture-tag">{copy("life.card3.tag")}</span>
               <h3>{copy("life.card3.title")}</h3>
               <p>{copy("life.card3.body")}</p>
+            </div>
+          </div>
+
+          <div className="life-resource">
+            <div>
+              <span className="culture-tag">For residents</span>
+              <h2>Meetings, volunteering & education</h2>
+              <p>
+                Your weekly requirement can be met through recovery meetings, work,
+                volunteering, or school. The resident guide lists real places across
+                metro Atlanta.
+              </p>
+              <Link href="/resources" className="btn life-resource-cta">
+                Open the resource guide
+              </Link>
+            </div>
+            <div className="life-resource-links">
+              <Link href="/resources#meetings">AA / NA meeting schedule</Link>
+              <Link href="/resources#volunteer">Free volunteer shifts</Link>
+              <Link href="/resources#education">GED, certifications & trade programs</Link>
             </div>
           </div>
         </div>

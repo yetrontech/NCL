@@ -45,17 +45,24 @@ const initial = {
   gender: "",
   date_of_birth: "",
   benefit_type: "",
+  medicare_medicaid: "",
   income_source: "",
   monthly_benefit_amount: "",
   move_timeline: "",
   how_heard: "",
   how_heard_other: "",
   situation_explanation: "",
+  former_address: "",
+  former_contact: "",
   living_with_others: "",
   mobility_limitations: "",
   mobility_explanation: "",
   mental_limitations: "",
   mental_explanation: "",
+  mental_diagnosis: "",
+  has_care_provider: "",
+  care_provider_contact: "",
+  care_provider_address: "",
   medications_independent: "",
   medical_prescriptions: "",
   medical_explanation: "",
@@ -110,10 +117,19 @@ export default function ReferWizard() {
       if (data.how_heard === "Other" && !data.how_heard_other.trim()) {
         return "Please tell us how you heard about us.";
       }
+      if (
+        ["SSI", "SSDI", "Social Security"].includes(data.benefit_type) &&
+        !data.medicare_medicaid
+      ) {
+        return "Please answer the Medicare or Medicaid question.";
+      }
     }
     if (step === 3) {
       if (!data.situation_explanation || !data.living_with_others) {
         return "Please complete all fields on this step.";
+      }
+      if (!data.former_address.trim() || !data.former_contact.trim()) {
+        return "Please share the most recent address and a contact there.";
       }
     }
     if (step === 4) {
@@ -130,6 +146,16 @@ export default function ReferWizard() {
       }
       if (data.mental_limitations === "Yes" && !data.mental_explanation) {
         return "Please explain mental limitations.";
+      }
+      if (!data.mental_diagnosis) return "Please answer the mental health diagnosis question.";
+      if (data.mental_diagnosis === "Yes" && !data.has_care_provider) {
+        return "Please say whether the referee has a therapist or doctor.";
+      }
+      if (
+        data.has_care_provider === "Yes" &&
+        (!data.care_provider_contact.trim() || !data.care_provider_address.trim())
+      ) {
+        return "Please share the therapist or doctor's contact and address.";
       }
       if (data.medical_prescriptions === "Yes" && !data.medical_explanation) {
         return "Please explain medical prescriptions/diagnosis.";
@@ -362,6 +388,7 @@ export default function ReferWizard() {
               onChange={(v) => {
                 setField("benefit_type", v);
                 if (v !== "Other") setField("income_source", "");
+                if (!["SSI", "SSDI", "Social Security"].includes(v)) setField("medicare_medicaid", "");
               }}
             />
             {data.benefit_type === "Other" && (
@@ -388,6 +415,15 @@ export default function ReferWizard() {
                 onChange={(e) => setField("monthly_benefit_amount", e.target.value)}
               />
             </div>
+            {["SSI", "SSDI", "Social Security"].includes(data.benefit_type) && (
+              <RadioGroup
+                name="medicare_medicaid"
+                label="Does the referee have Medicare or Medicaid?"
+                options={YES_NO}
+                value={data.medicare_medicaid}
+                onChange={(v) => setField("medicare_medicaid", v)}
+              />
+            )}
             <RadioGroup
               name="move_timeline"
               label="How soon is the referee looking to move in?"
@@ -444,6 +480,25 @@ export default function ReferWizard() {
               />
             </div>
             <div className="field">
+              <label htmlFor="former_address">Most recent address</label>
+              <textarea
+                id="former_address"
+                rows={2}
+                required
+                value={data.former_address}
+                onChange={(e) => setField("former_address", e.target.value)}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="former_contact">A contact at that address (name and phone)</label>
+              <input
+                id="former_contact"
+                required
+                value={data.former_contact}
+                onChange={(e) => setField("former_contact", e.target.value)}
+              />
+            </div>
+            <div className="field">
               <label htmlFor="living_with_others">
                 Is the individual applying for themselves only, or will others be living with them?
               </label>
@@ -475,6 +530,60 @@ export default function ReferWizard() {
               onChange={(v) => setField("mental_limitations", v)}
               onExplainChange={(v) => setField("mental_explanation", v)}
             />
+            <RadioGroup
+              name="mental_diagnosis"
+              label="Has the referee been diagnosed with a mental health condition?"
+              options={YES_NO}
+              value={data.mental_diagnosis}
+              onChange={(v) => {
+                setField("mental_diagnosis", v);
+                if (v !== "Yes") {
+                  setField("has_care_provider", "");
+                  setField("care_provider_contact", "");
+                  setField("care_provider_address", "");
+                }
+              }}
+            />
+            {data.mental_diagnosis === "Yes" && (
+              <>
+                <RadioGroup
+                  name="has_care_provider"
+                  label="Does the referee have a therapist or doctor?"
+                  options={YES_NO}
+                  value={data.has_care_provider}
+                  onChange={(v) => {
+                    setField("has_care_provider", v);
+                    if (v !== "Yes") {
+                      setField("care_provider_contact", "");
+                      setField("care_provider_address", "");
+                    }
+                  }}
+                />
+                {data.has_care_provider === "Yes" && (
+                  <>
+                    <div className="field">
+                      <label htmlFor="care_provider_contact">Therapist or doctor name and phone</label>
+                      <input
+                        id="care_provider_contact"
+                        required
+                        value={data.care_provider_contact}
+                        onChange={(e) => setField("care_provider_contact", e.target.value)}
+                      />
+                    </div>
+                    <div className="field">
+                      <label htmlFor="care_provider_address">Therapist or doctor address</label>
+                      <textarea
+                        id="care_provider_address"
+                        rows={2}
+                        required
+                        value={data.care_provider_address}
+                        onChange={(e) => setField("care_provider_address", e.target.value)}
+                      />
+                    </div>
+                  </>
+                )}
+              </>
+            )}
             <RadioGroup
               name="medications_independent"
               label="Does the referee manage medications independently?"
