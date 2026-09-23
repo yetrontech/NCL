@@ -38,9 +38,10 @@ function getServerSupabase() {
   return createClient(url, anonKey);
 }
 
-function text(formData: FormData, key: string): string {
+function text(formData: FormData, key: string, max = 2000): string {
   const value = formData.get(key);
-  return typeof value === "string" ? value.trim() : "";
+  const trimmed = typeof value === "string" ? value.trim() : "";
+  return trimmed.slice(0, max);
 }
 
 function answer(value: string | null | undefined): string {
@@ -68,38 +69,38 @@ function storedBenefitType(benefitType: string, incomeSource: string): string {
 const COVERAGE_BENEFITS = ["SSI", "SSDI", "Social Security"];
 
 function intakeFollowUp(formData: FormData, benefitType: string) {
-  const mental_diagnosis = text(formData, "mental_diagnosis");
-  const has_care_provider =
-    mental_diagnosis === "Yes" ? text(formData, "has_care_provider") : "";
+  const mental = text(formData, "mental_limitations");
+  const has_care_provider = mental === "Yes" ? text(formData, "has_care_provider") : "";
   const asksCoverage = COVERAGE_BENEFITS.includes(benefitType);
+  const provider = has_care_provider === "Yes";
   return {
-    former_address: text(formData, "former_address"),
-    former_contact: text(formData, "former_contact"),
-    mental_diagnosis,
+    former_address: text(formData, "former_address", 400),
+    former_contact: text(formData, "former_contact", 200),
+    promo_code: text(formData, "promo_code", 40).replace(/[^A-Za-z0-9 _-]/g, ""),
     has_care_provider,
-    care_provider_contact:
-      has_care_provider === "Yes" ? text(formData, "care_provider_contact") : "",
-    care_provider_address:
-      has_care_provider === "Yes" ? text(formData, "care_provider_address") : "",
-    medicare_medicaid: asksCoverage ? text(formData, "medicare_medicaid") : "",
+    care_provider_name: provider ? text(formData, "care_provider_name", 120) : "",
+    care_provider_phone: provider ? text(formData, "care_provider_phone", 40) : "",
+    care_provider_address: provider ? text(formData, "care_provider_address", 400) : "",
+    medicare_medicaid: asksCoverage ? text(formData, "medicare_medicaid", 16) : "",
   };
 }
 
-function intakeFollowUpError(fields: ReturnType<typeof intakeFollowUp>, benefitType: string): string | null {
+function intakeFollowUpError(
+  fields: ReturnType<typeof intakeFollowUp>,
+  benefitType: string,
+  mentalLimitations: string
+): string | null {
   if (!fields.former_address || !fields.former_contact) {
     return "Please share the most recent address and a contact there.";
   }
-  if (!isAllowed(fields.mental_diagnosis, YES_NO)) {
-    return "Please answer the mental health diagnosis question.";
-  }
-  if (fields.mental_diagnosis === "Yes" && !isAllowed(fields.has_care_provider, YES_NO)) {
+  if (mentalLimitations === "Yes" && !isAllowed(fields.has_care_provider, YES_NO)) {
     return "Please say whether there is a therapist or doctor.";
   }
   if (
     fields.has_care_provider === "Yes" &&
-    (!fields.care_provider_contact || !fields.care_provider_address)
+    (!fields.care_provider_name || !fields.care_provider_phone || !fields.care_provider_address)
   ) {
-    return "Please share the therapist or doctor's contact and address.";
+    return "Please share the therapist or doctor's name, phone number, and address.";
   }
   if (COVERAGE_BENEFITS.includes(benefitType) && !isAllowed(fields.medicare_medicaid, YES_NO)) {
     return "Please answer the Medicare or Medicaid question.";
@@ -111,10 +112,13 @@ function intakeFollowUpDetails(fields: ReturnType<typeof intakeFollowUp>) {
   return {
     "Most recent address": fields.former_address,
     "Contact at that address": fields.former_contact,
-    "Have you been diagnosed with a mental health condition?": fields.mental_diagnosis,
+    "Promo code": fields.promo_code ? answer(fields.promo_code) : undefined,
     "Do you have a therapist or doctor?": fields.has_care_provider || undefined,
-    "Therapist or doctor contact": fields.care_provider_contact
-      ? answer(fields.care_provider_contact)
+    "Therapist or doctor name": fields.care_provider_name
+      ? answer(fields.care_provider_name)
+      : undefined,
+    "Therapist or doctor phone": fields.care_provider_phone
+      ? answer(fields.care_provider_phone)
       : undefined,
     "Therapist or doctor address": fields.care_provider_address
       ? answer(fields.care_provider_address)
@@ -245,8 +249,8 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
   }
 
   const explainError =
-    requireYesExplain(payload.mobility_limitations, payload.mobility_explanation, "mobility limitations") ||
-    requireYesExplain(payload.mental_limitations, payload.mental_explanation, "mental limitations") ||
+    requireYesExplain(payload.mobility_limitations, payload.mobility_explanation, "mobility issues") ||
+    requireYesExplain(payload.mental_limitations, payload.mental_explanation, "mental diagnosis") ||
     requireYesExplain(payload.crime_conviction, payload.crime_explanation, "crime conviction") ||
     requireYesExplain(
       payload.substance_abuse_history,
@@ -257,7 +261,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
 
   if (explainError) return { ok: false, error: explainError };
 
-  const followError = intakeFollowUpError(followUp, payload.benefit_type);
+  const followError = intakeFollowUpError(followUp, payload.benefit_type, payload.mental_limitations);
   if (followError) return { ok: false, error: followError };
 
   const favorability = scoreApplication(payload);
@@ -337,9 +341,9 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
             : undefined,
         "If this is a referral, please state the referring party, phone number, and organization":
           payload.referring_party_info,
-        "Do you have any mobility limitations?": payload.mobility_limitations,
+        "Do you have any mobility issues?": payload.mobility_limitations,
         "Mobility limitations explanation": answer(payload.mobility_explanation),
-        "Do you have any mental limitations?": payload.mental_limitations,
+        "Do you have a mental diagnosis?": payload.mental_limitations,
         "Mental limitations explanation": answer(payload.mental_explanation),
         "Do you manage medications independently?":
           payload.medications_independent,
@@ -468,8 +472,8 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
   }
 
   const explainError =
-    requireYesExplain(payload.mobility_limitations, payload.mobility_explanation, "mobility limitations") ||
-    requireYesExplain(payload.mental_limitations, payload.mental_explanation, "mental limitations") ||
+    requireYesExplain(payload.mobility_limitations, payload.mobility_explanation, "mobility issues") ||
+    requireYesExplain(payload.mental_limitations, payload.mental_explanation, "mental diagnosis") ||
     requireYesExplain(payload.crime_conviction, payload.crime_explanation, "crime conviction") ||
     requireYesExplain(
       payload.substance_abuse_history,
@@ -480,7 +484,7 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
 
   if (explainError) return { ok: false, error: explainError };
 
-  const followError = intakeFollowUpError(followUp, payload.benefit_type);
+  const followError = intakeFollowUpError(followUp, payload.benefit_type, payload.mental_limitations);
   if (followError) return { ok: false, error: followError };
 
   const favorability = scoreReferral(payload);
@@ -545,10 +549,10 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
           payload.situation_explanation,
         "Is the individual applying for themselves only, or will others be living with them?":
           payload.living_with_others,
-        "Does the referee have any mobility limitations?":
+        "Does the referee have any mobility issues?":
           payload.mobility_limitations,
         "Mobility limitations explanation": answer(payload.mobility_explanation),
-        "Does the referee have any mental limitations?":
+        "Does the referee have a mental diagnosis?":
           payload.mental_limitations,
         "Mental limitations explanation": answer(payload.mental_explanation),
         "Does the referee manage medications independently?":

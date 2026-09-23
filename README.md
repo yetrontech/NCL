@@ -69,7 +69,7 @@ Owner push uses the Expo push service. The token table and the secret-gated look
 - `supabase/migrate_site_content.sql` — creates and seeds editable website copy
 - `supabase/migrate_residency_fields.sql` — migration if older tables already exist
 - `supabase/migrate-substance-abuse.sql` — drug/alcohol abuse history on apply and refer
-- `supabase/migrate_intake_questions.sql` — former address, diagnosis, care provider, and Medicare/Medicaid columns
+- `supabase/migrate_intake_questions.sql` — former address, mental diagnosis follow-up, Medicare/Medicaid, promo code, and the public-insert lock (re-run after older copies of this file)
 - `public/img/` — site images
 
 ## Production build

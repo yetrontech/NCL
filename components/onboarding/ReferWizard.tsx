@@ -51,6 +51,7 @@ const initial = {
   move_timeline: "",
   how_heard: "",
   how_heard_other: "",
+  promo_code: "",
   situation_explanation: "",
   former_address: "",
   former_contact: "",
@@ -59,9 +60,9 @@ const initial = {
   mobility_explanation: "",
   mental_limitations: "",
   mental_explanation: "",
-  mental_diagnosis: "",
   has_care_provider: "",
-  care_provider_contact: "",
+  care_provider_name: "",
+  care_provider_phone: "",
   care_provider_address: "",
   medications_independent: "",
   medical_prescriptions: "",
@@ -142,20 +143,21 @@ export default function ReferWizard() {
         return "Please complete all fields on this step.";
       }
       if (data.mobility_limitations === "Yes" && !data.mobility_explanation) {
-        return "Please explain mobility limitations.";
+        return "Please explain the mobility issues.";
       }
       if (data.mental_limitations === "Yes" && !data.mental_explanation) {
-        return "Please explain mental limitations.";
+        return "Please explain the mental diagnosis.";
       }
-      if (!data.mental_diagnosis) return "Please answer the mental health diagnosis question.";
-      if (data.mental_diagnosis === "Yes" && !data.has_care_provider) {
+      if (data.mental_limitations === "Yes" && !data.has_care_provider) {
         return "Please say whether the referee has a therapist or doctor.";
       }
       if (
         data.has_care_provider === "Yes" &&
-        (!data.care_provider_contact.trim() || !data.care_provider_address.trim())
+        (!data.care_provider_name.trim() ||
+          !data.care_provider_phone.trim() ||
+          !data.care_provider_address.trim())
       ) {
-        return "Please share the therapist or doctor's contact and address.";
+        return "Please share the therapist or doctor's name, phone number, and address.";
       }
       if (data.medical_prescriptions === "Yes" && !data.medical_explanation) {
         return "Please explain medical prescriptions/diagnosis.";
@@ -462,6 +464,15 @@ export default function ReferWizard() {
                 />
               </div>
             )}
+            <div className="field">
+              <label htmlFor="promo_code">Promo code (optional)</label>
+              <input
+                id="promo_code"
+                value={data.promo_code}
+                onChange={(e) => setField("promo_code", e.target.value)}
+                placeholder="From an event or flyer"
+              />
+            </div>
           </>
         )}
 
@@ -516,7 +527,7 @@ export default function ReferWizard() {
           <>
             <YesNoExplain
               name="mobility_limitations"
-              label="Does the referee have any mobility limitations?"
+              label="Does the referee have any mobility issues?"
               value={data.mobility_limitations}
               explainValue={data.mobility_explanation}
               onChange={(v) => setField("mobility_limitations", v)}
@@ -524,27 +535,21 @@ export default function ReferWizard() {
             />
             <YesNoExplain
               name="mental_limitations"
-              label="Does the referee have any mental limitations?"
+              label="Does the referee have a mental diagnosis?"
               value={data.mental_limitations}
               explainValue={data.mental_explanation}
-              onChange={(v) => setField("mental_limitations", v)}
-              onExplainChange={(v) => setField("mental_explanation", v)}
-            />
-            <RadioGroup
-              name="mental_diagnosis"
-              label="Has the referee been diagnosed with a mental health condition?"
-              options={YES_NO}
-              value={data.mental_diagnosis}
               onChange={(v) => {
-                setField("mental_diagnosis", v);
+                setField("mental_limitations", v);
                 if (v !== "Yes") {
                   setField("has_care_provider", "");
-                  setField("care_provider_contact", "");
+                  setField("care_provider_name", "");
+                  setField("care_provider_phone", "");
                   setField("care_provider_address", "");
                 }
               }}
+              onExplainChange={(v) => setField("mental_explanation", v)}
             />
-            {data.mental_diagnosis === "Yes" && (
+            {data.mental_limitations === "Yes" && (
               <>
                 <RadioGroup
                   name="has_care_provider"
@@ -554,7 +559,8 @@ export default function ReferWizard() {
                   onChange={(v) => {
                     setField("has_care_provider", v);
                     if (v !== "Yes") {
-                      setField("care_provider_contact", "");
+                      setField("care_provider_name", "");
+                      setField("care_provider_phone", "");
                       setField("care_provider_address", "");
                     }
                   }}
@@ -562,12 +568,22 @@ export default function ReferWizard() {
                 {data.has_care_provider === "Yes" && (
                   <>
                     <div className="field">
-                      <label htmlFor="care_provider_contact">Therapist or doctor name and phone</label>
+                      <label htmlFor="care_provider_name">Therapist or doctor name</label>
                       <input
-                        id="care_provider_contact"
+                        id="care_provider_name"
                         required
-                        value={data.care_provider_contact}
-                        onChange={(e) => setField("care_provider_contact", e.target.value)}
+                        value={data.care_provider_name}
+                        onChange={(e) => setField("care_provider_name", e.target.value)}
+                      />
+                    </div>
+                    <div className="field">
+                      <label htmlFor="care_provider_phone">Therapist or doctor phone number</label>
+                      <input
+                        id="care_provider_phone"
+                        type="tel"
+                        required
+                        value={data.care_provider_phone}
+                        onChange={(e) => setField("care_provider_phone", e.target.value)}
                       />
                     </div>
                     <div className="field">
