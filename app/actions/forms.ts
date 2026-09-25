@@ -344,7 +344,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
         "Do you have any mobility issues?": payload.mobility_limitations,
         "Mobility limitations explanation": answer(payload.mobility_explanation),
         "Do you have a mental diagnosis?": payload.mental_limitations,
-        "Mental limitations explanation": answer(payload.mental_explanation),
+        "What mental diagnosis do you have?": answer(payload.mental_explanation),
         "Do you manage medications independently?":
           payload.medications_independent,
         "Do you have any medical prescriptions/diagnosis?":
@@ -554,7 +554,7 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
         "Mobility limitations explanation": answer(payload.mobility_explanation),
         "Does the referee have a mental diagnosis?":
           payload.mental_limitations,
-        "Mental limitations explanation": answer(payload.mental_explanation),
+        "What mental diagnosis does the referee have?": answer(payload.mental_explanation),
         "Does the referee manage medications independently?":
           payload.medications_independent,
         "Does the referee have any medical prescriptions/diagnosis?":

@@ -158,7 +158,7 @@ export default function ApplyWizard() {
         return "Please explain your mobility issues.";
       }
       if (data.mental_limitations === "Yes" && !data.mental_explanation) {
-        return "Please explain your mental diagnosis.";
+        return "Please say what mental diagnosis you have.";
       }
       if (data.mental_limitations === "Yes" && !data.has_care_provider) {
         return "Please say whether you have a therapist or doctor.";
@@ -583,6 +583,7 @@ export default function ApplyWizard() {
             <YesNoExplain
               name="mental_limitations"
               label="Do you have a mental diagnosis?"
+              explainLabel="What mental diagnosis do you have?"
               value={data.mental_limitations}
               explainValue={data.mental_explanation}
               onChange={(v) => {

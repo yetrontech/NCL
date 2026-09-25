@@ -146,7 +146,7 @@ export default function ReferWizard() {
         return "Please explain the mobility issues.";
       }
       if (data.mental_limitations === "Yes" && !data.mental_explanation) {
-        return "Please explain the mental diagnosis.";
+        return "Please say what mental diagnosis the referee has.";
       }
       if (data.mental_limitations === "Yes" && !data.has_care_provider) {
         return "Please say whether the referee has a therapist or doctor.";
@@ -536,6 +536,7 @@ export default function ReferWizard() {
             <YesNoExplain
               name="mental_limitations"
               label="Does the referee have a mental diagnosis?"
+              explainLabel="What mental diagnosis does the referee have?"
               value={data.mental_limitations}
               explainValue={data.mental_explanation}
               onChange={(v) => {
