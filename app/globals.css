@@ -3162,6 +3162,68 @@
       opacity: 0.45;
     }
 
+    .quick-eval-card {
+      text-align: center;
+    }
+
+    .quick-eval-card .schedule-lead {
+      margin-left: auto;
+      margin-right: auto;
+      max-width: 36rem;
+    }
+
+    .quick-eval-qr {
+      display: flex;
+      justify-content: center;
+      margin: 8px auto 28px;
+      width: min(280px, 100%);
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    .quick-eval-qr svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .quick-eval-start {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .quick-eval-choices {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .quick-eval-choice {
+      min-height: 64px;
+      border: 1.5px solid var(--line);
+      border-radius: 14px;
+      background: var(--cream);
+      color: var(--navy);
+      font-size: 1.15rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .quick-eval-choice:hover,
+    .quick-eval-choice:focus-visible {
+      border-color: var(--navy);
+      outline: none;
+    }
+
+    .schedule-page .onboarding-callout a,
+    .onboarding-page .schedule-lead a {
+      color: var(--navy);
+      font-weight: 700;
+      text-decoration: underline;
+    }
+
     @media (max-width: 640px) {
       .onboarding-card {
         padding: 26px 20px;
