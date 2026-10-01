@@ -7,18 +7,20 @@ export async function loadBedsRemaining(): Promise<number | null> {
   if (!url || !anonKey) return null;
 
   const supabase = createClient(url, anonKey);
-  const { data, error } = await supabase.rpc("public_beds_remaining");
-  if (!error && typeof data === "number" && Number.isFinite(data)) {
-    return Math.max(0, Math.floor(data));
-  }
-
   const listed = await supabase.rpc("admin_list_houses");
   const houses = listed.data?.houses;
-  if (listed.error || !Array.isArray(houses)) return null;
+  if (!listed.error && Array.isArray(houses) && houses.length > 0) {
+    const remaining = houses.reduce((sum, house) => {
+      const capacity = Number(house?.capacity);
+      const living = Number(house?.residents ?? house?.occupied);
+      if (!Number.isFinite(capacity)) return sum;
+      const taken = Number.isFinite(living) ? living : 0;
+      return sum + Math.max(capacity - taken, 0);
+    }, 0);
+    return Math.max(0, Math.floor(remaining));
+  }
 
-  const remaining = houses.reduce((sum, house) => {
-    const available = Number(house?.available);
-    return sum + (Number.isFinite(available) ? available : 0);
-  }, 0);
-  return Math.max(0, Math.floor(remaining));
+  const { data, error } = await supabase.rpc("public_beds_remaining");
+  if (error || typeof data !== "number" || !Number.isFinite(data)) return null;
+  return Math.max(0, Math.floor(data));
 }

@@ -16,6 +16,11 @@ export const FREE_GUIDES = [
   },
 ] as const;
 
+export const FREE_GUIDES_ZIP = {
+  filename: "NCL-Guides.zip",
+  button: "Download all 3",
+} as const;
+
 export function freeGuideHref(filename: string): string {
   return `/guides/${filename}`;
 }

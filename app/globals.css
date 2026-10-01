@@ -4097,7 +4097,6 @@
     }
 
     .guide-page {
-      position: relative;
       --guide-navy: #1B2E52;
       --guide-navy-deep: #12203B;
       --guide-gold: #B8963E;
@@ -4117,8 +4116,8 @@
 
     .guide-beds {
       position: absolute;
-      top: calc(18px + env(safe-area-inset-top, 0px));
-      right: 22px;
+      top: 16px;
+      right: 18px;
       margin: 0;
       text-align: right;
       line-height: 1;
@@ -4127,7 +4126,7 @@
     .guide-beds strong {
       display: block;
       font-family: Fraunces, Georgia, serif;
-      font-size: 32px;
+      font-size: 26px;
       font-weight: 600;
       color: var(--guide-navy);
     }
@@ -4163,6 +4162,7 @@
     }
 
     .guide-card {
+      position: relative;
       width: 100%;
       max-width: 480px;
       text-align: center;
@@ -4281,13 +4281,21 @@
 
     .guide-downloads a {
       display: block;
+      background: transparent;
+      color: var(--guide-ink);
+      font-weight: 600;
+      text-decoration: none;
+      padding: 12px 22px;
+      border-radius: 5px;
+      border: 1px solid var(--guide-line);
+      font-size: 15px;
+    }
+
+    .guide-downloads a.guide-download-all {
       background: var(--guide-gold);
       color: var(--guide-navy-deep);
+      border-color: var(--guide-gold);
       font-weight: 700;
-      text-decoration: none;
-      padding: 14px 22px;
-      border-radius: 5px;
-      font-size: 15px;
     }
 
     .guide-footer {
@@ -4300,5 +4308,14 @@
     @media (max-width: 640px) {
       .guide-card {
         padding: 32px 22px 28px;
+      }
+
+      .guide-beds {
+        top: 12px;
+        right: 14px;
+      }
+
+      .guide-beds strong {
+        font-size: 22px;
       }
     }

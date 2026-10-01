@@ -5,7 +5,7 @@ import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
 import { sendFreeGuides } from "@/app/actions/guides";
 import BedCount from "@/components/BedCount";
-import { FREE_GUIDES, freeGuideHref } from "@/lib/free-guides";
+import { FREE_GUIDES, FREE_GUIDES_ZIP, freeGuideHref } from "@/lib/free-guides";
 
 export default function GuideSignup({ bedsRemaining }: { bedsRemaining: number | null }) {
   const [sent, setSent] = useState(false);
@@ -27,9 +27,9 @@ export default function GuideSignup({ bedsRemaining }: { bedsRemaining: number |
 
   return (
     <div className="guide-page">
-      <BedCount initial={bedsRemaining} />
       <div>
         <div className="guide-card">
+          <BedCount initial={bedsRemaining} />
           <Link href="/" className="guide-logo" aria-label="New Creation Living">
             <BrandLogo clipId="guideClip" />
           </Link>
@@ -44,6 +44,13 @@ export default function GuideSignup({ bedsRemaining }: { bedsRemaining: number |
             <div className="guide-success">
               <p className="guide-sub">You&apos;re set — tap below to download them now.</p>
               <div className="guide-downloads">
+                <a
+                  className="guide-download-all"
+                  download={FREE_GUIDES_ZIP.filename}
+                  href={freeGuideHref(FREE_GUIDES_ZIP.filename)}
+                >
+                  {FREE_GUIDES_ZIP.button}
+                </a>
                 {FREE_GUIDES.map((guide) => (
                   <a key={guide.filename} download={guide.filename} href={freeGuideHref(guide.filename)}>
                     {guide.button}
