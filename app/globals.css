@@ -4539,17 +4539,46 @@
       text-align: center;
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 700px) {
+      .guide-page {
+        justify-content: flex-start;
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
       .guide-card {
-        padding: 32px 22px 28px;
+        flex-basis: 100%;
+        max-width: none;
+        padding: 22px 18px 24px;
+      }
+
+      .guide-card h1,
+      .guide-offer h2 {
+        font-size: 26px;
       }
 
       .guide-beds {
-        top: 12px;
-        right: 14px;
+        position: static;
+        margin: 0 0 10px auto;
       }
 
-      .guide-beds strong {
-        font-size: 22px;
+      .guide-card form,
+      .guide-card .guide-success {
+        margin-top: 0;
+      }
+
+      .guide-card input[type="email"] {
+        font-size: 16px;
+      }
+
+      .guide-card button:not(.guide-offer-more-btn),
+      .guide-offer-cta {
+        min-height: 48px;
+      }
+
+      .guide-footer {
+        max-width: 100%;
+        line-height: 1.55;
+        overflow-wrap: anywhere;
       }
     }
