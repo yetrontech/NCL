@@ -3200,6 +3200,16 @@
       gap: 12px;
     }
 
+    .quick-eval-choices.is-list {
+      grid-template-columns: 1fr;
+    }
+
+    .quick-eval-choices.is-list .quick-eval-choice {
+      font-size: 1rem;
+      text-align: left;
+      padding: 16px 18px;
+    }
+
     .quick-eval-choice {
       min-height: 64px;
       border: 1.5px solid var(--line);

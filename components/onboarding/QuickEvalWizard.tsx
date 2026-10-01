@@ -3,9 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import OnboardingShell from "@/components/onboarding/OnboardingShell";
-import { QUICK_EVAL_QUESTIONS, isQuickEvalFit } from "@/lib/quick-eval";
-
-const TOTAL = QUICK_EVAL_QUESTIONS.length;
+import { QUICK_EVAL_MYSELF, isQuickEvalFit, quickEvalSteps } from "@/lib/quick-eval";
 
 function telHref(phone: string): string {
   const digits = phone.replace(/\D/g, "");
@@ -15,26 +13,41 @@ function telHref(phone: string): string {
 }
 
 export default function QuickEvalWizard({ phone }: { phone: string }) {
-  const [step, setStep] = useState(0);
+  const [stepId, setStepId] = useState("benefit");
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [done, setDone] = useState(false);
 
-  const question = QUICK_EVAL_QUESTIONS[step];
+  const steps = quickEvalSteps(answers);
+  const found = steps.findIndex((step) => step.id === stepId);
+  const index = found === -1 ? 0 : found;
+  const question = steps[index];
   const fit = isQuickEvalFit(answers);
 
   function choose(value: string) {
     const next = { ...answers, [question.id]: value };
+    if (question.id === "housing" && value === QUICK_EVAL_MYSELF) {
+      delete next.other_income;
+      delete next.live_separate;
+    }
     setAnswers(next);
-    if (step === TOTAL - 1) {
+
+    if (question.denyAnswer && value === question.denyAnswer) {
       setDone(true);
       return;
     }
-    setStep(step + 1);
+
+    const upcoming = quickEvalSteps(next);
+    const at = upcoming.findIndex((step) => step.id === question.id);
+    if (at === -1 || at >= upcoming.length - 1) {
+      setDone(true);
+      return;
+    }
+    setStepId(upcoming[at + 1].id);
   }
 
   function restart() {
     setAnswers({});
-    setStep(0);
+    setStepId("benefit");
     setDone(false);
   }
 
@@ -43,8 +56,8 @@ export default function QuickEvalWizard({ phone }: { phone: string }) {
       <OnboardingShell
         title={fit ? "You may be a good fit" : "Quick check"}
         subtitle="Quick check"
-        step={TOTAL - 1}
-        totalSteps={TOTAL}
+        step={Math.max(steps.length - 1, 0)}
+        totalSteps={steps.length}
       >
         {fit ? (
           <>
@@ -81,16 +94,18 @@ export default function QuickEvalWizard({ phone }: { phone: string }) {
     );
   }
 
+  const stacked = question.options.length > 2;
+
   return (
     <OnboardingShell
       title={question.prompt}
       subtitle="Quick check"
-      step={step}
-      totalSteps={TOTAL}
+      step={index}
+      totalSteps={steps.length}
     >
       <p className="schedule-lead">Tap the answer that fits you. We do not save these answers.</p>
-      <div className="quick-eval-choices">
-        {["Yes", "No"].map((option) => (
+      <div className={stacked ? "quick-eval-choices is-list" : "quick-eval-choices"}>
+        {question.options.map((option) => (
           <button
             key={option}
             type="button"
@@ -101,9 +116,9 @@ export default function QuickEvalWizard({ phone }: { phone: string }) {
           </button>
         ))}
       </div>
-      {step > 0 && (
+      {index > 0 && (
         <div className="onboarding-nav">
-          <button type="button" className="btn btn-ghost" onClick={() => setStep(step - 1)}>
+          <button type="button" className="btn btn-ghost" onClick={() => setStepId(steps[index - 1].id)}>
             Back
           </button>
         </div>

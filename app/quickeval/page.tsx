@@ -11,7 +11,7 @@ const CHECK_URL = `${SITE_URL}${CHECK_PATH}`;
 export const metadata: Metadata = {
   title: "Quick check — New Creation Living",
   description:
-    "Scan the code or start a six-question check to see whether New Creation Living may be a fit.",
+    "Scan the code or start a short check to see whether New Creation Living may be a fit.",
   alternates: { canonical: "/quickeval" },
 };
 
@@ -49,8 +49,8 @@ export default async function QuickEvalPage() {
           <span className="eyebrow">Quick check</span>
           <h1 className="onboarding-title">See if this home may be a fit</h1>
           <p className="schedule-lead">
-            Scan the code, or use the button under it. Both open the same six-question check. It
-            takes about a minute. We do not save the answers.
+            Scan the code, or use the button under it. Both open the same short check. It takes
+            about a minute. We do not save the answers.
           </p>
           <a href={CHECK_PATH} className="quick-eval-qr" aria-label="Start the quick check">
             <span dangerouslySetInnerHTML={{ __html: svg }} />
