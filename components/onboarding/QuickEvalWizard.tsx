@@ -66,11 +66,14 @@ export default function QuickEvalWizard({ phone }: { phone: string }) {
               you. This quick check is not the final word — your application is how our team gets
               to know you. We would love to see you apply.
             </p>
+            <p className="schedule-lead">
+              When you fill out the form, use promo code <strong>NCL26</strong>.
+            </p>
             <div className="onboarding-nav">
               <button type="button" className="btn btn-ghost" onClick={restart}>
                 Start over
               </button>
-              <Link href="/apply" className="btn btn-primary">
+              <Link href="/apply?promo=NCL26" className="btn btn-primary">
                 Apply today
               </Link>
             </div>

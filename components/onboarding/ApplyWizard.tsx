@@ -82,9 +82,13 @@ const initial = {
   emergency_contact: "",
 };
 
-export default function ApplyWizard() {
+function cleanPromoCode(value: string | undefined): string {
+  return (value || "").replace(/[^A-Za-z0-9 _-]/g, "").slice(0, 40).trim();
+}
+
+export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
   const [step, setStep] = useState(0);
-  const [data, setData] = useState(initial);
+  const [data, setData] = useState({ ...initial, promo_code: cleanPromoCode(promoCode) });
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
 

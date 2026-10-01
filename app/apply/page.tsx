@@ -10,11 +10,17 @@ export const metadata: Metadata = {
 
 export const revalidate = 30;
 
-export default async function ApplyPage() {
+export default async function ApplyPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ promo?: string | string[] }>;
+}) {
+  const params = await searchParams;
+  const promo = Array.isArray(params.promo) ? params.promo[0] : params.promo;
   const content = await loadSiteContent();
   return (
     <SiteContentProvider content={content}>
-      <ApplyWizard />
+      <ApplyWizard promoCode={promo} />
     </SiteContentProvider>
   );
 }
