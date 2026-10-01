@@ -11,8 +11,8 @@ export default function GuideOffer({ bedsRemaining }: { bedsRemaining: number | 
     <div className="guide-card guide-offer">
       <BedCount initial={bedsRemaining} />
       <div className="guide-offer-banner">Limited Space Offer</div>
-      <h2>We&apos;ll pay for your transportation to our home.</h2>
-      <p className="guide-offer-terms">Pay 1 month.</p>
+      <h2>When you love our home, bring your friends and pay $125 in rent.</h2>
+      <p className="guide-offer-terms">We&apos;ll pay for your transportation to our home. Pay 1 month.</p>
       <p className="guide-offer-highlight">We guarantee you safety, stability, and a home.</p>
       <p>
         If you decide this is not the place for you, we&apos;ll give you a 100% refund within 7

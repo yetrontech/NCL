@@ -35,9 +35,9 @@ export function buildGuideOfferEmail(opts: {
         </tr>
       </table>
       <h2 style="margin:16px 0 12px;font-family:Georgia,'Times New Roman',serif;font-size:26px;line-height:1.22;font-weight:600;color:#F1ECDF;">
-        We'll pay for your transportation to our home.
+        When you love our home, bring your friends and pay $125 in rent.
       </h2>
-      <p style="margin:0 0 10px;font-size:16px;line-height:1.45;font-weight:700;color:#F1ECDF;">Pay 1 month.</p>
+      <p style="margin:0 0 10px;font-size:16px;line-height:1.45;font-weight:700;color:#F1ECDF;">We'll pay for your transportation to our home. Pay 1 month.</p>
       <p style="margin:0 0 12px;font-size:16px;line-height:1.45;font-weight:700;color:#F1ECDF;">We guarantee you safety, stability, and a home.</p>
       <p style="margin:0 0 12px;font-size:15px;line-height:1.55;color:#C9C2AE;">If you decide this is not the place for you, we'll give you a 100% refund within 7 days of move-in.</p>
       <p style="margin:0 0 12px;font-size:15px;line-height:1.55;color:#C9C2AE;">Once you become a resident, on your second successful referral, your full month's rent will be only $125 for the whole month.</p>
@@ -63,8 +63,8 @@ export function buildGuideOfferEmail(opts: {
     "Limited Space Offer",
     ...bedLine,
     "",
-    "We'll pay for your transportation to our home.",
-    "Pay 1 month.",
+    "When you love our home, bring your friends and pay $125 in rent.",
+    "We'll pay for your transportation to our home. Pay 1 month.",
     "We guarantee you safety, stability, and a home.",
     "If you decide this is not the place for you, we'll give you a 100% refund within 7 days of move-in.",
     "Once you become a resident, on your second successful referral, your full month's rent will be only $125 for the whole month.",
