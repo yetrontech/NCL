@@ -20,7 +20,7 @@ export default async function PrivacyPage() {
   const tagline = content["brand.tagline"] || "From Benefits to Belonging";
 
   return (
-    <LegalPage title="Privacy Policy" tagline={tagline} updated="September 23, 2026">
+    <LegalPage title="Privacy Policy" tagline={tagline} updated="September 30, 2026">
       <p>
         New Creation Living provides structured, all-inclusive housing for independent
         adults on fixed government income in Metro Atlanta and Middle Georgia. We also
@@ -68,6 +68,11 @@ export default async function PrivacyPage() {
           <strong>Tour requests and move-in scheduling.</strong> Name, phone, email,
           preferred visit date, and similar details needed to show a home or confirm a
           move-in.
+        </li>
+        <li>
+          <strong>Free guides.</strong> An email address, so we can send the daily
+          plan, housing comparison, and fixed-income cost guide. We may also send an
+          occasional note about housing. We do not sell that address.
         </li>
       </ul>
       <p>

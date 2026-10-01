@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { readFileSync } from "fs";
 import { join } from "path";
+import { FREE_GUIDES } from "@/lib/free-guides";
 
 export type SubmissionKind =
   | "application"
@@ -159,7 +160,7 @@ function extractEmailAddress(value: string): string {
 }
 
 /** Practical format check so Resend does not reject reply_to / confirmation to. */
-function isValidEmailAddress(value: string | null | undefined): boolean {
+export function isValidEmailAddress(value: string | null | undefined): boolean {
   const email = (value || "").trim();
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -292,6 +293,49 @@ async function sendResendEmail(opts: {
       `Resend failed (${response.status}) from=${from} to=${opts.to}: ${errorText}`
     );
   }
+}
+
+/** Email the three free guides from the site address, with the PDFs attached. */
+export async function sendFreeGuidesEmail(to: string): Promise<void> {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error("RESEND_API_KEY missing");
+  }
+
+  const siteUrl = getSiteUrl();
+  const attachments = FREE_GUIDES.map((guide) => ({
+    filename: guide.filename,
+    content: readFileSync(join(process.cwd(), "public", "guides", guide.filename)).toString(
+      "base64"
+    ),
+  }));
+  const linkLines = FREE_GUIDES.map(
+    (guide) => `${guide.title}: ${siteUrl}/guides/${guide.filename}`
+  );
+  const linkHtml = FREE_GUIDES.map(
+    (guide) =>
+      `<p style="margin:0 0 10px;"><a href="${siteUrl}/guides/${guide.filename}" style="color:#1B2B5E;font-weight:700;">${escapeHtml(guide.title)}</a></p>`
+  ).join("");
+
+  await sendResendEmail({
+    to,
+    subject: "Your New Creation Living guides",
+    text: [
+      "Here are the three guides you asked for.",
+      "",
+      ...linkLines,
+      "",
+      "The same files are attached to this email.",
+      "",
+      "— New Creation Living",
+    ].join("\n"),
+    html: wrapUserEmailHtml(
+      [
+        "Here are the three guides you asked for. The same files are attached to this email.",
+      ],
+      linkHtml
+    ),
+    attachments,
+  });
 }
 
 async function sendStaffEmailToRecipient(opts: {

@@ -4089,3 +4089,216 @@
         break-inside: avoid;
       }
     }
+
+    /* ===== FREE GUIDE LANDING ===== */
+    body:has(.guide-page) {
+      padding-top: 0;
+      background: #FBF9F4;
+    }
+
+    .guide-page {
+      position: relative;
+      --guide-navy: #1B2E52;
+      --guide-navy-deep: #12203B;
+      --guide-gold: #B8963E;
+      --guide-cream: #F3EEE3;
+      --guide-paper: #FBF9F4;
+      --guide-ink: #232017;
+      --guide-ink-soft: #5B5749;
+      --guide-line: #E2DAC8;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: calc(32px + env(safe-area-inset-top, 0px)) 20px calc(32px + env(safe-area-inset-bottom, 0px));
+      background: var(--guide-paper);
+      color: var(--guide-ink);
+    }
+
+    .guide-beds {
+      position: absolute;
+      top: calc(18px + env(safe-area-inset-top, 0px));
+      right: 22px;
+      margin: 0;
+      text-align: right;
+      line-height: 1;
+    }
+
+    .guide-beds strong {
+      display: block;
+      font-family: Fraunces, Georgia, serif;
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--guide-navy);
+    }
+
+    .guide-beds span {
+      display: block;
+      margin-top: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--guide-gold);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .guide-beds strong {
+        color: var(--guide-ink);
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .guide-page {
+        --guide-paper: #171512;
+        --guide-cream: #211E19;
+        --guide-ink: #F1ECDF;
+        --guide-ink-soft: #C9C2AE;
+        --guide-line: #3A3529;
+      }
+
+      body:has(.guide-page) {
+        background: #171512;
+      }
+    }
+
+    .guide-card {
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+      background: var(--guide-cream);
+      border: 1px solid var(--guide-line);
+      border-radius: 10px;
+      padding: 44px 36px 38px;
+    }
+
+    .guide-logo {
+      width: 64px;
+      height: 48px;
+      margin: 0 auto 18px;
+      display: block;
+    }
+
+    .guide-kicker {
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--guide-gold);
+      margin-bottom: 14px;
+      text-transform: uppercase;
+    }
+
+    .guide-card h1 {
+      font-family: "Fraunces", serif;
+      font-weight: 600;
+      font-size: clamp(24px, 5.5vw, 30px);
+      line-height: 1.22;
+      color: var(--guide-navy);
+      margin: 0 0 12px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .guide-card h1 {
+        color: #F1ECDF;
+      }
+    }
+
+    .guide-sub {
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--guide-ink-soft);
+      margin: 0 0 26px;
+    }
+
+    .guide-card form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .guide-card input[type="email"] {
+      font-family: Inter, sans-serif;
+      font-size: 15px;
+      padding: 14px 16px;
+      border: 1px solid var(--guide-line);
+      border-radius: 5px;
+      background: var(--guide-paper);
+      color: var(--guide-ink);
+      outline: none;
+      width: 100%;
+    }
+
+    .guide-card input[type="email"]:focus {
+      border-color: var(--guide-gold);
+    }
+
+    .guide-card button {
+      font-family: Inter, sans-serif;
+      font-weight: 600;
+      font-size: 15px;
+      background: var(--guide-navy);
+      color: #F3EEE3;
+      border: none;
+      border-radius: 5px;
+      padding: 14px 20px;
+      cursor: pointer;
+    }
+
+    .guide-card button:hover:not(:disabled) {
+      background: var(--guide-navy-deep);
+    }
+
+    .guide-card button:disabled {
+      opacity: 0.7;
+      cursor: default;
+    }
+
+    .guide-fineprint {
+      font-size: 11.5px;
+      color: var(--guide-ink-soft);
+      margin-top: 12px;
+    }
+
+    .guide-fineprint a {
+      text-decoration: underline;
+    }
+
+    .guide-error {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: #8C3A32;
+    }
+
+    .guide-success .guide-sub {
+      margin-bottom: 14px;
+    }
+
+    .guide-downloads {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .guide-downloads a {
+      display: block;
+      background: var(--guide-gold);
+      color: var(--guide-navy-deep);
+      font-weight: 700;
+      text-decoration: none;
+      padding: 14px 22px;
+      border-radius: 5px;
+      font-size: 15px;
+    }
+
+    .guide-footer {
+      margin-top: 24px;
+      font-size: 12.5px;
+      color: var(--guide-ink-soft);
+      text-align: center;
+    }
+
+    @media (max-width: 640px) {
+      .guide-card {
+        padding: 32px 22px 28px;
+      }
+    }
