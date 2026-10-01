@@ -54,7 +54,7 @@ export default function QuickEvalWizard({ phone }: { phone: string }) {
   if (done) {
     return (
       <OnboardingShell
-        title={fit ? "You may be a good fit" : "Quick check"}
+        title={fit ? "You look like a great fit" : "Quick check"}
         subtitle="Quick check"
         step={Math.max(steps.length - 1, 0)}
         totalSteps={steps.length}
@@ -62,15 +62,16 @@ export default function QuickEvalWizard({ phone }: { phone: string }) {
         {fit ? (
           <>
             <p className="schedule-lead">
-              You may be a good fit. This is a quick check, not an application decision. The full
-              application is how our team reviews housing.
+              Wonderful news. From what you shared, New Creation Living could be a real home for
+              you. This quick check is not the final word — your application is how our team gets
+              to know you. We would love to see you apply.
             </p>
             <div className="onboarding-nav">
               <button type="button" className="btn btn-ghost" onClick={restart}>
                 Start over
               </button>
               <Link href="/apply" className="btn btn-primary">
-                Apply
+                Apply today
               </Link>
             </div>
           </>
