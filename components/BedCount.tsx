@@ -36,7 +36,10 @@ export default function BedCount({ initial }: { initial: number | null }) {
   return (
     <p className="guide-beds" aria-live="polite">
       <strong>{remaining}</strong>
-      <span>{label}</span>
+      <span className="guide-beds-label">
+        <span className="guide-beds-dot" aria-hidden="true" />
+        {label}
+      </span>
     </p>
   );
 }
