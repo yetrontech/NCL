@@ -20,7 +20,7 @@ export default async function PrivacyPage() {
   const tagline = content["brand.tagline"] || "From Benefits to Belonging";
 
   return (
-    <LegalPage title="Privacy Policy" tagline={tagline} updated="September 30, 2026">
+    <LegalPage title="Privacy Policy" tagline={tagline} updated="October 1, 2026">
       <p>
         New Creation Living provides structured, all-inclusive housing for independent
         adults on fixed government income in Metro Atlanta and Middle Georgia. We also
@@ -43,16 +43,18 @@ export default async function PrivacyPage() {
           gender, benefit type and monthly amount, living situation, most recent
           address and a contact there, whether others would live with you, emergency
           contact, how you heard about us, and an optional promo code if you have one
-          from an event or flyer. We also ask about mobility issues, a mental
-          diagnosis, medications, criminal history, and substance use. If you say you
-          have a therapist or doctor, we ask for that person’s name, phone number, and
-          address. If your benefit is SSI, SSDI, or Social Security, we ask whether
+          from an event or flyer. We also ask what mental diagnosis you have, what
+          medical diagnosis you have, about mobility issues, medications, criminal
+          history, and substance use. A blank answer, “none,” or “N/A” means there is
+          no diagnosis. If you name a mental diagnosis and a therapist or doctor, we
+          ask for that person’s name, phone number, and address. If your benefit is
+          SSI, SSDI, or Social Security, we ask whether
           you have Medicare or Medicaid. We use these answers to see whether
           independent, roommate-style housing is a fit.
         </li>
         <li>
           <strong>Referrals.</strong> The same kinds of details about the person being
-          referred, including address, mental diagnosis, and therapist or doctor
+          referred, including address, mental diagnosis, medical diagnosis, and therapist or doctor
           contact when that applies, plus the referrer’s name, role, organization, and
           contact information (for example a social worker, discharge planner, VA staff
           member, or family member). A promo code is optional.
@@ -152,15 +154,16 @@ export default async function PrivacyPage() {
         criminal history, and substance use because those facts affect whether
         independent roommate-style housing is appropriate and whether someone may
         qualify for benefits. A government benefit often already reflects a
-        work-limiting condition. If someone says they have a mental diagnosis and a
-        therapist or doctor, we keep that provider’s name, phone, and address in the
-        same file so staff can coordinate care around the home. We also keep the most
-        recent address and a contact there.
+        work-limiting condition. If someone names a mental diagnosis and a therapist
+        or doctor, we keep that provider’s name, phone, and address in the same file
+        so staff can coordinate care around the home. We also keep a medical diagnosis
+        when one is given, and the most recent address and a contact there.
       </p>
       <p>
         After someone moves in, we copy a short set of safety flags onto the house
-        roster: medication cabinet, NA/AA, substance history, and mental health
-        history. Those flags are visible to the owner, administrators, and the
+        roster: Meetings, for a drug or alcohol history, and Keeping medicine in the
+        cabinet, for a mental diagnosis or when someone cannot manage medicine on
+        their own. Those flags are visible to the owner, administrators, and the
         assigned house manager. They are not shown to other residents. The therapist’s
         name, phone, and address stay on the intake file for that same staff group.
       </p>

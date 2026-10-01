@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@supabase/supabase-js";
+import { hasWrittenDiagnosis, mentalLimitationsFromAnswer } from "@/lib/diagnosis";
 import { scoreApplication, scoreReferral } from "@/lib/favorability-score";
 import { notifyNewSubmission } from "@/lib/notify";
 import {
@@ -69,8 +70,8 @@ function storedBenefitType(benefitType: string, incomeSource: string): string {
 const COVERAGE_BENEFITS = ["SSI", "SSDI", "Social Security"];
 
 function intakeFollowUp(formData: FormData, benefitType: string) {
-  const mental = text(formData, "mental_limitations");
-  const has_care_provider = mental === "Yes" ? text(formData, "has_care_provider") : "";
+  const mental = text(formData, "mental_explanation", 400);
+  const has_care_provider = hasWrittenDiagnosis(mental) ? text(formData, "has_care_provider") : "";
   const asksCoverage = COVERAGE_BENEFITS.includes(benefitType);
   const provider = has_care_provider === "Yes";
   return {
@@ -93,7 +94,7 @@ function intakeFollowUpError(
   if (!fields.former_address || !fields.former_contact) {
     return "Please share the most recent address and a contact there.";
   }
-  if (mentalLimitations === "Yes" && !isAllowed(fields.has_care_provider, YES_NO)) {
+  if (hasWrittenDiagnosis(mentalLimitations) && !isAllowed(fields.has_care_provider, YES_NO)) {
     return "Please say whether there is a therapist or doctor.";
   }
   if (
@@ -148,8 +149,9 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
     situation_explanation: text(formData, "situation_explanation"),
     mobility_limitations: text(formData, "mobility_limitations"),
     mobility_explanation: text(formData, "mobility_explanation"),
-    mental_limitations: text(formData, "mental_limitations"),
-    mental_explanation: text(formData, "mental_explanation"),
+    mental_limitations: mentalLimitationsFromAnswer(text(formData, "mental_explanation", 400)),
+    mental_explanation: text(formData, "mental_explanation", 400),
+    medical_diagnosis: text(formData, "medical_diagnosis", 400),
     medications_independent: text(formData, "medications_independent"),
     crime_conviction: text(formData, "crime_conviction"),
     crime_explanation: text(formData, "crime_explanation"),
@@ -185,7 +187,8 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
     "benefit_type",
     "situation_explanation",
     "mobility_limitations",
-    "mental_limitations",
+    "mental_explanation",
+    "medical_diagnosis",
     "medications_independent",
     "crime_conviction",
     "substance_abuse_history",
@@ -250,7 +253,6 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
 
   const explainError =
     requireYesExplain(payload.mobility_limitations, payload.mobility_explanation, "mobility issues") ||
-    requireYesExplain(payload.mental_limitations, payload.mental_explanation, "mental diagnosis") ||
     requireYesExplain(payload.crime_conviction, payload.crime_explanation, "crime conviction") ||
     requireYesExplain(
       payload.substance_abuse_history,
@@ -261,7 +263,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
 
   if (explainError) return { ok: false, error: explainError };
 
-  const followError = intakeFollowUpError(followUp, payload.benefit_type, payload.mental_limitations);
+  const followError = intakeFollowUpError(followUp, payload.benefit_type, payload.mental_explanation);
   if (followError) return { ok: false, error: followError };
 
   const favorability = scoreApplication(payload);
@@ -343,8 +345,8 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
           payload.referring_party_info,
         "Do you have any mobility issues?": payload.mobility_limitations,
         "Mobility limitations explanation": answer(payload.mobility_explanation),
-        "Do you have a mental diagnosis?": payload.mental_limitations,
         "What mental diagnosis do you have?": answer(payload.mental_explanation),
+        "What medical diagnosis do you have?": answer(payload.medical_diagnosis),
         "Do you manage medications independently?":
           payload.medications_independent,
         "Do you have any medical prescriptions/diagnosis?":
@@ -403,8 +405,9 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
     situation_explanation: text(formData, "situation_explanation"),
     mobility_limitations: text(formData, "mobility_limitations"),
     mobility_explanation: text(formData, "mobility_explanation"),
-    mental_limitations: text(formData, "mental_limitations"),
-    mental_explanation: text(formData, "mental_explanation"),
+    mental_limitations: mentalLimitationsFromAnswer(text(formData, "mental_explanation", 400)),
+    mental_explanation: text(formData, "mental_explanation", 400),
+    medical_diagnosis: text(formData, "medical_diagnosis", 400),
     medications_independent: text(formData, "medications_independent"),
     crime_conviction: text(formData, "crime_conviction"),
     crime_explanation: text(formData, "crime_explanation"),
@@ -440,7 +443,8 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
     "benefit_type",
     "situation_explanation",
     "mobility_limitations",
-    "mental_limitations",
+    "mental_explanation",
+    "medical_diagnosis",
     "medications_independent",
     "crime_conviction",
     "substance_abuse_history",
@@ -473,7 +477,6 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
 
   const explainError =
     requireYesExplain(payload.mobility_limitations, payload.mobility_explanation, "mobility issues") ||
-    requireYesExplain(payload.mental_limitations, payload.mental_explanation, "mental diagnosis") ||
     requireYesExplain(payload.crime_conviction, payload.crime_explanation, "crime conviction") ||
     requireYesExplain(
       payload.substance_abuse_history,
@@ -484,7 +487,7 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
 
   if (explainError) return { ok: false, error: explainError };
 
-  const followError = intakeFollowUpError(followUp, payload.benefit_type, payload.mental_limitations);
+  const followError = intakeFollowUpError(followUp, payload.benefit_type, payload.mental_explanation);
   if (followError) return { ok: false, error: followError };
 
   const favorability = scoreReferral(payload);
@@ -552,9 +555,8 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
         "Does the referee have any mobility issues?":
           payload.mobility_limitations,
         "Mobility limitations explanation": answer(payload.mobility_explanation),
-        "Does the referee have a mental diagnosis?":
-          payload.mental_limitations,
         "What mental diagnosis does the referee have?": answer(payload.mental_explanation),
+        "What medical diagnosis does the referee have?": answer(payload.medical_diagnosis),
         "Does the referee manage medications independently?":
           payload.medications_independent,
         "Does the referee have any medical prescriptions/diagnosis?":

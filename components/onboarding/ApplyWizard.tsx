@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { submitApplication } from "@/app/actions/forms";
+import { hasWrittenDiagnosis } from "@/lib/diagnosis";
 import { trackGoogleAdsContactConversion } from "@/lib/google-ads";
 import { trackMetaSubmitApplication } from "@/lib/meta-pixel";
 import {
@@ -60,8 +61,8 @@ const initial = {
   referring_party_info: "",
   mobility_limitations: "",
   mobility_explanation: "",
-  mental_limitations: "",
   mental_explanation: "",
+  medical_diagnosis: "",
   has_care_provider: "",
   care_provider_name: "",
   care_provider_phone: "",
@@ -151,20 +152,18 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
     if (step === 3) {
       if (
         !data.mobility_limitations ||
-        !data.mental_limitations ||
+        !data.mental_explanation.trim() ||
+        !data.medical_diagnosis.trim() ||
         !data.medications_independent ||
         !data.medical_prescriptions ||
         !data.memory_loss
       ) {
-        return "Please complete all fields on this step.";
+        return "Please complete all fields on this step. Type None if a diagnosis does not apply.";
       }
       if (data.mobility_limitations === "Yes" && !data.mobility_explanation) {
         return "Please explain your mobility issues.";
       }
-      if (data.mental_limitations === "Yes" && !data.mental_explanation) {
-        return "Please say what mental diagnosis you have.";
-      }
-      if (data.mental_limitations === "Yes" && !data.has_care_provider) {
+      if (hasWrittenDiagnosis(data.mental_explanation) && !data.has_care_provider) {
         return "Please say whether you have a therapist or doctor.";
       }
       if (
@@ -584,24 +583,38 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
               onChange={(v) => setField("mobility_limitations", v)}
               onExplainChange={(v) => setField("mobility_explanation", v)}
             />
-            <YesNoExplain
-              name="mental_limitations"
-              label="Do you have a mental diagnosis?"
-              explainLabel="What mental diagnosis do you have?"
-              value={data.mental_limitations}
-              explainValue={data.mental_explanation}
-              onChange={(v) => {
-                setField("mental_limitations", v);
-                if (v !== "Yes") {
-                  setField("has_care_provider", "");
-                  setField("care_provider_name", "");
-                  setField("care_provider_phone", "");
-                  setField("care_provider_address", "");
-                }
-              }}
-              onExplainChange={(v) => setField("mental_explanation", v)}
-            />
-            {data.mental_limitations === "Yes" && (
+            <div className="field">
+              <label htmlFor="mental_explanation">What mental diagnosis do you have?</label>
+              <textarea
+                id="mental_explanation"
+                required
+                rows={3}
+                placeholder="None, N/A, or the diagnosis"
+                value={data.mental_explanation}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setField("mental_explanation", value);
+                  if (!hasWrittenDiagnosis(value)) {
+                    setField("has_care_provider", "");
+                    setField("care_provider_name", "");
+                    setField("care_provider_phone", "");
+                    setField("care_provider_address", "");
+                  }
+                }}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="medical_diagnosis">What medical diagnosis do you have?</label>
+              <textarea
+                id="medical_diagnosis"
+                required
+                rows={3}
+                placeholder="None, N/A, or the diagnosis"
+                value={data.medical_diagnosis}
+                onChange={(e) => setField("medical_diagnosis", e.target.value)}
+              />
+            </div>
+            {hasWrittenDiagnosis(data.mental_explanation) && (
               <>
                 <RadioGroup
                   name="has_care_provider"

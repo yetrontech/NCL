@@ -61,7 +61,9 @@ begin
     'care_provider_name', public.forms_clamp_text(row_data ->> 'care_provider_name', 120),
     'care_provider_phone', public.forms_clamp_text(row_data ->> 'care_provider_phone', 40),
     'care_provider_address', public.forms_clamp_text(row_data ->> 'care_provider_address', 400),
-    'medicare_medicaid', public.forms_clamp_text(row_data ->> 'medicare_medicaid', 16)
+    'medicare_medicaid', public.forms_clamp_text(row_data ->> 'medicare_medicaid', 16),
+    'mental_explanation', public.forms_clamp_text(row_data ->> 'mental_explanation', 400),
+    'medical_diagnosis', public.forms_clamp_text(row_data ->> 'medical_diagnosis', 400)
   );
 
   if jwt_role in ('anon', 'authenticated') then
