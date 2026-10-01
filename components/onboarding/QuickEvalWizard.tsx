@@ -57,7 +57,7 @@ export default function QuickEvalWizard({ phone }: { phone: string }) {
                 Start over
               </button>
               <Link href="/apply" className="btn btn-primary">
-                Start the application
+                Apply
               </Link>
             </div>
           </>

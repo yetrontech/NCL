@@ -5,6 +5,7 @@ import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
 import { sendFreeGuides } from "@/app/actions/guides";
 import BedCount from "@/components/BedCount";
+import GuideOffer from "@/components/GuideOffer";
 import { FREE_GUIDES, FREE_GUIDES_ZIP, freeGuideHref } from "@/lib/free-guides";
 
 export default function GuideSignup({ bedsRemaining }: { bedsRemaining: number | null }) {
@@ -27,7 +28,7 @@ export default function GuideSignup({ bedsRemaining }: { bedsRemaining: number |
 
   return (
     <div className="guide-page">
-      <div>
+      <div className="guide-stage">
         <div className="guide-card">
           <BedCount initial={bedsRemaining} />
           <Link href="/" className="guide-logo" aria-label="New Creation Living">
@@ -80,10 +81,11 @@ export default function GuideSignup({ bedsRemaining }: { bedsRemaining: number |
             <Link href="/privacy">Privacy</Link>
           </p>
         </div>
-        <p className="guide-footer">
-          New Creation Living · Atlanta, GA · newcreationliving.org · (404) 731-2371
-        </p>
+        <GuideOffer />
       </div>
+      <p className="guide-footer">
+        New Creation Living · Atlanta, GA · newcreationliving.org · (404) 731-2371
+      </p>
     </div>
   );
 }
