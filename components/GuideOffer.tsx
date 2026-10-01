@@ -2,52 +2,30 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import BedCount from "@/components/BedCount";
 
-const INCLUDED = [
-  "Free rent and gift card rewards",
-  "NA/AA meeting resource guide",
-  "Work, volunteer, and school resources",
-  "Financial growth course",
-  "AI education",
-  "Transportation to the home",
-];
-
-export default function GuideOffer() {
+export default function GuideOffer({ bedsRemaining }: { bedsRemaining: number | null }) {
   const [open, setOpen] = useState(false);
 
   return (
     <div className="guide-card guide-offer">
-      <div className="guide-offer-banner">Limited-time offer</div>
-      <h2>Pay 1 month, move in within 48 hours</h2>
-      <p className="guide-offer-terms">No security deposit · No credit check · No extra fees</p>
-      <p>We&apos;ll provide transportation to your new home, and you can move in within 48 hours.</p>
+      <BedCount initial={bedsRemaining} />
+      <div className="guide-offer-banner">Limited Space Offer</div>
+      <h2>We&apos;ll pay for your transportation to our home.</h2>
+      <p className="guide-offer-terms">Pay 1 month.</p>
+      <p className="guide-offer-highlight">We guarantee you safety, stability, and a home.</p>
       <p>
-        You have 7 days to decide. If it&apos;s not right, we refund 100% of your first month&apos;s
-        payment, minus transportation fees.
+        If you decide this is not the place for you, we&apos;ll give you a 100% refund within 7
+        days of move-in.
       </p>
+      <p>
+        Once you become a resident, on your second successful referral, your full month&apos;s
+        rent will be only $125 for the whole month.
+      </p>
+      <p>Each additional successful referral gives you another month of $125 in rent.</p>
 
       {open ? (
         <div className="guide-offer-more">
-          <h3>You&apos;ll also get</h3>
-          <ul>
-            {INCLUDED.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-
-          <h3>Everything you need in a home</h3>
-          <p>
-            Furnished home, kitchen, utilities, laundry, Wi-Fi, MARTA access, house manager,
-            security, community activities, a sober and drug-free environment, and more.
-          </p>
-
-          <h3>Your referrals can lower your rent</h3>
-          <p>Refer someone who moves in.</p>
-          <p className="guide-offer-highlight">
-            On your second referral: pay only $125 for a full month&apos;s rent.
-          </p>
-          <p>And every additional referral means you pay only $125 for that month&apos;s rent.</p>
-
           <h3>A few months from now</h3>
           <p>Your friends, family, and peers may wonder:</p>
           <ul className="guide-offer-quotes">
@@ -68,6 +46,7 @@ export default function GuideOffer() {
         {open ? "Show less" : "Read more"}
       </button>
 
+      <p className="guide-offer-eligible">See if you are eligible below</p>
       <Link href="/quickeval/check" className="guide-offer-cta">
         See if you&apos;re a good fit
       </Link>

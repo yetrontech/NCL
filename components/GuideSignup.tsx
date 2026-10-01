@@ -4,9 +4,25 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
 import { sendFreeGuides } from "@/app/actions/guides";
-import BedCount from "@/components/BedCount";
 import GuideOffer from "@/components/GuideOffer";
 import { FREE_GUIDES, FREE_GUIDES_ZIP, freeGuideHref } from "@/lib/free-guides";
+
+const PERKS = [
+  "🎁 Free rent & gift card rewards in our rewards system",
+  "🤝 NA/AA meeting resource guide",
+  "💼 Lifestyle planner",
+  "💰 We'll teach you how to save and make more on a fixed income",
+  "And everything else you need",
+  "🏠 Furnished home",
+  "Kitchen",
+  "Laundry",
+  "Wi-Fi",
+  "Utilities",
+  "MARTA access",
+  "House manager",
+  "Security",
+  "Sober home",
+];
 
 export default function GuideSignup({ bedsRemaining }: { bedsRemaining: number | null }) {
   const [sent, setSent] = useState(false);
@@ -30,7 +46,6 @@ export default function GuideSignup({ bedsRemaining }: { bedsRemaining: number |
     <div className="guide-page">
       <div className="guide-stage">
         <div className="guide-card">
-          <BedCount initial={bedsRemaining} />
           <Link href="/" className="guide-logo" aria-label="New Creation Living">
             <BrandLogo clipId="guideClip" />
           </Link>
@@ -81,7 +96,17 @@ export default function GuideSignup({ bedsRemaining }: { bedsRemaining: number |
             <Link href="/privacy">Privacy</Link>
           </p>
         </div>
-        <GuideOffer />
+        <GuideOffer bedsRemaining={bedsRemaining} />
+      </div>
+      <div className="guide-marquee">
+        <p className="guide-marquee-label">You&apos;ll also get</p>
+        <div className="guide-marquee-window">
+          <div className="guide-marquee-track">
+            {[...PERKS, ...PERKS].map((perk, index) => (
+              <span key={`${perk}-${index}`}>{perk}</span>
+            ))}
+          </div>
+        </div>
       </div>
       <p className="guide-footer">
         New Creation Living · Atlanta, GA · newcreationliving.org · (404) 731-2371
