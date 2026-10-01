@@ -4194,7 +4194,7 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      align-items: flex-start;
+      align-items: stretch;
       gap: 24px;
       width: 100%;
       max-width: 984px;
@@ -4202,6 +4202,8 @@
 
     .guide-card {
       position: relative;
+      display: flex;
+      flex-direction: column;
       width: 100%;
       max-width: 480px;
       flex: 1 1 440px;
@@ -4248,6 +4250,11 @@
       line-height: 1.55;
       color: var(--guide-ink-soft);
       margin: 0 0 26px;
+    }
+
+    .guide-card form,
+    .guide-card .guide-success {
+      margin-top: auto;
     }
 
     .guide-card form {
@@ -4428,7 +4435,8 @@
     }
 
     .guide-offer-eligible {
-      margin: 18px 0 0;
+      margin: 0;
+      padding-top: 18px;
       font-size: 12px;
       font-weight: 700;
       letter-spacing: 0.14em;
