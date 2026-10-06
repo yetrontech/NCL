@@ -595,7 +595,7 @@ export default function ApplyWizard() {
             <YesNoExplain
               name="mental_limitations"
               label="Do you have a mental diagnosis?"
-              explainLabel="What mental diagnosis do you have?"
+              explainLabel="What mental diagnosis do you have? (Please list prescriptions as well)"
               value={data.mental_limitations}
               explainValue={data.mental_explanation}
               onChange={(v) => {

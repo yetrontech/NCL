@@ -355,7 +355,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
         "Do you have any mobility issues?": payload.mobility_limitations,
         "Mobility limitations explanation": answer(payload.mobility_explanation),
         "Do you have a mental diagnosis?": payload.mental_limitations,
-        "What mental diagnosis do you have?": answer(payload.mental_explanation),
+        "What mental diagnosis do you have? (Please list prescriptions as well)": answer(payload.mental_explanation),
         "Do you manage medications independently?":
           payload.medications_independent,
         "Do you have any medical prescriptions/diagnosis?":
