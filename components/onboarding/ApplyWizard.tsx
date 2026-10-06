@@ -104,17 +104,24 @@ export default function ApplyWizard() {
       }
     }
     if (step === 1) {
+      if (!data.how_heard) return "Please tell us how you heard about us.";
+      if (data.how_heard === "Other" && !data.how_heard_other.trim()) {
+        return "Please tell us how you heard about us.";
+      }
+      if (!data.referring_party_info.trim()) {
+        return "Please complete the referral question. Type N/A if none.";
+      }
+      if (!data.situation_explanation.trim()) {
+        return "Please give a quick explanation of your current situation.";
+      }
       if (data.benefit_type === "Not yet approved") {
         return "You'll need approved benefits before you can apply. Start the benefits screening below.";
       }
-      if (!data.benefit_type || !data.monthly_benefit_amount || !data.move_timeline || !data.how_heard) {
+      if (!data.benefit_type || !data.monthly_benefit_amount || !data.move_timeline) {
         return "Please complete all fields on this step.";
       }
       if (data.benefit_type === "Other" && !data.income_source) {
         return "Please tell us how you are receiving income.";
-      }
-      if (data.how_heard === "Other" && !data.how_heard_other.trim()) {
-        return "Please tell us how you heard about us.";
       }
       if (
         ["SSI", "SSDI", "Social Security"].includes(data.benefit_type) &&
@@ -124,7 +131,7 @@ export default function ApplyWizard() {
       }
     }
     if (step === 2) {
-      if (!data.situation_explanation || !data.living_with_others) {
+      if (!data.living_with_others) {
         return "Please complete all fields on this step.";
       }
       if (!data.former_address.trim() || !data.former_contact.trim()) {
@@ -140,9 +147,6 @@ export default function ApplyWizard() {
         if (!data.dependent_name || !data.dependent_income) {
           return "Please share the adult dependant's name and how much they receive.";
         }
-      }
-      if (!data.referring_party_info) {
-        return "Please complete all fields on this step.";
       }
     }
     if (step === 3) {
@@ -339,6 +343,71 @@ export default function ApplyWizard() {
 
         {step === 1 && (
           <>
+            <div className="field">
+              <label htmlFor="how_heard">How did you hear about us?</label>
+              <select
+                id="how_heard"
+                required
+                value={data.how_heard}
+                onChange={(e) => {
+                  setField("how_heard", e.target.value);
+                  if (e.target.value !== "Other") setField("how_heard_other", "");
+                }}
+              >
+                <option value="">Select one</option>
+                {HOW_HEARD_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {data.how_heard === "Other" && (
+              <div className="field">
+                <label htmlFor="how_heard_other">Please tell us how you heard about us</label>
+                <input
+                  id="how_heard_other"
+                  required
+                  placeholder="e.g. flyer, church, TikTok"
+                  value={data.how_heard_other}
+                  onChange={(e) => setField("how_heard_other", e.target.value)}
+                />
+              </div>
+            )}
+            <div className="field">
+              <label htmlFor="promo_code">Promo code (optional)</label>
+              <input
+                id="promo_code"
+                value={data.promo_code}
+                onChange={(e) => setField("promo_code", e.target.value)}
+                placeholder="From an event, flyer or ad"
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="referring_party_info">
+                If this is a referral, please state the referring party, phone number, and
+                organization. (Type N/A if none)
+              </label>
+              <textarea
+                id="referring_party_info"
+                rows={3}
+                required
+                value={data.referring_party_info}
+                onChange={(e) => setField("referring_party_info", e.target.value)}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="situation_explanation">
+                Please give us a quick explanation of your current situation
+              </label>
+              <textarea
+                id="situation_explanation"
+                rows={4}
+                required
+                value={data.situation_explanation}
+                onChange={(e) => setField("situation_explanation", e.target.value)}
+              />
+            </div>
             <RadioGroup
               name="benefit_type"
               label="Benefit type"
@@ -397,66 +466,12 @@ export default function ApplyWizard() {
                 onChange={(v) => setField("move_timeline", v)}
                 required={!benefitsNotApproved}
               />
-              <div className="field">
-                <label htmlFor="how_heard">How did you hear about us?</label>
-                <select
-                  id="how_heard"
-                  required={!benefitsNotApproved}
-                  tabIndex={benefitsNotApproved ? -1 : undefined}
-                  value={data.how_heard}
-                  onChange={(e) => {
-                    setField("how_heard", e.target.value);
-                    if (e.target.value !== "Other") setField("how_heard_other", "");
-                  }}
-                >
-                  <option value="">Select one</option>
-                  {HOW_HEARD_OPTIONS.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {data.how_heard === "Other" && (
-                <div className="field">
-                  <label htmlFor="how_heard_other">Please tell us how you heard about us</label>
-                  <input
-                    id="how_heard_other"
-                    required={!benefitsNotApproved}
-                    tabIndex={benefitsNotApproved ? -1 : undefined}
-                    placeholder="e.g. flyer, church, TikTok"
-                    value={data.how_heard_other}
-                    onChange={(e) => setField("how_heard_other", e.target.value)}
-                  />
-                </div>
-              )}
-              <div className="field">
-                <label htmlFor="promo_code">Promo code (optional)</label>
-                <input
-                  id="promo_code"
-                  value={data.promo_code}
-                  onChange={(e) => setField("promo_code", e.target.value)}
-                  placeholder="From an event or flyer"
-                />
-              </div>
             </div>
           </>
         )}
 
         {step === 2 && (
           <>
-            <div className="field">
-              <label htmlFor="situation_explanation">
-                Please give us a quick explanation of your current situation
-              </label>
-              <textarea
-                id="situation_explanation"
-                rows={4}
-                required
-                value={data.situation_explanation}
-                onChange={(e) => setField("situation_explanation", e.target.value)}
-              />
-            </div>
             <div className="field">
               <label htmlFor="former_address">Most recent address</label>
               <textarea
@@ -559,21 +574,6 @@ export default function ApplyWizard() {
                   </div>
                 )}
               </>
-            )}
-            {data.dependents_kind !== DEPENDENTS_UNDERAGE && (
-              <div className="field">
-                <label htmlFor="referring_party_info">
-                  If this is a referral, please state the referring party, phone number, and
-                  organization. (Type N/A if none)
-                </label>
-                <textarea
-                  id="referring_party_info"
-                  rows={3}
-                  required
-                  value={data.referring_party_info}
-                  onChange={(e) => setField("referring_party_info", e.target.value)}
-                />
-              </div>
             )}
           </>
         )}
