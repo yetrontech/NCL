@@ -1,7 +1,6 @@
 /** Ideal responses that indicate a highly favorable applicant/referee. */
 const IDEAL_RESPONSES = {
   mobility_limitations: "No",
-  // A written diagnosis is stored as Yes. Blank, none, and N/A stay No.
   mental_limitations: "No",
   medications_independent: "Yes",
   crime_conviction: "No",

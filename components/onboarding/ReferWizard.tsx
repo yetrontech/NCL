@@ -3,7 +3,6 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { submitReferral } from "@/app/actions/forms";
-import { hasWrittenDiagnosis } from "@/lib/diagnosis";
 import { trackGoogleAdsContactConversion } from "@/lib/google-ads";
 import { trackMetaLead } from "@/lib/meta-pixel";
 import {
@@ -59,8 +58,8 @@ const initial = {
   living_with_others: "",
   mobility_limitations: "",
   mobility_explanation: "",
+  mental_limitations: "",
   mental_explanation: "",
-  medical_diagnosis: "",
   has_care_provider: "",
   care_provider_name: "",
   care_provider_phone: "",
@@ -72,6 +71,7 @@ const initial = {
   crime_explanation: "",
   substance_abuse_history: "",
   substance_abuse_explanation: "",
+  sober_length: "",
   aggression_history: "",
   elopement_risk: "",
   communal_living_interference: "",
@@ -137,17 +137,19 @@ export default function ReferWizard() {
     if (step === 4) {
       if (
         !data.mobility_limitations ||
-        !data.mental_explanation.trim() ||
-        !data.medical_diagnosis.trim() ||
+        !data.mental_limitations ||
         !data.medications_independent ||
         !data.medical_prescriptions
       ) {
-        return "Please complete all fields on this step. Type None if a diagnosis does not apply.";
+        return "Please complete all fields on this step.";
       }
       if (data.mobility_limitations === "Yes" && !data.mobility_explanation) {
         return "Please explain the mobility issues.";
       }
-      if (hasWrittenDiagnosis(data.mental_explanation) && !data.has_care_provider) {
+      if (data.mental_limitations === "Yes" && !data.mental_explanation) {
+        return "Please say what mental diagnosis the referee has.";
+      }
+      if (data.mental_limitations === "Yes" && !data.has_care_provider) {
         return "Please say whether the referee has a therapist or doctor.";
       }
       if (
@@ -170,6 +172,13 @@ export default function ReferWizard() {
       if (!data.substance_abuse_history) return "Please answer the drug or alcohol abuse question.";
       if (data.substance_abuse_history === "Yes" && !data.substance_abuse_explanation) {
         return "Please explain the drug or alcohol abuse history.";
+      }
+      if (
+        data.substance_abuse_history === "Yes" &&
+        data.sober_length !== "Less than 2 years" &&
+        data.sober_length !== "Over 2 years"
+      ) {
+        return "Please say how long the referee has been sober.";
       }
       if (
         !data.aggression_history ||
@@ -532,38 +541,24 @@ export default function ReferWizard() {
               onChange={(v) => setField("mobility_limitations", v)}
               onExplainChange={(v) => setField("mobility_explanation", v)}
             />
-            <div className="field">
-              <label htmlFor="mental_explanation">What mental diagnosis does the referee have?</label>
-              <textarea
-                id="mental_explanation"
-                required
-                rows={3}
-                placeholder="None, N/A, or the diagnosis"
-                value={data.mental_explanation}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setField("mental_explanation", value);
-                  if (!hasWrittenDiagnosis(value)) {
-                    setField("has_care_provider", "");
-                    setField("care_provider_name", "");
-                    setField("care_provider_phone", "");
-                    setField("care_provider_address", "");
-                  }
-                }}
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="medical_diagnosis">What medical diagnosis does the referee have?</label>
-              <textarea
-                id="medical_diagnosis"
-                required
-                rows={3}
-                placeholder="None, N/A, or the diagnosis"
-                value={data.medical_diagnosis}
-                onChange={(e) => setField("medical_diagnosis", e.target.value)}
-              />
-            </div>
-            {hasWrittenDiagnosis(data.mental_explanation) && (
+            <YesNoExplain
+              name="mental_limitations"
+              label="Does the referee have a mental diagnosis?"
+              explainLabel="What mental diagnosis does the referee have?"
+              value={data.mental_limitations}
+              explainValue={data.mental_explanation}
+              onChange={(v) => {
+                setField("mental_limitations", v);
+                if (v !== "Yes") {
+                  setField("has_care_provider", "");
+                  setField("care_provider_name", "");
+                  setField("care_provider_phone", "");
+                  setField("care_provider_address", "");
+                }
+              }}
+              onExplainChange={(v) => setField("mental_explanation", v)}
+            />
+            {data.mental_limitations === "Yes" && (
               <>
                 <RadioGroup
                   name="has_care_provider"
@@ -647,9 +642,27 @@ export default function ReferWizard() {
               label="Has the referee had a history of drug or alcohol abuse?"
               value={data.substance_abuse_history}
               explainValue={data.substance_abuse_explanation}
-              onChange={(v) => setField("substance_abuse_history", v)}
+              onChange={(v) => {
+                setField("substance_abuse_history", v);
+                if (v !== "Yes") setField("sober_length", "");
+              }}
               onExplainChange={(v) => setField("substance_abuse_explanation", v)}
             />
+            {data.substance_abuse_history === "Yes" && (
+              <div className="field">
+                <label htmlFor="sober_length">How long have they been sober?</label>
+                <select
+                  id="sober_length"
+                  required
+                  value={data.sober_length}
+                  onChange={(e) => setField("sober_length", e.target.value)}
+                >
+                  <option value="">Select one</option>
+                  <option value="Less than 2 years">Less than 2 years</option>
+                  <option value="Over 2 years">Over 2 years</option>
+                </select>
+              </div>
+            )}
             <RadioGroup
               name="aggression_history"
               label="Have they had any history of Aggression?"

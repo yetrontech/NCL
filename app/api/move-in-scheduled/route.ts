@@ -45,10 +45,54 @@ export async function POST(request: Request) {
   }
 
   const token = typeof body.token === "string" ? body.token.trim() : "";
+  const ackId = body.ackId;
   const table = body.table;
   const id = body.id;
   const date = body.date;
   const time = body.time;
+
+  if (isUuid(token) && isUuid(ackId)) {
+    const { data, error } = await getSupabase().rpc("house_move_in_email_payload", {
+      p_token: token,
+      p_ack_id: ackId,
+    });
+    const payload = data as {
+      ok?: boolean;
+      error?: string;
+      firstName?: string;
+      email?: string | null;
+      date?: string;
+      time?: string;
+      houseId?: string | null;
+    } | null;
+    if (error || !payload?.ok || !isDate(payload.date) || !isTime(payload.time)) {
+      return NextResponse.json(
+        { ok: false, error: payload?.error || "Could not verify that acknowledgement." },
+        { status: 401 }
+      );
+    }
+    try {
+      await notifyMoveInDate({
+        firstName: payload.firstName || "",
+        email: payload.email,
+        date: payload.date,
+        time: payload.time,
+        houseId: typeof payload.houseId === "string" ? payload.houseId : null,
+      });
+      return NextResponse.json({ ok: true });
+    } catch (err) {
+      console.error("Move-in date email failed:", err);
+      const message = err instanceof Error ? err.message : "";
+      const safe =
+        message.startsWith("Email is not set up") ||
+        message.startsWith("Gmail backup") ||
+        message.startsWith("This application has no") ||
+        message.startsWith("This application does not")
+          ? message
+          : "Could not send the email.";
+      return NextResponse.json({ ok: false, error: safe }, { status: 500 });
+    }
+  }
 
   if (!isUuid(token) || !isTable(table) || !isUuid(id) || !isDate(date) || !isTime(time)) {
     return NextResponse.json({ ok: false, error: "Invalid request." }, { status: 400 });

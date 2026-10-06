@@ -2,8 +2,6 @@ import { createClient } from "@supabase/supabase-js";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { FREE_GUIDES } from "@/lib/free-guides";
-import { loadBedsRemaining } from "@/lib/beds";
-import { buildGuideOfferEmail } from "@/lib/guide-offer-email";
 
 export type SubmissionKind =
   | "application"
@@ -123,7 +121,6 @@ function buildEmailSignatureHtml(): string {
 function wrapUserEmailHtml(bodyParagraphs: string[], extraHtml = ""): string {
   return `<!DOCTYPE html>
 <html lang="en">
-  <head><meta charset="utf-8" /></head>
   <body style="margin:0;padding:0;background:#F7F4EE;">
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#F7F4EE;padding:24px 12px;">
       <tr>
@@ -305,8 +302,6 @@ export async function sendFreeGuidesEmail(to: string): Promise<void> {
   }
 
   const siteUrl = getSiteUrl();
-  const bedsRemaining = await loadBedsRemaining();
-  const offer = buildGuideOfferEmail({ siteUrl, bedsRemaining });
   const attachments = FREE_GUIDES.map((guide) => ({
     filename: guide.filename,
     content: readFileSync(join(process.cwd(), "public", "guides", guide.filename)).toString(
@@ -331,15 +326,13 @@ export async function sendFreeGuidesEmail(to: string): Promise<void> {
       "",
       "The same files are attached to this email.",
       "",
-      offer.text,
-      "",
       "— New Creation Living",
     ].join("\n"),
     html: wrapUserEmailHtml(
       [
         "Here are the three guides you asked for. The same files are attached to this email.",
       ],
-      `${linkHtml}${offer.html}`
+      linkHtml
     ),
     attachments,
   });

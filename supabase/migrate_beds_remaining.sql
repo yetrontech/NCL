@@ -1,5 +1,6 @@
 -- Public remaining-bed total for the website guide page.
--- Returns one integer: empty beds across every house.
+-- Returns one integer: empty beds in houses that are on the public site.
+-- A house added for staff logistics stays off this count until public_listed is true.
 -- Empty = capacity minus residents living there now (moved out excluded).
 -- People accepted or scheduled, but not moved in, still count as open beds.
 -- Does not return names, houses, or any other row. Safe to re-run.
@@ -20,7 +21,8 @@ begin
     0
   )), 0)::integer
   into total
-  from public.houses h;
+  from public.houses h
+  where coalesce(h.public_listed, true);
 
   return total;
 end;

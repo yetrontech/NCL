@@ -20,7 +20,7 @@ export default async function PrivacyPage() {
   const tagline = content["brand.tagline"] || "From Benefits to Belonging";
 
   return (
-    <LegalPage title="Privacy Policy" tagline={tagline} updated="October 1, 2026">
+    <LegalPage title="Privacy Policy" tagline={tagline} updated="October 4, 2026">
       <p>
         New Creation Living provides structured, all-inclusive housing for independent
         adults on fixed government income in Metro Atlanta and Middle Georgia. We also
@@ -161,10 +161,11 @@ export default async function PrivacyPage() {
       </p>
       <p>
         After someone moves in, we copy a short set of safety flags onto the house
-        roster: Meetings, for a drug or alcohol history, and Keeping medicine in the
-        cabinet, for a mental diagnosis or when someone cannot manage medicine on
-        their own. Those flags are visible to the owner, administrators, and the
-        assigned house manager. They are not shown to other residents. The therapist’s
+        roster: Meetings, for a drug or alcohol history, and Mandate residents to
+        keep mental health medicine in the cabinet, for a mental diagnosis or when
+        someone cannot manage medicine on their own. Those flags are visible to the owner, administrators, and the
+        assigned house manager. The owner can also add a custom tag and assign it to
+        residents. Those tags are visible to the same staff group. They are not shown to other residents. The therapist’s
         name, phone, and address stay on the intake file for that same staff group.
       </p>
       <p>
@@ -179,6 +180,50 @@ export default async function PrivacyPage() {
         These answers are not used as a public marketing score. The public website
         cannot read submitted applications back. A new submission stays pending until
         a staff member accepts it.
+      </p>
+
+      <h2>The NCL house app</h2>
+      <p>
+        The NCL app on the Apple App Store is for people who live in a New Creation
+        Living home and for the staff who run it. It is the same housing file as this
+        website, not a separate product. Residents and house managers sign in with a
+        4-digit PIN. The owner uses a house code. Administrators use the same email
+        and password as the staff dashboard.
+      </p>
+      <p>The app stores and shows:</p>
+      <ul>
+        <li>Name, phone, email, date of birth, and gender from the housing file</li>
+        <li>
+          Health and housing answers already on an application, including mental
+          diagnosis, medical diagnosis, medications, substance history, and criminal
+          history, for the owner, administrators, and the assigned house manager
+        </li>
+        <li>Safety tags and custom tags drawn from those answers</li>
+        <li>Points, notes, complaints, and house announcements</li>
+        <li>
+          A push token from Apple if you allow notifications, so the app can alert
+          staff about a new form or a house announcement. The token is stored in our
+          database (Supabase) and sent through Expo’s push service. It is not used
+          for advertising.
+        </li>
+      </ul>
+      <p>
+        Login PINs are stored as a one-way hash. Staff who create a PIN see it only
+        while they are typing it. The app does not keep a list of PINs on the home
+        screen. The app does not use advertising trackers.
+      </p>
+      <p>
+        You can close your own house login inside the app under Delete my login.
+        That turns off the PIN immediately. Applications, move-in history, and other
+        records we need to operate the home or meet a legal duty stay in the file.
+        Email us if you want those reviewed for deletion.
+      </p>
+      <p>
+        Complaints and announcements can be reported in the app. Staff can remove a
+        complaint and can block someone from posting. Write to{" "}
+        <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> or call{" "}
+        <a href="tel:+14047312371">{CONTACT_PHONE}</a> about a privacy or content
+        concern.
       </p>
 
       <h2>How long we keep it</h2>

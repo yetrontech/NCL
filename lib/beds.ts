@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 
-/** Open beds across every house. Null when the public count is not available yet. */
+/** Open beds on houses that are on the public site. Null when the count is not available yet. */
 export async function loadBedsRemaining(): Promise<number | null> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -11,6 +11,7 @@ export async function loadBedsRemaining(): Promise<number | null> {
   const houses = listed.data?.houses;
   if (!listed.error && Array.isArray(houses) && houses.length > 0) {
     const remaining = houses.reduce((sum, house) => {
+      if (house?.publicListed === false || house?.public_listed === false) return sum;
       const capacity = Number(house?.capacity);
       const living = Number(house?.residents ?? house?.occupied);
       if (!Number.isFinite(capacity)) return sum;
