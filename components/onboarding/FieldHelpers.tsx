@@ -7,6 +7,7 @@ export function RadioGroup({
   value,
   onChange,
   required = true,
+  emphasize = false,
 }: {
   name: string;
   label: string;
@@ -14,11 +15,12 @@ export function RadioGroup({
   value: string;
   onChange: (value: string) => void;
   required?: boolean;
+  emphasize?: boolean;
 }) {
   return (
     <div className="field">
       <label>{label}</label>
-      <div className="radio-group">
+      <div className={emphasize ? "radio-group is-emphasis" : "radio-group"}>
         {options.map((option, index) => (
           <label className="radio-pill" key={option}>
             <input

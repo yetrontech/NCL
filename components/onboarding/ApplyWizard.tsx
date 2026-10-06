@@ -521,14 +521,18 @@ export default function ApplyWizard() {
             </div>
             {applyingWithDependants && (
               <>
-                <p className="onboarding-aside">
+                <p className="onboarding-aside onboarding-dependants-note">
                   This housing is best for serving adults with no underage dependents. If the
-                  dependants are of legal age, they must be on a fixed income.
+                  dependants are of legal age, they must be{" "}
+                  <span className="onboarding-gold">on a fixed income</span>,{" "}
+                  <span className="onboarding-gold">be a working adult</span> or{" "}
+                  <span className="onboarding-gold">have their rent covered by the fixed income adult</span>.
                 </p>
                 <RadioGroup
                   name="dependents_kind"
                   label="Are the dependants adults on a fixed income, or underage?"
                   options={DEPENDENT_KIND_OPTIONS}
+                  emphasize
                   value={data.dependents_kind}
                   onChange={(value) => {
                     setData((prev) => ({

@@ -3154,6 +3154,29 @@
       opacity: 0.88;
     }
 
+    .onboarding-dependants-note {
+      padding-bottom: 16px;
+    }
+
+    .onboarding-gold {
+      color: var(--gold);
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    .radio-group.is-emphasis .radio-pill {
+      border-color: var(--gold);
+      color: #8a5a12;
+      background: rgba(201, 168, 76, 0.22);
+      font-weight: 700;
+    }
+
+    .radio-group.is-emphasis .radio-pill:has(input:checked) {
+      background: var(--gold);
+      color: var(--navy);
+      border-color: var(--gold);
+    }
+
     .onboarding-locked {
       position: relative;
       pointer-events: none;
