@@ -12,32 +12,28 @@ export function buildGuideOfferEmail(opts: {
   bedsRemaining: number | null;
 }): { html: string; text: string } {
   const checkUrl = `${opts.siteUrl.replace(/\/$/, "")}/quickeval/check`;
+  const spot = opts.bedsRemaining === 1 ? "spot" : "spots";
   const beds =
     opts.bedsRemaining == null
       ? ""
-      : `<td align="right" valign="top" style="padding:0 0 0 12px;white-space:nowrap;">
-          <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:26px;line-height:1;font-weight:600;color:#E23D3D;">${opts.bedsRemaining}</p>
-          <p style="margin:4px 0 0;font-size:11px;line-height:1;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#E23D3D;">
-            <span style="color:#E23D3D;">&#9679;</span> ${opts.bedsRemaining === 1 ? "bed left" : "beds left"}
-          </p>
-        </td>`;
+      : `<p style="margin:14px 0 0;font-size:15px;line-height:1.45;font-weight:700;color:#E23D3D;">
+          <span style="color:#E23D3D;">&#9679;</span>
+          <span style="font-family:Georgia,'Times New Roman',serif;font-size:22px;line-height:1;font-weight:600;"> ${opts.bedsRemaining}</span>
+          available ${spot} left in the whole city of Atlanta
+        </p>`;
 
   const html = `
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:8px 0 4px;background:#211E19;border:1px solid #3A3529;border-radius:10px;">
   <tr>
     <td style="padding:28px 24px 24px;font-family:Arial,Helvetica,sans-serif;">
-      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
-        <tr>
-          <td valign="top" style="font-size:11px;line-height:1.3;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:#E23D3D;">
-            Limited Space Offer
-          </td>
-          ${beds}
-        </tr>
-      </table>
+      <p style="margin:0;font-size:11px;line-height:1.3;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:#E23D3D;">
+        Limited Space Offer
+      </p>
+      ${beds}
       <h2 style="margin:16px 0 12px;font-family:Georgia,'Times New Roman',serif;font-size:26px;line-height:1.22;font-weight:600;color:#F1ECDF;">
         When you love our home, bring your friends and pay $125 in rent.
       </h2>
-      <p style="margin:0 0 10px;font-size:16px;line-height:1.45;font-weight:700;color:#F1ECDF;">We'll pay for your transportation to our home. Pay 1 month.</p>
+      <p style="margin:0 0 10px;font-size:16px;line-height:1.45;font-weight:700;color:#F1ECDF;">We'll pay for your transportation to our home. The month you move in is free.</p>
       <p style="margin:0 0 12px;font-size:16px;line-height:1.45;font-weight:700;color:#F1ECDF;">We guarantee you safety, stability, and a home.</p>
       <p style="margin:0 0 12px;font-size:15px;line-height:1.55;color:#C9C2AE;">If you decide this is not the place for you, we'll give you a 100% refund within 7 days of move-in.</p>
       <p style="margin:0 0 12px;font-size:15px;line-height:1.55;color:#C9C2AE;">Once you become a resident, on your second successful referral, your full month's rent will be only $125 for the whole month.</p>
@@ -57,14 +53,16 @@ export function buildGuideOfferEmail(opts: {
   const bedLine =
     opts.bedsRemaining == null
       ? []
-      : [`${opts.bedsRemaining} ${opts.bedsRemaining === 1 ? "bed" : "beds"} left`];
+      : [
+          `${opts.bedsRemaining} available ${opts.bedsRemaining === 1 ? "spot" : "spots"} left in the whole city of Atlanta`,
+        ];
 
   const text = [
     "Limited Space Offer",
     ...bedLine,
     "",
     "When you love our home, bring your friends and pay $125 in rent.",
-    "We'll pay for your transportation to our home. Pay 1 month.",
+    "We'll pay for your transportation to our home. The month you move in is free.",
     "We guarantee you safety, stability, and a home.",
     "If you decide this is not the place for you, we'll give you a 100% refund within 7 days of move-in.",
     "Once you become a resident, on your second successful referral, your full month's rent will be only $125 for the whole month.",

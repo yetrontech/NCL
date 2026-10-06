@@ -31,14 +31,14 @@ export default function BedCount({ initial }: { initial: number | null }) {
 
   if (remaining === null) return null;
 
-  const label = remaining === 1 ? "bed left" : "beds left";
+  const spot = remaining === 1 ? "spot" : "spots";
 
   return (
     <p className="guide-beds" aria-live="polite">
+      <span className="guide-beds-dot" aria-hidden="true" />
       <strong>{remaining}</strong>
-      <span className="guide-beds-label">
-        <span className="guide-beds-dot" aria-hidden="true" />
-        {label}
+      <span className="guide-beds-phrase">
+        available {spot} left in the whole city of Atlanta
       </span>
     </p>
   );

@@ -15,9 +15,16 @@ import BenefitsPage from "@/components/pages/BenefitsPage";
 import LocationsPage from "@/components/pages/LocationsPage";
 import FaqPage from "@/components/pages/FaqPage";
 import { SiteContentProvider } from "@/components/SiteContentProvider";
+import OfferPopup from "@/components/OfferPopup";
 import type { SiteContentMap } from "@/lib/site-content";
 
-export default function SiteApp({ content }: { content: SiteContentMap }) {
+export default function SiteApp({
+  content,
+  bedsRemaining,
+}: {
+  content: SiteContentMap;
+  bedsRemaining: number | null;
+}) {
   const [videoOpen, setVideoOpen] = useState(false);
   const [galleryId, setGalleryId] = useState<LocationGalleryId | null>(null);
 
@@ -48,6 +55,7 @@ export default function SiteApp({ content }: { content: SiteContentMap }) {
       <LocationGalleryModal galleryId={galleryId} onClose={() => setGalleryId(null)} />
 
       <BackToTop />
+      <OfferPopup bedsRemaining={bedsRemaining} />
     </SiteContentProvider>
   );
 }

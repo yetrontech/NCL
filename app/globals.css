@@ -4119,8 +4119,8 @@
       background: #FBF9F4;
     }
 
-    .guide-page {
-      position: relative;
+    .guide-page,
+    .offer-popup {
       --guide-navy: #1B2E52;
       --guide-navy-deep: #12203B;
       --guide-gold: #B8963E;
@@ -4129,8 +4129,13 @@
       --guide-ink: #232017;
       --guide-ink-soft: #5B5749;
       --guide-line: #E2DAC8;
+    }
+
+    .guide-page {
+      position: relative;
       min-height: 100vh;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: calc(32px + env(safe-area-inset-top, 0px)) 20px calc(32px + env(safe-area-inset-bottom, 0px));
@@ -4139,40 +4144,55 @@
     }
 
     .guide-beds {
-      position: absolute;
-      top: calc(18px + env(safe-area-inset-top, 0px));
-      right: 22px;
-      margin: 0;
-      text-align: right;
-      line-height: 1;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 8px;
+      margin: 0 0 14px;
+      text-align: left;
+      line-height: 1.35;
+      font-size: 15px;
+      font-weight: 700;
+      color: #E23D3D;
     }
 
     .guide-beds strong {
-      display: block;
       font-family: Fraunces, Georgia, serif;
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 600;
-      color: var(--guide-navy);
+      line-height: 1;
+      color: #E23D3D;
     }
 
-    .guide-beds span {
-      display: block;
-      margin-top: 4px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--guide-gold);
+    .guide-beds-phrase {
+      flex: 1 1 12rem;
     }
 
-    @media (prefers-color-scheme: dark) {
-      .guide-beds strong {
-        color: var(--guide-ink);
+    .guide-beds-dot {
+      width: 8px;
+      height: 8px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: #E23D3D;
+      box-shadow: 0 0 0 0 rgba(226, 61, 61, 0.55);
+      animation: guide-beds-pulse 1.6s ease-out infinite;
+    }
+
+    @keyframes guide-beds-pulse {
+      70% {
+        box-shadow: 0 0 0 6px rgba(226, 61, 61, 0);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .guide-beds-dot {
+        animation: none;
       }
     }
 
     @media (prefers-color-scheme: dark) {
-      .guide-page {
+      .guide-page,
+      .offer-popup {
         --guide-paper: #171512;
         --guide-cream: #211E19;
         --guide-ink: #F1ECDF;
@@ -4185,9 +4205,23 @@
       }
     }
 
+    .guide-stage {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: stretch;
+      gap: 24px;
+      width: 100%;
+      max-width: 984px;
+    }
+
     .guide-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
       width: 100%;
       max-width: 480px;
+      flex: 1 1 440px;
       text-align: center;
       background: var(--guide-cream);
       border: 1px solid var(--guide-line);
@@ -4231,6 +4265,11 @@
       line-height: 1.55;
       color: var(--guide-ink-soft);
       margin: 0 0 26px;
+    }
+
+    .guide-card form,
+    .guide-card .guide-success {
+      margin-top: auto;
     }
 
     .guide-card form {
@@ -4304,13 +4343,215 @@
 
     .guide-downloads a {
       display: block;
+      background: transparent;
+      color: var(--guide-ink);
+      font-weight: 600;
+      text-decoration: none;
+      padding: 12px 22px;
+      border-radius: 5px;
+      border: 1px solid var(--guide-line);
+      font-size: 15px;
+    }
+
+    .guide-downloads a.guide-download-all {
       background: var(--guide-gold);
       color: var(--guide-navy-deep);
+      border-color: var(--guide-gold);
       font-weight: 700;
-      text-decoration: none;
-      padding: 14px 22px;
-      border-radius: 5px;
+    }
+
+    .guide-offer {
+      text-align: left;
+    }
+
+    .guide-offer-banner {
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #E23D3D;
+      margin-bottom: 12px;
+    }
+
+    .guide-offer h2 {
+      font-family: "Fraunces", serif;
+      font-weight: 600;
+      font-size: clamp(24px, 5.5vw, 30px);
+      line-height: 1.22;
+      color: var(--guide-navy);
+      margin: 0 0 12px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .guide-offer h2 {
+        color: #F1ECDF;
+      }
+    }
+
+    .guide-offer-terms {
+      margin: 0 0 8px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--guide-ink);
+    }
+
+    .guide-offer h3 {
+      margin: 20px 0 6px;
       font-size: 15px;
+      font-weight: 700;
+      color: var(--guide-ink);
+    }
+
+    .guide-offer p,
+    .guide-offer li {
+      margin: 0 0 8px;
+      font-size: 14.5px;
+      line-height: 1.5;
+      color: var(--guide-ink-soft);
+    }
+
+    .guide-offer .guide-beds,
+    .guide-offer .guide-beds strong,
+    .guide-offer .guide-beds-phrase {
+      color: #E23D3D;
+    }
+
+    .guide-offer ul {
+      margin: 0 0 8px;
+      padding-left: 1.15em;
+    }
+
+    .guide-offer-highlight {
+      font-weight: 700;
+      color: var(--guide-ink);
+    }
+
+    .guide-offer-quotes {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .guide-offer-quotes li {
+      font-style: italic;
+    }
+
+    .guide-card button.guide-offer-more-btn {
+      display: inline-block;
+      align-self: flex-start;
+      width: auto;
+      margin: 4px 0 0;
+      padding: 0;
+      border: none;
+      border-radius: 0;
+      background: none;
+      color: var(--guide-gold);
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: underline;
+    }
+
+    .guide-card button.guide-offer-more-btn:hover:not(:disabled) {
+      background: none;
+      color: var(--guide-gold);
+    }
+
+    .guide-offer-eligible {
+      margin: 0;
+      padding-top: 18px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--guide-gold);
+    }
+
+    .guide-offer-cta {
+      display: block;
+      margin-top: 18px;
+      text-align: center;
+      text-decoration: none;
+      font-family: Inter, sans-serif;
+      font-weight: 600;
+      font-size: 15px;
+      background: var(--guide-navy);
+      color: #F3EEE3;
+      border-radius: 5px;
+      padding: 14px 20px;
+    }
+
+    .guide-offer-cta:hover {
+      background: var(--guide-navy-deep);
+    }
+
+    .guide-marquee {
+      width: 100%;
+      margin-top: 28px;
+    }
+
+    .guide-marquee-label {
+      margin: 0 0 12px;
+      text-align: center;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--guide-gold);
+    }
+
+    .guide-marquee-window {
+      overflow: hidden;
+      position: relative;
+      mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+    }
+
+    .guide-marquee-track {
+      display: flex;
+      gap: 12px;
+      width: max-content;
+      animation: guide-marquee 42s linear infinite;
+    }
+
+    .guide-marquee-window:hover .guide-marquee-track {
+      animation-play-state: paused;
+    }
+
+    .guide-marquee-track span {
+      flex-shrink: 0;
+      border: 1px solid var(--guide-line);
+      border-radius: 999px;
+      padding: 10px 16px;
+      background: var(--guide-cream);
+      color: var(--guide-ink);
+      font-size: 13.5px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    @keyframes guide-marquee {
+      0% {
+        transform: translate3d(-50%, 0, 0);
+      }
+
+      100% {
+        transform: translate3d(0, 0, 0);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .guide-marquee-window {
+        mask-image: none;
+      }
+
+      .guide-marquee-track {
+        animation: none;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: auto;
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
     }
 
     .guide-footer {
@@ -4320,8 +4561,120 @@
       text-align: center;
     }
 
-    @media (max-width: 640px) {
+    .offer-popup-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 400;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: calc(16px + env(safe-area-inset-top, 0px)) 16px calc(16px + env(safe-area-inset-bottom, 0px));
+      overflow-y: auto;
+      background: rgba(18, 32, 59, 0.72);
+    }
+
+    .offer-popup {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      width: min(520px, 100%);
+      margin: auto;
+    }
+
+    .offer-popup .guide-card {
+      width: 100%;
+      max-width: none;
+      flex-basis: auto;
+    }
+
+    .offer-popup-close {
+      position: static;
+      margin: 0 0 8px;
+      width: 48px;
+      height: 48px;
+      border: 1px solid var(--guide-line);
+      border-radius: 50%;
+      background: var(--guide-paper);
+      color: var(--guide-ink);
+      font-size: 24px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .offer-launcher {
+      position: fixed;
+      left: 16px;
+      bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+      z-index: 120;
+      min-height: 48px;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 999px;
+      background: #E23D3D;
+      color: #fff;
+      font-family: Inter, sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      box-shadow: 0 8px 24px rgba(18, 32, 59, 0.22);
+      cursor: pointer;
+    }
+
+    .offer-launcher:hover {
+      background: #c42f2f;
+    }
+
+    body.offer-open {
+      overflow: hidden;
+    }
+
+    body.offer-open .back-to-top {
+      display: none;
+    }
+
+    @media (max-width: 700px) {
+      .guide-page {
+        justify-content: flex-start;
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
       .guide-card {
-        padding: 32px 22px 28px;
+        flex-basis: 100%;
+        max-width: none;
+        padding: 22px 18px 24px;
+      }
+
+      .guide-card h1,
+      .guide-offer h2 {
+        font-size: 26px;
+      }
+
+      .guide-card form,
+      .guide-card .guide-success {
+        margin-top: 0;
+      }
+
+      .guide-card input[type="email"] {
+        font-size: 16px;
+      }
+
+      .guide-card button:not(.guide-offer-more-btn),
+      .guide-offer-cta,
+      .offer-popup-close {
+        min-height: 48px;
+      }
+
+      .guide-footer {
+        max-width: 100%;
+        line-height: 1.55;
+        overflow-wrap: anywhere;
+      }
+
+      .offer-launcher {
+        right: 16px;
+        left: 16px;
+        width: auto;
       }
     }
