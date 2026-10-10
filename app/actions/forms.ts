@@ -327,7 +327,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
         "Email address": payload.email,
         "Date of birth": payload.date_of_birth,
         Gender: payload.gender,
-        "Benefit type": benefit_type,
+        "Income Type": benefit_type,
         "How are you receiving income?":
           payload.benefit_type === "Other" ? income_source : undefined,
         "How much are you receiving from your benefits monthly?":
@@ -560,7 +560,7 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
         "Referee email": answer(payload.referee_email),
         "Referee date of birth": payload.date_of_birth,
         "Referee gender": payload.gender,
-        "Referee's benefit type": benefit_type,
+        "Referee's income type": benefit_type,
         "How are you receiving income?":
           payload.benefit_type === "Other" ? income_source : undefined,
         "How much is the referee receiving from benefits monthly?":

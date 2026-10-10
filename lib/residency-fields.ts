@@ -3,7 +3,6 @@ export const BENEFIT_OPTIONS = [
   "SSDI",
   "VA Benefits",
   "Social Security",
-  "Not yet approved",
   "Other",
 ] as const;
 

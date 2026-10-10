@@ -6,12 +6,12 @@ export const metadata: Metadata = {
   title: "Free guides — New Creation Living",
   description:
     "A daily plan, an honest housing comparison, and what a fixed income actually covers in metro Atlanta.",
-  alternates: { canonical: "/guide" },
+  alternates: { canonical: "/offer1" },
 };
 
 export const dynamic = "force-dynamic";
 
-export default async function GuidePage() {
+export default async function OfferOnePage() {
   const bedsRemaining = await loadBedsRemaining();
   return <GuideSignup bedsRemaining={bedsRemaining} />;
 }

@@ -4678,3 +4678,125 @@
         width: auto;
       }
     }
+
+    .guide-page.offer2-page {
+      justify-content: flex-start;
+    }
+
+    .offer2-wrap {
+      width: 100%;
+      max-width: 720px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .offer2-wrap .guide-logo {
+      margin-bottom: 0;
+    }
+
+    .offer2-wrap .guide-card {
+      max-width: none;
+      flex: none;
+      text-align: left;
+    }
+
+    .offer2-value {
+      margin: 0 0 8px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #E23D3D;
+    }
+
+    .offer2-card h1 {
+      text-align: left;
+      margin-bottom: 16px;
+    }
+
+    .offer2-card h2 {
+      margin: 22px 0 8px;
+      font-family: "Fraunces", serif;
+      font-size: 22px;
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--guide-navy);
+    }
+
+    .offer2-card p:not(.guide-kicker):not(.guide-offer-eligible):not(.offer2-value) {
+      margin: 0 0 14px;
+      font-size: 16px;
+      line-height: 1.55;
+      color: var(--guide-ink-soft);
+    }
+
+    .offer2-more {
+      margin-bottom: 8px;
+      font-weight: 700;
+      color: var(--guide-ink);
+    }
+
+    .offer2-programs section {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--guide-line);
+    }
+
+    .offer2-programs h2 {
+      margin: 0 0 6px;
+      font-size: 18px;
+    }
+
+    .offer2-programs p {
+      margin: 0;
+    }
+
+    .offer2-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .offer2-chips li {
+      border: 1px solid var(--guide-line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: var(--guide-paper);
+      color: var(--guide-ink);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .offer2-educate .guide-kicker,
+    .offer2-eligible .guide-kicker {
+      text-align: left;
+    }
+
+    .offer2-eligible h2 {
+      margin-top: 0;
+    }
+
+    .offer2-eligible .guide-offer-cta {
+      min-height: 48px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .offer2-card h2 {
+        color: #F1ECDF;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .offer2-wrap .guide-card {
+        padding: 22px 18px 24px;
+      }
+
+      .offer2-card h1,
+      .offer2-card h2 {
+        overflow-wrap: anywhere;
+      }
+    }

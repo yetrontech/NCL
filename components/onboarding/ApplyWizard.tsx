@@ -20,7 +20,6 @@ import {
   YES_NO,
 } from "@/lib/residency-fields";
 import OnboardingShell from "./OnboardingShell";
-import BenefitsFormLink from "./BenefitsFormLink";
 import { NavButtons, RadioGroup, YesNoExplain } from "./FieldHelpers";
 
 type Status = "idle" | "submitting" | "success" | "error";
@@ -93,7 +92,6 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
 
-  const benefitsNotApproved = data.benefit_type === "Not yet approved";
   const applyingWithDependants = data.living_with_others === APPLYING_WITH_DEPENDANTS;
   const dependantsNotAFit = data.dependents_kind === DEPENDENTS_UNDERAGE;
 
@@ -117,9 +115,6 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
       }
       if (!data.situation_explanation.trim()) {
         return "Please give a quick explanation of your current situation.";
-      }
-      if (data.benefit_type === "Not yet approved") {
-        return "You'll need approved benefits before you can apply. Start the benefits screening below.";
       }
       if (!data.benefit_type || !data.monthly_benefit_amount || !data.move_timeline) {
         return "Please complete all fields on this step.";
@@ -414,7 +409,7 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
             </div>
             <RadioGroup
               name="benefit_type"
-              label="Benefit type"
+              label="Income Type"
               options={BENEFIT_OPTIONS}
               value={data.benefit_type}
               onChange={(v) => {
@@ -434,43 +429,34 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
                 />
               </div>
             )}
-            {benefitsNotApproved && <BenefitsFormLink />}
-            <div
-              className={benefitsNotApproved ? "onboarding-locked" : undefined}
-              aria-hidden={benefitsNotApproved}
-            >
-              <div className="field">
-                <label htmlFor="monthly_benefit_amount">
-                  How much are you receiving from your benefits monthly?
-                </label>
-                <input
-                  id="monthly_benefit_amount"
-                  required={!benefitsNotApproved}
-                  tabIndex={benefitsNotApproved ? -1 : undefined}
-                  placeholder="e.g. $943"
-                  value={data.monthly_benefit_amount}
-                  onChange={(e) => setField("monthly_benefit_amount", e.target.value)}
-                />
-              </div>
-              {["SSI", "SSDI", "Social Security"].includes(data.benefit_type) && (
-                <RadioGroup
-                  name="medicare_medicaid"
-                  label="Do you have Medicare or Medicaid?"
-                  options={YES_NO}
-                  value={data.medicare_medicaid}
-                  onChange={(v) => setField("medicare_medicaid", v)}
-                  required={!benefitsNotApproved}
-                />
-              )}
-              <RadioGroup
-                name="move_timeline"
-                label="How soon are you looking to move into one of our homes?"
-                options={MOVE_TIMELINE_OPTIONS}
-                value={data.move_timeline}
-                onChange={(v) => setField("move_timeline", v)}
-                required={!benefitsNotApproved}
+            <div className="field">
+              <label htmlFor="monthly_benefit_amount">
+                How much are you receiving from your benefits monthly?
+              </label>
+              <input
+                id="monthly_benefit_amount"
+                required
+                placeholder="e.g. $943"
+                value={data.monthly_benefit_amount}
+                onChange={(e) => setField("monthly_benefit_amount", e.target.value)}
               />
             </div>
+            {["SSI", "SSDI", "Social Security"].includes(data.benefit_type) && (
+              <RadioGroup
+                name="medicare_medicaid"
+                label="Do you have Medicare or Medicaid?"
+                options={YES_NO}
+                value={data.medicare_medicaid}
+                onChange={(v) => setField("medicare_medicaid", v)}
+              />
+            )}
+            <RadioGroup
+              name="move_timeline"
+              label="How soon are you looking to move into one of our homes?"
+              options={MOVE_TIMELINE_OPTIONS}
+              value={data.move_timeline}
+              onChange={(v) => setField("move_timeline", v)}
+            />
           </>
         )}
 
@@ -822,7 +808,7 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
 
         <NavButtons
           showBack={step > 0}
-          showNext={!((step === 1 && benefitsNotApproved) || (step === 2 && dependantsNotAFit))}
+          showNext={!(step === 2 && dependantsNotAFit)}
           onBack={() => {
             setError("");
             setStep((s) => s - 1);

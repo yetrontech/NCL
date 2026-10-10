@@ -40,10 +40,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.3,
     },
     {
-      url: "https://www.newcreationliving.org/guide",
+      url: "https://www.newcreationliving.org/offer1",
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.6,
+    },
+    {
+      url: "https://www.newcreationliving.org/offer2",
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.7,
     },
     {
       url: "https://www.newcreationliving.org/quickeval",
