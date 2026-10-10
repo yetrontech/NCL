@@ -4694,14 +4694,14 @@
       text-decoration: none;
     }
 
-    .offer-corner-phone {
+    .offer-corner-email {
       left: 16px;
+      white-space: nowrap;
     }
 
-    .offer-corner-email {
+    .offer-corner-phone {
       right: 16px;
       text-align: right;
-      white-space: nowrap;
     }
 
     .offer-corner:hover {
