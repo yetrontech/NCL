@@ -47,6 +47,7 @@ export default function GuideSignup({ bedsRemaining }: { bedsRemaining: number |
     <div className="guide-page has-corners">
       <OfferCorners />
       <div className="guide-stage">
+        <GuideOffer bedsRemaining={bedsRemaining} />
         <div className="guide-card">
           <Link href="/" className="guide-logo" aria-label="New Creation Living">
             <BrandLogo clipId="guideClip" />
@@ -98,7 +99,6 @@ export default function GuideSignup({ bedsRemaining }: { bedsRemaining: number |
             <Link href="/privacy">Privacy</Link>
           </p>
         </div>
-        <GuideOffer bedsRemaining={bedsRemaining} />
       </div>
       <div className="guide-marquee">
         <p className="guide-marquee-label">You&apos;ll also get</p>
