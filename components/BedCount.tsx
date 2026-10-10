@@ -37,9 +37,7 @@ export default function BedCount({ initial }: { initial: number | null }) {
     <p className="guide-beds" aria-live="polite">
       <span className="guide-beds-dot" aria-hidden="true" />
       <strong>{remaining}</strong>
-      <span className="guide-beds-phrase">
-        available {spot} left in the whole city of Atlanta
-      </span>
+      <span className="guide-beds-phrase">{spot} left in Atlanta</span>
     </p>
   );
 }

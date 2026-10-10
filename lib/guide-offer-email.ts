@@ -19,7 +19,7 @@ export function buildGuideOfferEmail(opts: {
       : `<p style="margin:14px 0 0;font-size:15px;line-height:1.45;font-weight:700;color:#E23D3D;">
           <span style="color:#E23D3D;">&#9679;</span>
           <span style="font-family:Georgia,'Times New Roman',serif;font-size:22px;line-height:1;font-weight:600;"> ${opts.bedsRemaining}</span>
-          available ${spot} left in the whole city of Atlanta
+          ${spot} left in Atlanta
         </p>`;
 
   const html = `
@@ -54,7 +54,7 @@ export function buildGuideOfferEmail(opts: {
     opts.bedsRemaining == null
       ? []
       : [
-          `${opts.bedsRemaining} available ${opts.bedsRemaining === 1 ? "spot" : "spots"} left in the whole city of Atlanta`,
+          `${opts.bedsRemaining} ${opts.bedsRemaining === 1 ? "spot" : "spots"} left in Atlanta`,
         ];
 
   const text = [

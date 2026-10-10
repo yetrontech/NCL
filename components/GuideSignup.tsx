@@ -5,6 +5,7 @@ import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
 import { sendFreeGuides } from "@/app/actions/guides";
 import GuideOffer from "@/components/GuideOffer";
+import OfferCorners from "@/components/OfferCorners";
 import { FREE_GUIDES, FREE_GUIDES_ZIP, freeGuideHref } from "@/lib/free-guides";
 
 const PERKS = [
@@ -43,7 +44,8 @@ export default function GuideSignup({ bedsRemaining }: { bedsRemaining: number |
   }
 
   return (
-    <div className="guide-page">
+    <div className="guide-page has-corners">
+      <OfferCorners />
       <div className="guide-stage">
         <div className="guide-card">
           <Link href="/" className="guide-logo" aria-label="New Creation Living">

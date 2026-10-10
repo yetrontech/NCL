@@ -1,6 +1,7 @@
 import Link from "next/link";
 import BedCount from "@/components/BedCount";
 import BrandLogo from "@/components/BrandLogo";
+import OfferCorners from "@/components/OfferCorners";
 
 const PROGRAMS = [
   {
@@ -33,7 +34,8 @@ const HOME_ITEMS = [
 
 export default function OfferTwo({ bedsRemaining }: { bedsRemaining: number | null }) {
   return (
-    <div className="guide-page offer2-page">
+    <div className="guide-page offer2-page has-corners">
+      <OfferCorners />
       <div className="offer2-wrap">
         <Link href="/" className="guide-logo" aria-label="New Creation Living">
           <BrandLogo clipId="offer2Clip" />
