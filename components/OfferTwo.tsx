@@ -5,20 +5,20 @@ import OfferCorners from "@/components/OfferCorners";
 
 const PROGRAMS = [
   {
-    title: "New Creation Rewards™",
-    body: "A growth-based rewards system that recognizes your progress and independence with free rent credits, MARTA passes, Mastercard gift cards, and more.",
+    title: "NCL Rewards",
+    body: "Earn free rent credits, gift cards, MARTA passes, and even paid hotel nights for your progress.",
   },
   {
-    title: "New Creation Thrive™",
-    body: "A resident growth program that helps people improve their finances, pursue employment, develop career skills, and build toward greater independence.",
+    title: "NCL Thrive",
+    body: "We help you find work and build the skills that raise your income.",
   },
   {
-    title: "New Creation Benefits™",
-    body: "Get help navigating SNAP (food stamps), SSDI, VA Disability or Pension, and other programs you may qualify for.",
+    title: "NCL Benefits",
+    body: "Free help getting on SNAP, SSDI, and VA benefits, so you save more and keep more of every month.",
   },
   {
-    title: "The New Creation Guide™",
-    body: "Connections, opportunities, and resources to help you move forward.",
+    title: "NCL Guide",
+    body: "The connections and resources to help you move forward.",
   },
 ] as const;
 
@@ -43,39 +43,24 @@ export default function OfferTwo({ bedsRemaining }: { bedsRemaining: number | nu
 
         <article className="guide-card offer2-card">
           <BedCount initial={bedsRemaining} />
-          <p className="offer2-value">Free Move-In Month, $125 Next ($1,400 value!)</p>
-          <h1>Stability Speedrun Package</h1>
+          <h1>Move In Today for Just $1. Pay Starting Next Month.</h1>
+          <p className="offer2-package">(Stability Speedrun Package)</p>
           <p>
-            You need stability. You need security. You worry about having money left over after
-            paying rent. We understand. That&apos;s why we have our Stability Speedrun Package.
+            Move in any day for $1. Your rent doesn&apos;t start until the 1st of next month, then
+            it&apos;s $798/month. Regardless of move-in day. No tricks. Live here and decide from
+            the inside if it&apos;s for you. If it&apos;s not for you, leave with our blessing.
           </p>
           <p>
-            Move in absolutely free. Walk away absolutely free. No tricks or games. We&apos;re
-            running this no-risk offer to prove this is the home for you. We don&apos;t want a yes
-            or no today. We just ask you to make an informed decision, and the only way to do that
-            is from the inside, not the outside.
+            Bring a friend and you both get $100 off next month. Bring 2 and choose your reward:
+            pay just $199 rent next month, or get a one-year paid gym membership. Every referral
+            after that earns you another $199 month. No limit. Bring some friends and save almost
+            $7,300 a year by doing nothing more!
           </p>
           <p>
-            If you decide this place is not for you, you may leave with our blessings. If you
-            leave, you can&apos;t come back.
+            Your time is money. Talk to 10 people looking for housing, and if nobody is interested,
+            we&apos;ll pay your hourly wage.
           </p>
-          <p>
-            But wait… there&apos;s more! We&apos;d rather fill the house with friends who already
-            trust each other than with strangers. Successfully help one friend, and you both get
-            $100 off next month. Help 2 friends successfully move in (they also get the free
-            move-in month offer, with $100 off their next month) and you&apos;ll only pay $199 in
-            rent next month! One bill with everything included. (Save almost $1,400 in your first
-            2 months!)
-          </p>
-          <p>
-            But that&apos;s not all! Each additional successful referral gives you another month of
-            $199 rent (your friends will get the free move-in month offer, with $100 off their
-            next month). No limit. Help 13 friends find a home and save almost $7,300 in one year
-            by doing nothing! We know your time is money, so give it a try. Talk to 10 people
-            looking for housing, and if nobody is interested, we&apos;ll pay your hourly wage for
-            your time and effort.
-          </p>
-          <p className="offer2-more">And guess what? There&apos;s more! You&apos;ll receive access to:</p>
+          <p className="offer2-more">Plus, we help you earn more and keep more.</p>
 
           <div className="offer2-programs">
             {PROGRAMS.map((program) => (
@@ -93,15 +78,15 @@ export default function OfferTwo({ bedsRemaining }: { bedsRemaining: number | nu
             ))}
           </ul>
 
-          <h2>A Few Months From Now…</h2>
+          <h2>A FEW MONTHS FROM NOW...</h2>
           <p>Your friends, family, and peers may wonder:</p>
           <ul className="guide-offer-quotes">
             <li>How did you find this home?</li>
             <li>How did you get so far ahead?</li>
             <li>What changed?</li>
           </ul>
-          <p>Only you will know.</p>
-          <p className="guide-offer-eligible">See if you&apos;re eligible below</p>
+          <p>Only you will know. New location sale with limited space.</p>
+          <p className="guide-offer-eligible">See if you&apos;re eligible below!</p>
         </article>
 
         <article className="guide-card offer2-card offer2-educate">

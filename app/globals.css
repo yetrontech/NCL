@@ -4736,6 +4736,13 @@
       color: #E23D3D;
     }
 
+    .offer2-card .offer2-package {
+      margin: 0 0 14px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--guide-ink);
+    }
+
     .offer2-value {
       margin: 0 0 8px;
       font-size: 13px;
@@ -4759,7 +4766,7 @@
       color: var(--guide-navy);
     }
 
-    .offer2-card p:not(.guide-kicker):not(.guide-offer-eligible):not(.offer2-value) {
+    .offer2-card p:not(.guide-kicker):not(.guide-offer-eligible):not(.offer2-value):not(.offer2-package) {
       margin: 0 0 14px;
       font-size: 16px;
       line-height: 1.55;

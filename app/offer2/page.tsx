@@ -5,7 +5,7 @@ import { loadBedsRemaining } from "@/lib/beds";
 export const metadata: Metadata = {
   title: "Stability Speedrun Package — New Creation Living",
   description:
-    "Move in free, then pay $125 next month. A no-risk month inside a furnished Atlanta home.",
+    "Move in today for $1. Rent starts the 1st of next month at $798, no matter which day you move in.",
   alternates: { canonical: "/offer2" },
 };
 
