@@ -51,7 +51,8 @@ export default function OfferTwo({
         <article className="guide-card offer2-card">
           <BedCount initial={bedsRemaining} />
           <h1 id="offer2-offer-title">
-            Pay <span className="offer-hit">$199</span> starting next month.
+            Pay <span className="offer-hit">$1</span> today. Pay <span className="offer-hit">$199</span>{" "}
+            starting next month.
           </h1>
           <p className="offer2-package">(Stability Speedrun Package)</p>
           <div className="offer2-video">
