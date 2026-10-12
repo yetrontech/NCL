@@ -4784,6 +4784,29 @@
       border: 0;
     }
 
+    .offer2-shorts {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0 0 18px;
+    }
+
+    .offer2-short {
+      position: relative;
+      aspect-ratio: 9 / 16;
+      overflow: hidden;
+      border-radius: 8px;
+      background: #111;
+    }
+
+    .offer2-short iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
     .offer2-value {
       margin: 0 0 8px;
       font-size: 13px;
@@ -4943,5 +4966,9 @@
 
       .offer2-programs {
         grid-template-columns: 1fr;
+      }
+
+      .offer2-shorts {
+        gap: 8px;
       }
     }

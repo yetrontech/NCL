@@ -22,6 +22,12 @@ const PROGRAMS = [
   },
 ] as const;
 
+const HOME_SHORTS = [
+  { id: "FWfWpfWgkCk", title: "NCL Testimony" },
+  { id: "5TUgDS7Ifbg", title: "NCL Testimonial" },
+  { id: "CbmGeEdV-os", title: "NCL Testimonial" },
+] as const;
+
 const HOME_ITEMS = [
   "Furnished Home",
   "Kitchen",
@@ -50,7 +56,7 @@ export default function OfferTwo({ bedsRemaining }: { bedsRemaining: number | nu
           <div className="offer2-video">
             <iframe
               src="https://www.youtube.com/embed/of_l6QMH0Ug"
-              title="New Creation Living"
+              title="Pay $1 to move in. $199 going forward. New Creation Living"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               referrerPolicy="strict-origin-when-cross-origin"
               allowFullScreen
@@ -108,6 +114,19 @@ export default function OfferTwo({ bedsRemaining }: { bedsRemaining: number | nu
 
         <article className="guide-card offer2-card offer2-educate">
           <p className="guide-kicker">The home</p>
+          <div className="offer2-shorts">
+            {HOME_SHORTS.map((short) => (
+              <div className="offer2-short" key={short.id}>
+                <iframe
+                  src={`https://www.youtube.com/embed/${short.id}`}
+                  title={short.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                />
+              </div>
+            ))}
+          </div>
           <p>
             New Creation Living provides modern, all-inclusive homes built for stability, security,
             and growth. For just $26/day ($798/month), enjoy a renovated, furnished home with beds,
