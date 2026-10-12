@@ -50,7 +50,7 @@ export default function OfferTwo({ bedsRemaining }: { bedsRemaining: number | nu
         <article className="guide-card offer2-card">
           <BedCount initial={bedsRemaining} />
           <h1>
-            Move In Today for Just <span className="offer-hit">$1</span>. Pay Starting Next Month.
+            Pay <span className="offer-hit">$199</span> starting next month.
           </h1>
           <p className="offer2-package">(Stability Speedrun Package)</p>
           <div className="offer2-video">
@@ -113,7 +113,6 @@ export default function OfferTwo({ bedsRemaining }: { bedsRemaining: number | nu
         </article>
 
         <article className="guide-card offer2-card offer2-educate">
-          <p className="guide-kicker">The home</p>
           <div className="offer2-shorts">
             {HOME_SHORTS.map((short) => (
               <div className="offer2-short" key={short.id}>
@@ -127,27 +126,6 @@ export default function OfferTwo({ bedsRemaining }: { bedsRemaining: number | nu
               </div>
             ))}
           </div>
-          <p>
-            New Creation Living provides modern, all-inclusive homes built for stability, security,
-            and growth. For just $26/day ($798/month), enjoy a renovated, furnished home with beds,
-            TVs, free laundry, utilities, Wi-Fi, MARTA access, community support, and a sober,
-            drug-free environment. Our on-site managers help turn a house into a home!
-          </p>
-          <p>
-            We don&apos;t just provide housing; we provide a launchpad for your future. Through
-            programs like NCL Thrive, NCL Benefits, and NCL Guide, you gain access to resources,
-            financial growth opportunities, and new connections. You can also earn free rent
-            credits, Mastercard gift cards, MARTA cards, and more!
-          </p>
-          <p>
-            Our shared homes offer added privacy and comfort with personalized room access,
-            floor-to-ceiling privacy screens, lockable nightstands, common-area cameras, and
-            on-site management focused on safety and growth.
-          </p>
-          <p>
-            Located in great areas near public transportation and major stores, our modern homes
-            offer more than a place to live—they offer a place to grow!
-          </p>
         </article>
 
         <article className="guide-card offer2-card offer2-eligible" id="eligibility">
