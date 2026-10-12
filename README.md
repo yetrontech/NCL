@@ -70,7 +70,7 @@ Owner push uses the Expo push service. The token table and the secret-gated look
 - `supabase/migrate_residency_fields.sql` — migration if older tables already exist
 - `supabase/migrate-substance-abuse.sql` — drug/alcohol abuse history on apply and refer
 - `supabase/migrate_intake_questions.sql` — former address, mental diagnosis follow-up, Medicare/Medicaid, promo code, and the public-insert lock (re-run after older copies of this file)
-- `supabase/migrate_beds_remaining.sql` — public remaining-bed total used on `/guide`
+- `supabase/migrate_beds_remaining.sql` — public remaining-bed total used on the offer pages
 - `public/img/` — site images
 
 ## Production build

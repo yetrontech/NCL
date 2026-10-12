@@ -47,6 +47,15 @@ export default function OfferTwo({ bedsRemaining }: { bedsRemaining: number | nu
             Move In Today for Just <span className="offer-hit">$1</span>. Pay Starting Next Month.
           </h1>
           <p className="offer2-package">(Stability Speedrun Package)</p>
+          <div className="offer2-video">
+            <iframe
+              src="https://www.youtube.com/embed/of_l6QMH0Ug"
+              title="New Creation Living"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            />
+          </div>
           <p>
             Move in any day for <span className="offer-hit">$1</span>. Your rent doesn&apos;t start
             until the <span className="offer-hit">1st of next month</span>, then it&apos;s{" "}

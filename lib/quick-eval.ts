@@ -18,7 +18,7 @@ const YES_NO = ["Yes", "No"] as const;
 const SCORED: QuickEvalStep[] = [
   {
     id: "benefit",
-    prompt: "Do you receive SSI, SSDI, Social Security, or VA benefits?",
+    prompt: "Are you currently receiving any kind of income?",
     options: YES_NO,
     fitAnswer: "Yes",
   },
