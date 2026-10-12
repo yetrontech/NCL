@@ -413,7 +413,7 @@ export default function ReferWizard() {
             )}
             <div className="field">
               <label htmlFor="monthly_benefit_amount">
-                How much is the referee receiving from benefits monthly?
+                How much is the referee receiving from Income monthly?
               </label>
               <input
                 id="monthly_benefit_amount"

@@ -26,6 +26,7 @@ const HOME_SHORTS = [
   { id: "FWfWpfWgkCk", title: "NCL Testimony" },
   { id: "5TUgDS7Ifbg", title: "NCL Testimonial" },
   { id: "CbmGeEdV-os", title: "NCL Testimonial" },
+  { id: "39BoOr4u92U", title: "New Creation Living Testimony" },
 ] as const;
 
 const HOME_ITEMS = [
@@ -113,6 +114,7 @@ export default function OfferTwo({ bedsRemaining }: { bedsRemaining: number | nu
         </article>
 
         <article className="guide-card offer2-card offer2-educate">
+          <p className="guide-kicker offer2-home-title">The Home</p>
           <div className="offer2-shorts">
             {HOME_SHORTS.map((short) => (
               <div className="offer2-short" key={short.id}>

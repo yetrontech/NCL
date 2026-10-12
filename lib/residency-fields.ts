@@ -3,6 +3,7 @@ export const BENEFIT_OPTIONS = [
   "SSDI",
   "VA Benefits",
   "Social Security",
+  "Job",
   "Other",
 ] as const;
 
@@ -19,11 +20,13 @@ export const APPLYING_FOR_OPTIONS = [
 
 export const DEPENDENT_KIND_OPTIONS = [
   "Adults on a fixed income",
+  "Working adults",
   "Underage dependents",
 ] as const;
 
 export const APPLYING_WITH_DEPENDANTS = "Myself and dependants";
 export const DEPENDENTS_ADULTS = "Adults on a fixed income";
+export const DEPENDENTS_WORKING = "Working adults";
 export const DEPENDENTS_UNDERAGE = "Underage dependents";
 
 export const HOW_HEARD_OPTIONS = [

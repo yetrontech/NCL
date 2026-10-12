@@ -4786,7 +4786,7 @@
 
     .offer2-shorts {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 10px;
       margin: 0;
     }
@@ -4918,6 +4918,12 @@
     .offer2-educate .guide-kicker,
     .offer2-eligible .guide-kicker {
       text-align: left;
+    }
+
+    .offer2-home-title {
+      font-size: 18px;
+      letter-spacing: 1.4px;
+      margin-bottom: 16px;
     }
 
     .offer2-eligible h2 {

@@ -9,6 +9,7 @@ import {
   DEPENDENT_KIND_OPTIONS,
   DEPENDENTS_ADULTS,
   DEPENDENTS_UNDERAGE,
+  DEPENDENTS_WORKING,
   YES_NO,
 } from "@/lib/residency-fields";
 import { ensureReviewTask } from "@/lib/staff-tasks";
@@ -233,10 +234,13 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
         error: "Unfortunately we aren't the best fit for households with underage dependents.",
       };
     }
-    if (!isAllowed(payload.dependents_kind, DEPENDENT_KIND_OPTIONS)) {
+    if (
+      payload.dependents_kind !== DEPENDENTS_ADULTS &&
+      payload.dependents_kind !== DEPENDENTS_WORKING
+    ) {
       return {
         ok: false,
-        error: "Please tell us whether the dependants are adults on a fixed income.",
+        error: "Please tell us whether the dependants are adults, working adults, or underage.",
       };
     }
     if (
@@ -330,7 +334,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
         "Income Type": benefit_type,
         "How are you receiving income?":
           payload.benefit_type === "Other" ? income_source : undefined,
-        "How much are you receiving from your benefits monthly?":
+        "How much are you receiving from your Income monthly?":
           payload.monthly_benefit_amount,
         "How soon are you looking to move into one of our homes?":
           payload.move_timeline,
@@ -563,7 +567,7 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
         "Referee's income type": benefit_type,
         "How are you receiving income?":
           payload.benefit_type === "Other" ? income_source : undefined,
-        "How much is the referee receiving from benefits monthly?":
+        "How much is the referee receiving from Income monthly?":
           payload.monthly_benefit_amount,
         "How soon is the referee looking to move in?": payload.move_timeline,
         "How did you hear about us?": how_heard,

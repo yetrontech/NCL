@@ -12,6 +12,7 @@ import {
   DEPENDENT_KIND_OPTIONS,
   DEPENDENTS_ADULTS,
   DEPENDENTS_UNDERAGE,
+  DEPENDENTS_WORKING,
   GENDER_OPTIONS,
   HOW_HEARD_OPTIONS,
   MOVE_TIMELINE_OPTIONS,
@@ -140,10 +141,16 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
         if (dependantsNotAFit) {
           return "Unfortunately we aren't the best fit for households with underage dependents.";
         }
-        if (data.dependents_kind !== DEPENDENTS_ADULTS) {
-          return "Please tell us whether the dependants are adults on a fixed income.";
+        if (
+          data.dependents_kind !== DEPENDENTS_ADULTS &&
+          data.dependents_kind !== DEPENDENTS_WORKING
+        ) {
+          return "Please tell us whether the dependants are adults, working adults, or underage.";
         }
-        if (!data.dependent_name || !data.dependent_income) {
+        if (
+          data.dependents_kind === DEPENDENTS_ADULTS &&
+          (!data.dependent_name || !data.dependent_income)
+        ) {
           return "Please share the adult dependant's name and how much they receive.";
         }
       }
@@ -431,7 +438,7 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
             )}
             <div className="field">
               <label htmlFor="monthly_benefit_amount">
-                How much are you receiving from your benefits monthly?
+                How much are you receiving from your Income monthly?
               </label>
               <input
                 id="monthly_benefit_amount"
