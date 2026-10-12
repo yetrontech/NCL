@@ -25,6 +25,7 @@ export const DEPENDENT_KIND_OPTIONS = [
 ] as const;
 
 export const APPLYING_WITH_DEPENDANTS = "Myself and dependants";
+export const APPLYING_WITH_SPOUSE = "Myself and my spouse";
 export const DEPENDENTS_ADULTS = "Adults on a fixed income";
 export const DEPENDENTS_WORKING = "Working adults";
 export const DEPENDENTS_UNDERAGE = "Underage dependents";

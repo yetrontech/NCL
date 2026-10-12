@@ -6,6 +6,7 @@ import { notifyNewSubmission } from "@/lib/notify";
 import {
   APPLYING_FOR_OPTIONS,
   APPLYING_WITH_DEPENDANTS,
+  APPLYING_WITH_SPOUSE,
   DEPENDENTS_ADULTS,
   DEPENDENTS_UNDERAGE,
   DEPENDENTS_WORKING,
@@ -166,6 +167,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
     dependents_kind: text(formData, "dependents_kind"),
     dependent_name: text(formData, "dependent_name"),
     dependent_income: text(formData, "dependent_income"),
+    spouse_live_separately: text(formData, "spouse_live_separately"),
     memory_loss: text(formData, "memory_loss"),
     home_not_short_term: text(formData, "home_not_short_term"),
     payee_agreement: text(formData, "payee_agreement"),
@@ -239,7 +241,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
     ) {
       return {
         ok: false,
-        error: "Please tell us whether the dependants are adults, working adults, or underage.",
+        error: "Please tell us whether the dependants are adults on a fixed income, working adults, or underage.",
       };
     }
     if (
@@ -249,6 +251,19 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
       return {
         ok: false,
         error: "Please share the adult dependant's name and how much they receive.",
+      };
+    }
+  }
+
+  const applyingWithSpouse = payload.living_with_others === APPLYING_WITH_SPOUSE;
+  if (applyingWithSpouse) {
+    if (payload.spouse_live_separately === "No") {
+      return { ok: false, error: "Unfortunately we aren't the best fit for you." };
+    }
+    if (payload.spouse_live_separately !== "Yes") {
+      return {
+        ok: false,
+        error: "Please answer whether you are willing to live separately from your spouse.",
       };
     }
   }
@@ -304,6 +319,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
         applyingWithDependants && payload.dependents_kind === DEPENDENTS_ADULTS
           ? payload.dependent_income
           : null,
+      spouse_live_separately: applyingWithSpouse ? "Yes" : null,
       favorability_score: favorability.score,
       favorability_max_score: favorability.max_score,
       favorability_percent: favorability.percent,
@@ -342,7 +358,10 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
           payload.situation_explanation,
         "Are you applying for yourself only, or will others be living with you?":
           payload.living_with_others,
-        "Are the dependants adults, working adults or underage?": applyingWithDependants
+        "Are you willing to live separately from your spouse?": applyingWithSpouse
+          ? "Yes"
+          : undefined,
+        "Are the dependants adults on a fixed income, working adults or underage?": applyingWithDependants
           ? payload.dependents_kind
           : undefined,
         "Dependent's name":
@@ -376,7 +395,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
         "Drug or alcohol abuse explanation": answer(payload.substance_abuse_explanation),
         "Can you commit to a drug- and alcohol-free home? Random drug testing is part of house rules.":
           payload.drug_free_commitment,
-        "Do you understand that at $25 a day, NCL provides more value than a motel (~$1,800/month) or shelter — a real home with peace and stability?":
+        "Do you understand that at just $26.60 a day, New Creation Living provides you a home with more value than any other housing solution/shelter? The average motel is $60 a night, which is $1,800 a month, not including all-inclusive options. Though homeless shelters are resourceful, they cost you safety, stability, and security. It is NOT a home. Are you willing to pay a flat bill $798 a month?":
           payload.value_understanding,
         "Do you understand that this is a home and not short-term housing?":
           payload.home_not_short_term,

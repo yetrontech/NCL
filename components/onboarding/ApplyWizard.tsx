@@ -8,6 +8,7 @@ import { trackMetaSubmitApplication } from "@/lib/meta-pixel";
 import {
   APPLYING_FOR_OPTIONS,
   APPLYING_WITH_DEPENDANTS,
+  APPLYING_WITH_SPOUSE,
   BENEFIT_OPTIONS,
   DEPENDENT_KIND_OPTIONS,
   DEPENDENTS_ADULTS,
@@ -57,6 +58,7 @@ const initial = {
   dependents_kind: "",
   dependent_name: "",
   dependent_income: "",
+  spouse_live_separately: "",
   referring_party_info: "",
   mobility_limitations: "",
   mobility_explanation: "",
@@ -94,7 +96,9 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
   const [error, setError] = useState("");
 
   const applyingWithDependants = data.living_with_others === APPLYING_WITH_DEPENDANTS;
+  const applyingWithSpouse = data.living_with_others === APPLYING_WITH_SPOUSE;
   const dependantsNotAFit = data.dependents_kind === DEPENDENTS_UNDERAGE;
+  const spouseNotAFit = applyingWithSpouse && data.spouse_live_separately === "No";
 
   function setField<K extends keyof typeof initial>(key: K, value: string) {
     setData((prev) => ({ ...prev, [key]: value }));
@@ -145,13 +149,21 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
           data.dependents_kind !== DEPENDENTS_ADULTS &&
           data.dependents_kind !== DEPENDENTS_WORKING
         ) {
-          return "Please tell us whether the dependants are adults, working adults, or underage.";
+          return "Please tell us whether the dependants are adults on a fixed income, working adults, or underage.";
         }
         if (
           data.dependents_kind === DEPENDENTS_ADULTS &&
           (!data.dependent_name || !data.dependent_income)
         ) {
           return "Please share the adult dependant's name and how much they receive.";
+        }
+      }
+      if (applyingWithSpouse) {
+        if (spouseNotAFit) {
+          return "Unfortunately we aren't the best fit for you.";
+        }
+        if (data.spouse_live_separately !== "Yes") {
+          return "Please answer whether you are willing to live separately from your spouse.";
         }
       }
     }
@@ -505,6 +517,8 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
                     dependent_name: value === APPLYING_WITH_DEPENDANTS ? prev.dependent_name : "",
                     dependent_income:
                       value === APPLYING_WITH_DEPENDANTS ? prev.dependent_income : "",
+                    spouse_live_separately:
+                      value === APPLYING_WITH_SPOUSE ? prev.spouse_live_separately : "",
                   }));
                 }}
               >
@@ -527,7 +541,7 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
                 </p>
                 <RadioGroup
                   name="dependents_kind"
-                  label="Are the dependants adults, working adults or underage?"
+                  label="Are the dependants adults on a fixed income, working adults or underage?"
                   options={DEPENDENT_KIND_OPTIONS}
                   emphasize
                   value={data.dependents_kind}
@@ -567,6 +581,25 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
                   </>
                 )}
                 {dependantsNotAFit && (
+                  <div
+                    className="field onboarding-callout"
+                    style={{ marginTop: 8, borderColor: "var(--gold)" }}
+                  >
+                    <p>Unfortunately we aren&apos;t the best fit for you.</p>
+                  </div>
+                )}
+              </>
+            )}
+            {applyingWithSpouse && (
+              <>
+                <RadioGroup
+                  name="spouse_live_separately"
+                  label="Are you willing to live separately from your spouse?"
+                  options={YES_NO}
+                  value={data.spouse_live_separately}
+                  onChange={(value) => setField("spouse_live_separately", value)}
+                />
+                {spouseNotAFit && (
                   <div
                     className="field onboarding-callout"
                     style={{ marginTop: 8, borderColor: "var(--gold)" }}
@@ -732,7 +765,7 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
             />
             <RadioGroup
               name="value_understanding"
-              label="Do you understand that at just $25 a day, New Creation Living provides you a home with more value than any other housing solution/shelter? The average motel is $60 a night, which is $1,800 a month, not including all-inclusive options. Though homeless shelters are resourceful, they cost you safety, stability, and security. It is NOT a home. Is $25 a day too much to ask to receive peace, stability, and a better quality of life?"
+              label="Do you understand that at just $26.60 a day, New Creation Living provides you a home with more value than any other housing solution/shelter? The average motel is $60 a night, which is $1,800 a month, not including all-inclusive options. Though homeless shelters are resourceful, they cost you safety, stability, and security. It is NOT a home. Are you willing to pay a flat bill $798 a month?"
               options={YES_NO}
               value={data.value_understanding}
               onChange={(v) => setField("value_understanding", v)}
@@ -772,7 +805,7 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
                 shared living feel like a real home—not a chaotic roommate situation.
               </p>
               <p>
-                For $25 a day, invest in your security, dignity, and future.
+                For $26.60 a day, invest in your security, dignity, and future.
               </p>
             </div>
             <RadioGroup
@@ -815,7 +848,7 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
 
         <NavButtons
           showBack={step > 0}
-          showNext={!(step === 2 && dependantsNotAFit)}
+          showNext={!(step === 2 && (dependantsNotAFit || spouseNotAFit))}
           onBack={() => {
             setError("");
             setStep((s) => s - 1);

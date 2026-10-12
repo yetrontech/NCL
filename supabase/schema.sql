@@ -31,6 +31,7 @@ create table if not exists public.applications (
   dependents_kind text,
   dependent_name text,
   dependent_income text,
+  spouse_live_separately text,
   memory_loss text,
   home_not_short_term text not null,
   payee_agreement text not null,
