@@ -527,7 +527,7 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
                 </p>
                 <RadioGroup
                   name="dependents_kind"
-                  label="Are the dependants adults on a fixed income, or underage?"
+                  label="Are the dependants adults, working adults or underage?"
                   options={DEPENDENT_KIND_OPTIONS}
                   emphasize
                   value={data.dependents_kind}

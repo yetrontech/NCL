@@ -343,7 +343,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
           payload.situation_explanation,
         "Are you applying for yourself only, or will others be living with you?":
           payload.living_with_others,
-        "Are the dependants adults on a fixed income, or underage?": applyingWithDependants
+        "Are the dependants adults, working adults or underage?": applyingWithDependants
           ? payload.dependents_kind
           : undefined,
         "Dependent's name":
