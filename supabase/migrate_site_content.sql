@@ -45,7 +45,7 @@ Sober & Drug Free Environment
 Access to Public Transportation
 Community Support
 On Site Management', 'Home — Cost card', 'Included items (one per line)', 'list', 14),
-  ('home.cost.price', '$25', 'Home — Cost card', 'Price amount', 'text', 15),
+  ('home.cost.price', '$26.60', 'Home — Cost card', 'Price amount', 'text', 15),
   ('home.cost.period', '/day', 'Home — Cost card', 'Price period', 'text', 16),
   ('home.cost.note', '(Everything included at no cost. No hidden deposits/fees)', 'Home — Cost card', 'Price note', 'text', 17),
   ('home.philosophy.eyebrow', 'Our Philosophy', 'Home — Philosophy', 'Eyebrow', 'text', 18),
@@ -159,7 +159,7 @@ Anyone on fixed income!', 'Residency — Info cards', 'Who we accept bullets (on
   ('locations.status', 'Open & Accepting Residents', 'Locations', 'Property status', 'text', 104),
   ('locations.name', 'South Fulton Location', 'Locations', 'Property name', 'text', 105),
   ('locations.features', 'Near MARTA bus routes
-All-inclusive $25/day
+All-inclusive $26.60/day
 On-site house manager
 Shared common areas', 'Locations', 'Property features (one per line)', 'list', 106),
   ('locations.apply_cta', 'Apply to This Location', 'Locations', 'Apply button', 'text', 107),
@@ -173,8 +173,8 @@ Shared common areas', 'Locations', 'Property features (one per line)', 'list', 1
   ('faq.tab_common', 'Common Concerns', 'FAQ', 'Common tab label', 'text', 115),
   ('faq.g1.tag', 'Cost', 'FAQ — General', 'Q1 tag', 'text', 116),
   ('faq.g1.question', 'How much does it actually cost?', 'FAQ — General', 'Q1 question', 'textarea', 117),
-  ('faq.g1.answer', 'It''s $25 a day ($775 a month) and that includes your furnished room, all utilities, Wi-Fi, laundry access, on-site management and more. There''s no separate deposit stack and no surprise bills.', 'FAQ — General', 'Q1 answer', 'textarea', 118),
-  ('faq.g1.say_this', 'Think of it like this: if you tried to piece together a room, electric, water, gas, Wi-Fi, and laundry on your own, you''d likely spend $1,600 to $1,800 a month. We give you all of it for $775.', 'FAQ — General', 'Q1 highlighted note (optional)', 'textarea', 119),
+  ('faq.g1.answer', 'It''s $26.60 a day ($798 a month) and that includes your furnished room, all utilities, Wi-Fi, laundry access, on-site management and more. There''s no separate deposit stack and no surprise bills.', 'FAQ — General', 'Q1 answer', 'textarea', 118),
+  ('faq.g1.say_this', 'Think of it like this: if you tried to piece together a room, electric, water, gas, Wi-Fi, and laundry on your own, you''d likely spend $1,600 to $1,800 a month. We give you all of it for $798.', 'FAQ — General', 'Q1 highlighted note (optional)', 'textarea', 119),
   ('faq.g2.tag', 'Eligibility', 'FAQ — General', 'Q2 tag', 'text', 120),
   ('faq.g2.question', 'Who is New Creation Living for?', 'FAQ — General', 'Q2 question', 'textarea', 121),
   ('faq.g2.answer', 'Adults who receive SSI, SSDI, VA Pension, VA Disability, or Social Security. Specifically for independent adults who can manage their own daily lives. We''re not a personal care home or clinical facility, so residents need to be able to handle their own basic self-care.', 'FAQ — General', 'Q2 answer', 'textarea', 122),
@@ -201,7 +201,7 @@ Shared common areas', 'Locations', 'Property features (one per line)', 'list', 1
   ('faq.c2.answer', 'The structure isn''t there to control you. It''s there to protect you. Our points system encourages every resident to follow the same community standards, creating a safe, respectful environment where you never have to worry about who''s coming and going. Most residents say the structure and sense of accountability become one of their favorite parts of living here.', 'FAQ — Common concerns', 'C2 answer', 'textarea', 143),
   ('faq.c3.tag', 'Community', 'FAQ — Common concerns', 'C3 tag', 'text', 144),
   ('faq.c3.question', '"I don''t want to share a house with strangers."', 'FAQ — Common concerns', 'C3 question', 'textarea', 145),
-  ('faq.c3.answer', 'Everyone living in the house went through the same screening you would. A background check and house rules orientation. They''re not random strangers; they''re adults in similar situations who want the same thing you do. Sharing the home is exactly what keeps the price at $25 a day, compared to $65 a night (the average price of a motel in GA).', 'FAQ — Common concerns', 'C3 answer', 'textarea', 146),
+  ('faq.c3.answer', 'Everyone living in the house went through the same screening you would. A background check and house rules orientation. They''re not random strangers; they''re adults in similar situations who want the same thing you do. Sharing the home is exactly what keeps the price at $26.60 a day, compared to $65 a night (the average price of a motel in GA).', 'FAQ — Common concerns', 'C3 answer', 'textarea', 146),
   ('faq.c4.tag', 'Location', 'FAQ — Common concerns', 'C4 tag', 'text', 147),
   ('faq.c4.question', '"Where is it? What if it''s not near where I need to be?"', 'FAQ — Common concerns', 'C4 question', 'textarea', 148),
   ('faq.c4.answer', 'Our properties are chosen specifically for proximity to public transit, bus lines in particular, so you don''t need a car to get around.', 'FAQ — Common concerns', 'C4 answer', 'textarea', 149),

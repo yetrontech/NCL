@@ -14,7 +14,7 @@ values
   (
     'locations.beltline.features',
     'Atlanta BeltLine access
-All-inclusive $25/day
+All-inclusive $26.60/day
 On-site house manager
 Shared common areas',
     'Locations',

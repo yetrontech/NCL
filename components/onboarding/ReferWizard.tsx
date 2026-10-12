@@ -696,7 +696,7 @@ export default function ReferWizard() {
             />
             <RadioGroup
               name="value_understanding"
-              label="Does the referee understand that at $25 a day, New Creation Living provides more value than a motel (~$1,800/month) or shelter — a real home with peace and stability?"
+              label="Does the referee understand that at $26.60 a day, New Creation Living provides more value than a motel (~$1,800/month) or shelter — a real home with peace and stability?"
               options={YES_NO}
               value={data.value_understanding}
               onChange={(v) => setField("value_understanding", v)}
@@ -733,7 +733,7 @@ export default function ReferWizard() {
                 shared living feel like a real home—not a chaotic roommate situation.
               </p>
               <p>
-                For $25 a day, invest in their security, dignity, and future.
+                For $26.60 a day, invest in their security, dignity, and future.
               </p>
             </div>
             <RadioGroup

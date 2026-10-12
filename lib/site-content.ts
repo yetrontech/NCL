@@ -143,7 +143,7 @@ export const SITE_CONTENT_FIELDS: SiteContentField[] = [
     section: "Home — Cost card",
     label: "Price amount",
     type: "text",
-    defaultValue: "$25",
+    defaultValue: "$26.60",
   },
   {
     key: "home.cost.period",
@@ -848,7 +848,7 @@ export const SITE_CONTENT_FIELDS: SiteContentField[] = [
     type: "list",
     defaultValue: [
       "Near MARTA bus routes",
-      "All-inclusive $25/day",
+      "All-inclusive $26.60/day",
       "On-site house manager",
       "Shared common areas",
     ].join("\n"),
@@ -874,7 +874,7 @@ export const SITE_CONTENT_FIELDS: SiteContentField[] = [
     type: "list",
     defaultValue: [
       "Atlanta BeltLine access",
-      "All-inclusive $25/day",
+      "All-inclusive $26.60/day",
       "On-site house manager",
       "Shared common areas",
     ].join("\n"),
@@ -967,7 +967,7 @@ export const SITE_CONTENT_FIELDS: SiteContentField[] = [
     label: "Q1 answer",
     type: "textarea",
     defaultValue:
-      "It's $25 a day ($775 a month) and that includes your furnished room, all utilities, Wi-Fi, laundry access, on-site management and more. There's no separate deposit stack and no surprise bills.",
+      "It's $26.60 a day ($798 a month) and that includes your furnished room, all utilities, Wi-Fi, laundry access, on-site management and more. There's no separate deposit stack and no surprise bills.",
   },
   {
     key: "faq.g1.say_this",
@@ -975,7 +975,7 @@ export const SITE_CONTENT_FIELDS: SiteContentField[] = [
     label: "Q1 highlighted note (optional)",
     type: "textarea",
     defaultValue:
-      "Think of it like this: if you tried to piece together a room, electric, water, gas, Wi-Fi, and laundry on your own, you'd likely spend $1,600 to $1,800 a month. We give you all of it for $775.",
+      "Think of it like this: if you tried to piece together a room, electric, water, gas, Wi-Fi, and laundry on your own, you'd likely spend $1,600 to $1,800 a month. We give you all of it for $798.",
   },
   {
     key: "faq.g2.tag",
@@ -1176,7 +1176,7 @@ export const SITE_CONTENT_FIELDS: SiteContentField[] = [
     label: "C3 answer",
     type: "textarea",
     defaultValue:
-      "Everyone living in the house went through the same screening you would. A background check and house rules orientation. They're not random strangers; they're adults in similar situations who want the same thing you do. Sharing the home is exactly what keeps the price at $25 a day, compared to $65 a night (the average price of a motel in GA).",
+      "Everyone living in the house went through the same screening you would. A background check and house rules orientation. They're not random strangers; they're adults in similar situations who want the same thing you do. Sharing the home is exactly what keeps the price at $26.60 a day, compared to $65 a night (the average price of a motel in GA).",
   },
   {
     key: "faq.c4.tag",

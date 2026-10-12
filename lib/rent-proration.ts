@@ -1,5 +1,5 @@
-const DAILY_RATE = 25;
-const ADVERTISED_MONTHLY = 775;
+const DAILY_RATE = 26.6;
+const ADVERTISED_MONTHLY = 798;
 
 export type MoveInProration = {
   dailyRate: number;
@@ -10,7 +10,7 @@ export type MoveInProration = {
   monthlyTotal: number;
 };
 
-/** $25 × days left in the month, including the move-in day. */
+/** $26.60 × days left in the month, including the move-in day. */
 export function moveInProration(dateKey: string): MoveInProration {
   const [year, month, day] = dateKey.split("-").map(Number);
   const moveIn = new Date(year, (month || 1) - 1, day || 1);
@@ -25,15 +25,17 @@ export function moveInProration(dateKey: string): MoveInProration {
     daysRemaining,
     daysInMonth,
     monthLabel,
-    moveInTotal: DAILY_RATE * daysRemaining,
+    moveInTotal: Math.round(DAILY_RATE * daysRemaining * 100) / 100,
     monthlyTotal: ADVERTISED_MONTHLY,
   };
 }
 
 export function formatUsd(amount: number): string {
+  const cents = Math.round(amount * 100) % 100;
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-    maximumFractionDigits: 0,
+    minimumFractionDigits: cents === 0 ? 0 : 2,
+    maximumFractionDigits: cents === 0 ? 0 : 2,
   }).format(amount);
 }

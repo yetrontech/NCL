@@ -618,7 +618,7 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
           payload.communal_living_interference,
         "Is the referee able to commit to a drug- and alcohol-free home? Random drug testing is part of house rules.":
           payload.drug_free_commitment,
-        "Does the referee understand that at $25 a day, NCL provides more value than a motel (~$1,800/month) or shelter — a real home with peace and stability?":
+        "Does the referee understand that at $26.60 a day, NCL provides more value than a motel (~$1,800/month) or shelter — a real home with peace and stability?":
           payload.value_understanding,
         "Does the referee understand that this is a home and not short-term housing?":
           payload.home_not_short_term,
