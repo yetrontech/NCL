@@ -4972,3 +4972,20 @@
         gap: 8px;
       }
     }
+
+    @media (max-width: 480px) {
+      .offer2-shorts {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        margin-right: -18px;
+        margin-left: -18px;
+        padding: 0 18px 8px;
+      }
+
+      .offer2-short {
+        flex: 0 0 62%;
+        scroll-snap-align: start;
+      }
+    }
