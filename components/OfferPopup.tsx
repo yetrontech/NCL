@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import GuideOffer from "@/components/GuideOffer";
+import OfferTwo from "@/components/OfferTwo";
 
 const DISMISS_KEY = "ncl-offer-dismissed";
 
@@ -52,7 +52,7 @@ export default function OfferPopup({ bedsRemaining }: { bedsRemaining: number | 
             className="offer-popup"
             role="dialog"
             aria-modal="true"
-            aria-labelledby="limited-space-offer"
+            aria-labelledby="offer2-offer-title"
             onClick={(event) => event.stopPropagation()}
           >
             <button
@@ -64,7 +64,7 @@ export default function OfferPopup({ bedsRemaining }: { bedsRemaining: number | 
             >
               ×
             </button>
-            <GuideOffer bedsRemaining={bedsRemaining} />
+            <OfferTwo bedsRemaining={bedsRemaining} popup />
           </div>
         </div>
       ) : null}
@@ -75,7 +75,7 @@ export default function OfferPopup({ bedsRemaining }: { bedsRemaining: number | 
         hidden={open}
         onClick={() => setOpen(true)}
       >
-        Limited Space Offer
+        Stability Speedrun
       </button>
     </>
   );

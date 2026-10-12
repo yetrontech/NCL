@@ -39,18 +39,18 @@ const HOME_ITEMS = [
   "And More",
 ];
 
-export default function OfferTwo({ bedsRemaining }: { bedsRemaining: number | null }) {
-  return (
-    <div className="guide-page offer2-page has-corners">
-      <OfferCorners />
-      <div className="offer2-wrap">
-        <Link href="/" className="guide-logo" aria-label="New Creation Living">
-          <BrandLogo clipId="offer2Clip" />
-        </Link>
-
+export default function OfferTwo({
+  bedsRemaining,
+  popup = false,
+}: {
+  bedsRemaining: number | null;
+  popup?: boolean;
+}) {
+  const offer = (
+    <>
         <article className="guide-card offer2-card">
           <BedCount initial={bedsRemaining} />
-          <h1>
+          <h1 id="offer2-offer-title">
             Pay <span className="offer-hit">$199</span> starting next month.
           </h1>
           <p className="offer2-package">(Stability Speedrun Package)</p>
@@ -113,6 +113,7 @@ export default function OfferTwo({ bedsRemaining }: { bedsRemaining: number | nu
           <p className="guide-offer-eligible">See if you&apos;re eligible below!</p>
         </article>
 
+        {popup ? null : (
         <article className="guide-card offer2-card offer2-educate">
           <p className="guide-kicker offer2-home-title">The Home</p>
           <div className="offer2-shorts">
@@ -129,6 +130,7 @@ export default function OfferTwo({ bedsRemaining }: { bedsRemaining: number | nu
             ))}
           </div>
         </article>
+        )}
 
         <article className="guide-card offer2-card offer2-eligible" id="eligibility">
           <p className="guide-kicker">Eligibility</p>
@@ -138,9 +140,24 @@ export default function OfferTwo({ bedsRemaining }: { bedsRemaining: number | nu
           </Link>
         </article>
 
+        {popup ? null : (
         <p className="guide-footer">
           New Creation Living · Atlanta, GA · newcreationliving.org · (404) 731-2371
         </p>
+        )}
+    </>
+  );
+
+  if (popup) return <div className="offer2-wrap">{offer}</div>;
+
+  return (
+    <div className="guide-page offer2-page has-corners">
+      <OfferCorners />
+      <div className="offer2-wrap">
+        <Link href="/" className="guide-logo" aria-label="New Creation Living">
+          <BrandLogo clipId="offer2Clip" />
+        </Link>
+        {offer}
       </div>
     </div>
   );
