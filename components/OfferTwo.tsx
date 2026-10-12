@@ -43,22 +43,28 @@ export default function OfferTwo({ bedsRemaining }: { bedsRemaining: number | nu
 
         <article className="guide-card offer2-card">
           <BedCount initial={bedsRemaining} />
-          <h1>Move In Today for Just $1. Pay Starting Next Month.</h1>
+          <h1>
+            Move In Today for Just <span className="offer-hit">$1</span>. Pay Starting Next Month.
+          </h1>
           <p className="offer2-package">(Stability Speedrun Package)</p>
           <p>
-            Move in any day for $1. Your rent doesn&apos;t start until the 1st of next month, then
-            it&apos;s $798/month. Regardless of move-in day. No tricks. Live here and decide from
-            the inside if it&apos;s for you. If it&apos;s not for you, leave with our blessing.
+            Move in any day for <span className="offer-hit">$1</span>. Your rent doesn&apos;t start
+            until the <span className="offer-hit">1st of next month</span>, then it&apos;s{" "}
+            <span className="offer-hit">$798/month</span>. Regardless of move-in day. No tricks.
+            Live here and decide from the inside if it&apos;s for you. If it&apos;s not for you,
+            leave with our blessing.
           </p>
           <p>
-            Bring a friend and you both get $100 off next month. Bring 2 and choose your reward:
-            pay just $199 rent next month, or get a one-year paid gym membership. Every referral
-            after that earns you another $199 month. No limit. Bring some friends and save almost
-            $7,300 a year by doing nothing more!
+            Bring a friend and you both get <span className="offer-hit">$100 off</span> next month.
+            Bring 2 and choose your reward: pay just <span className="offer-hit">$199 rent</span>{" "}
+            next month, or get a <span className="offer-hit">one-year paid gym membership</span>.
+            Every referral after that earns you another <span className="offer-hit">$199 month</span>.
+            No limit. Bring some friends and save almost <span className="offer-hit">$7,300</span>{" "}
+            a year by doing nothing more!
           </p>
           <p>
             Your time is money. Talk to 10 people looking for housing, and if nobody is interested,
-            we&apos;ll pay your hourly wage.
+            we&apos;ll <span className="offer-hit">pay your hourly wage</span>.
           </p>
           <p className="offer2-more">Plus, we help you earn more and keep more.</p>
 
@@ -85,7 +91,9 @@ export default function OfferTwo({ bedsRemaining }: { bedsRemaining: number | nu
             <li>How did you get so far ahead?</li>
             <li>What changed?</li>
           </ul>
-          <p>Only you will know. New location sale with limited space.</p>
+          <p className="offer2-sale">
+            Only you will know. <span>New location sale with limited space.</span>
+          </p>
           <p className="guide-offer-eligible">See if you&apos;re eligible below!</p>
         </article>
 

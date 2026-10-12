@@ -13,20 +13,27 @@ export default function GuideOffer({ bedsRemaining }: { bedsRemaining: number | 
       <div className="guide-offer-banner" id="limited-space-offer">
         Limited Space Offer
       </div>
-      <h2>When you love our home, bring your friends and pay $125 in rent.</h2>
+      <h2>
+        When you love our home, bring your friends and pay <span className="offer-hit">$125</span>{" "}
+        in rent.
+      </h2>
       <p className="guide-offer-terms">
-        We&apos;ll pay for your transportation to our home. The month you move in is free.
+        We&apos;ll pay for your transportation to our home. The month you move in is{" "}
+        <span className="offer-hit">free</span>.
       </p>
       <p className="guide-offer-highlight">We guarantee you safety, stability, and a home.</p>
       <p>
-        If you decide this is not the place for you, we&apos;ll give you a 100% refund within 7
-        days of move-in.
+        If you decide this is not the place for you, we&apos;ll give you a{" "}
+        <span className="offer-hit">100% refund</span> within 7 days of move-in.
       </p>
       <p>
         Once you become a resident, on your second successful referral, your full month&apos;s
-        rent will be only $125 for the whole month.
+        rent will be only <span className="offer-hit">$125</span> for the whole month.
       </p>
-      <p>Each additional successful referral gives you another month of $125 in rent.</p>
+      <p>
+        Each additional successful referral gives you another month of{" "}
+        <span className="offer-hit">$125</span> in rent.
+      </p>
 
       {open ? (
         <div className="guide-offer-more">
