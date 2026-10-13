@@ -118,7 +118,9 @@ create table if not exists public.tour_requests (
   phone text not null,
   email text not null,
   preferred_date date not null,
-  gender text not null
+  gender text not null,
+  house_id text,
+  starts_at timestamptz
 );
 
 -- ============ Benefits screening form ============

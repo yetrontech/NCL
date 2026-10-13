@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { submitTourRequest } from "@/app/actions/forms";
+import { listTourHouses, listTourSlots, submitTourRequest } from "@/app/actions/forms";
 import { trackGoogleAdsContactConversion } from "@/lib/google-ads";
 import { trackMetaSchedule } from "@/lib/meta-pixel";
 
@@ -18,6 +18,23 @@ export default function TourModal({
   onClose: () => void;
 }) {
   const [status, setStatus] = useState<FormStatus>("idle");
+  const [error, setError] = useState<string | null>(null);
+  const [gender, setGender] = useState("");
+  const [houses, setHouses] = useState<Array<{ id: string; name: string }>>([]);
+  const [houseId, setHouseId] = useState("");
+  const [date, setDate] = useState("");
+  const [slots, setSlots] = useState<string[]>([]);
+  const [time, setTime] = useState("");
+  const [slotNote, setSlotNote] = useState<string | null>(null);
+
+  function formatSlot(value: string) {
+    const [hourText, minuteText] = value.split(":");
+    const hour = Number(hourText);
+    const minute = Number(minuteText);
+    if (!Number.isInteger(hour) || !Number.isInteger(minute)) return value;
+    const suffix = hour >= 12 ? "PM" : "AM";
+    return `${hour % 12 || 12}:${String(minute).padStart(2, "0")} ${suffix}`;
+  }
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -32,14 +49,70 @@ export default function TourModal({
   }, [open, onClose]);
 
   useEffect(() => {
-    if (!open) setStatus("idle");
+    if (!open) {
+      setStatus("idle");
+      setError(null);
+      setGender("");
+      setHouses([]);
+      setHouseId("");
+      setDate("");
+      setSlots([]);
+      setTime("");
+      setSlotNote(null);
+    }
   }, [open]);
+
+  useEffect(() => {
+    if (!open || (gender !== "Male" && gender !== "Female")) {
+      setHouses([]);
+      setHouseId("");
+      return;
+    }
+    let cancelled = false;
+    void listTourHouses(gender).then((result) => {
+      if (cancelled) return;
+      if (!result.ok) {
+        setHouses([]);
+        setSlotNote(result.error);
+        return;
+      }
+      setHouses(result.houses);
+      setSlotNote(result.houses.length === 0 ? "No houses are open for tours right now." : null);
+      setHouseId("");
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, gender]);
+
+  useEffect(() => {
+    if (!open || !houseId || !date) {
+      setSlots([]);
+      return;
+    }
+    let cancelled = false;
+    void listTourSlots(houseId, date).then((result) => {
+      if (cancelled) return;
+      if (!result.ok) {
+        setSlots([]);
+        setSlotNote(result.error);
+        return;
+      }
+      setSlotNote(result.slots.length === 0 ? "No open times that day. Pick another date." : null);
+      setSlots(result.slots);
+      setTime("");
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, houseId, date]);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (status === "submitting") return;
     const data = new FormData(e.currentTarget);
     setStatus("submitting");
+    setError(null);
 
     const result = await submitTourRequest(data);
     if (result.ok) {
@@ -48,6 +121,7 @@ export default function TourModal({
       setStatus("success");
     } else {
       console.error("Tour request submission failed:", result.error);
+      setError(result.error);
       setStatus("error");
     }
   }
@@ -103,12 +177,14 @@ export default function TourModal({
             </div>
             <div className="field-row">
               <div className="field">
-                <label htmlFor="tour-date">Preferred tour date</label>
-                <input type="date" id="tour-date" name="tour-date" required />
-              </div>
-              <div className="field">
                 <label htmlFor="tour-gender">Gender</label>
-                <select id="tour-gender" name="tour-gender" required defaultValue="">
+                <select
+                  id="tour-gender"
+                  name="tour-gender"
+                  required
+                  value={gender}
+                  onChange={(event) => setGender(event.target.value)}
+                >
                   <option value="">Select one</option>
                   {GENDER_OPTIONS.map((option) => (
                     <option key={option} value={option}>
@@ -117,13 +193,55 @@ export default function TourModal({
                   ))}
                 </select>
               </div>
+              <div className="field">
+                <label htmlFor="tour-house">House</label>
+                <select
+                  id="tour-house"
+                  name="tour-house"
+                  required
+                  value={houseId}
+                  onChange={(event) => setHouseId(event.target.value)}
+                >
+                  <option value="">{gender ? "Select a house" : "Select gender first"}</option>
+                  {houses.map((house) => (
+                    <option key={house.id} value={house.id}>
+                      {house.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="field-row">
+              <div className="field">
+                <label htmlFor="tour-date">Tour date</label>
+                <input
+                  type="date"
+                  id="tour-date"
+                  name="tour-date"
+                  required
+                  value={date}
+                  onChange={(event) => setDate(event.target.value)}
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="tour-time">Tour time</label>
+                <select id="tour-time" name="tour-time" required value={time} onChange={(event) => setTime(event.target.value)}>
+                  <option value="">{slots.length ? "Select a time" : "Select a house and date"}</option>
+                  {slots.map((slot) => (
+                    <option key={slot} value={slot}>
+                      {formatSlot(slot)}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
             <button type="submit" className="submit-btn" disabled={status === "submitting"}>
               {status === "submitting" ? "Submitting..." : "Request Tour"}
             </button>
+            {slotNote ? <p className="form-note">{slotNote}</p> : null}
             {status === "error" && (
               <p className="form-note" style={{ color: "#C0392B" }}>
-                Something went wrong. Please try again or call (404) 731-2371.
+                {error || "Something went wrong. Please try again or call (404) 731-2371."}
               </p>
             )}
             <p className="form-note">

@@ -18,6 +18,9 @@ export type NotificationPayload = {
   userName?: string | null;
   /** Row id, when available — lets an owner push open that submission directly */
   rowId?: string | null;
+  /** When false, only staffEmail is mailed. The staff list, SMS, and owner push are skipped. */
+  notifyAllStaff?: boolean;
+  staffEmail?: string | null;
 };
 
 const KIND_LABEL: Record<SubmissionKind, string> = {
@@ -383,6 +386,28 @@ async function sendStaffEmailToRecipient(opts: {
 }
 
 async function sendStaffEmail(payload: NotificationPayload): Promise<void> {
+  if (payload.notifyAllStaff === false) {
+    const direct = (payload.staffEmail || "").trim().toLowerCase();
+    if (!direct) return;
+    const from = getStaffFromAddress(direct);
+    const label = KIND_LABEL[payload.kind];
+    const body = [
+      `New ${label} submission on New Creation Living.`,
+      "",
+      payload.summary,
+      "",
+      formatDetails(payload.details),
+    ].join("\n");
+    await sendStaffEmailToRecipient({
+      to: direct,
+      from,
+      replyTo: getStaffReplyTo(payload.userEmail),
+      subject: `New NCL ${label}: ${payload.summary}`,
+      text: body,
+      html: buildStaffEmailHtml(payload, label),
+    });
+    return;
+  }
   const recipients = getStaffNotifyEmails();
   const from = getStaffFromAddress(recipients[0]);
   const label = KIND_LABEL[payload.kind];
@@ -438,7 +463,9 @@ function buildUserConfirmation(payload: NotificationPayload): {
   const preferredDate =
     typeof payload.details["Preferred date"] === "string"
       ? payload.details["Preferred date"]
-      : null;
+      : typeof payload.details["Preferred tour date"] === "string"
+        ? payload.details["Preferred tour date"]
+        : null;
   const referee =
     typeof payload.details.Referee === "string" ? payload.details.Referee : null;
 
@@ -489,15 +516,22 @@ function buildUserConfirmation(payload: NotificationPayload): {
           `If you have questions in the meantime, call us at ${SUPPORT_PHONE}.`,
         ]),
       };
-    case "tour_request":
+    case "tour_request": {
+      const house =
+        typeof payload.details.House === "string" ? payload.details.House : null;
+      const time = typeof payload.details.Time === "string" ? payload.details.Time : null;
+      const booked =
+        house && time && preferredDate
+          ? `Your tour at ${house} is set for ${preferredDate} at ${time}.`
+          : preferredDate
+            ? `Thank you for requesting a tour. We've received your preferred date of ${preferredDate} and will confirm a time with you soon.`
+            : "Thank you for requesting a tour. We've received your request and will confirm a time with you soon.";
       return {
         subject: "We received your New Creation Living tour request",
         text: [
           `Hi ${name},`,
           "",
-          preferredDate
-            ? `Thank you for requesting a tour. We've received your preferred date of ${preferredDate} and will confirm a time with you soon.`
-            : "Thank you for requesting a tour. We've received your request and will confirm a time with you soon.",
+          booked,
           "",
           `If you need to reach us sooner, call ${SUPPORT_PHONE}.`,
           "",
@@ -505,12 +539,11 @@ function buildUserConfirmation(payload: NotificationPayload): {
         ].join("\n"),
         html: wrapUserEmailHtml([
           `Hi ${name},`,
-          preferredDate
-            ? `Thank you for requesting a tour. We've received your preferred date of ${preferredDate} and will confirm a time with you soon.`
-            : "Thank you for requesting a tour. We've received your request and will confirm a time with you soon.",
+          booked,
           `If you need to reach us sooner, call ${SUPPORT_PHONE}.`,
         ]),
       };
+    }
     case "benefits_screening":
       return {
         subject: "We received your New Creation Living benefits request",
@@ -844,12 +877,11 @@ export async function notifyMoveInDate(input: {
 }
 
 export async function notifyNewSubmission(payload: NotificationPayload): Promise<void> {
-  const results = await Promise.allSettled([
-    sendStaffEmail(payload),
-    sendSms(payload),
-    sendUserConfirmation(payload),
-    sendOwnerPush(payload),
-  ]);
+  const tasks = [sendStaffEmail(payload), sendUserConfirmation(payload)];
+  if (payload.notifyAllStaff !== false) {
+    tasks.push(sendSms(payload), sendOwnerPush(payload));
+  }
+  const results = await Promise.allSettled(tasks);
 
   for (const result of results) {
     if (result.status === "rejected") {
