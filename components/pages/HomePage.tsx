@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 // import Link from "next/link";
+import BedCount from "@/components/BedCount";
 import { scrollToId, scrollToSection } from "@/lib/scroll";
 import { useCopy, useCopyList } from "@/components/SiteContentProvider";
 
@@ -20,7 +21,7 @@ function CheckIcon() {
   );
 }
 
-export default function HomePage() {
+export default function HomePage({ bedsRemaining }: { bedsRemaining: number | null }) {
   const copy = useCopy();
   const copyList = useCopyList();
   const [activeSlide, setActiveSlide] = useState(0);
@@ -99,6 +100,9 @@ export default function HomePage() {
             >
               {copy("home.hero.locations")}
             </p>
+            <div className="hero-beds">
+              <BedCount initial={bedsRemaining} />
+            </div>
             <div className="hero-ctas">
               <button className="btn btn-primary" onClick={() => scrollToId("apply-options")}>
                 {copy("home.hero.cta_residency")}

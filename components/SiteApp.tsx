@@ -37,7 +37,7 @@ export default function SiteApp({
       <Header />
 
       <main id="main">
-        <HomePage />
+        <HomePage bedsRemaining={bedsRemaining} />
         <AboutPage />
         <LifePage />
         <ReferralPage />

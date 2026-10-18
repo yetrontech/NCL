@@ -4170,6 +4170,15 @@
       flex: 1 1 12rem;
     }
 
+    .hero-beds .guide-beds {
+      margin: -14px 0 22px;
+      font-size: 17px;
+    }
+
+    .hero-beds .guide-beds-phrase {
+      flex: 0 1 auto;
+    }
+
     .guide-beds-dot {
       width: 8px;
       height: 8px;
