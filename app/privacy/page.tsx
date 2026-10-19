@@ -20,7 +20,7 @@ export default async function PrivacyPage() {
   const tagline = content["brand.tagline"] || "From Benefits to Belonging";
 
   return (
-    <LegalPage title="Privacy Policy" tagline={tagline} updated="October 4, 2026">
+    <LegalPage title="Privacy Policy" tagline={tagline} updated="October 19, 2026">
       <p>
         New Creation Living provides structured, all-inclusive housing for independent
         adults on fixed government income in Metro Atlanta and Middle Georgia. We also
@@ -138,6 +138,10 @@ export default async function PrivacyPage() {
           email or text messages on our behalf
         </li>
         <li>
+          An AI provider (OpenAI), only for messages a resident sends to the Thrive
+          money coach, as described below
+        </li>
+        <li>
           Advertising platforms (Google and Meta) for page views and conversion
           measurement. They receive the fact that a form was submitted, not the answers
         </li>
@@ -184,7 +188,7 @@ export default async function PrivacyPage() {
 
       <h2>The NCL house app</h2>
       <p>
-        The NCL app on the Apple App Store is for people who live in a New Creation
+        The NCL app on the Apple App Store and Google Play is for people who live in a New Creation
         Living home and for the staff who run it. It is the same housing file as this
         website, not a separate product. Residents and house managers sign in with a
         4-digit PIN. The owner uses a house code. Administrators use the same email
@@ -201,7 +205,7 @@ export default async function PrivacyPage() {
         <li>Safety tags and custom tags drawn from those answers</li>
         <li>Points, notes, complaints, and house announcements</li>
         <li>
-          A push token from Apple if you allow notifications, so the app can alert
+          A push token from Apple or Google if you allow notifications, so the app can alert
           staff about a new form or a house announcement. The token is stored in our
           database (Supabase) and sent through Expo’s push service. It is not used
           for advertising.
@@ -212,6 +216,35 @@ export default async function PrivacyPage() {
         while they are typing it. The app does not keep a list of PINs on the home
         screen. The app does not use advertising trackers.
       </p>
+      <h2>NCL Thrive money plans</h2>
+      <p>
+        NCL Thrive is a savings tool in the house app. It helps a resident set a money
+        goal, such as a car, a home, or better credit, and save toward it each week.
+        Thrive is being rolled out in stages and may not be available to every resident
+        yet. When a resident uses it, the app stores:
+      </p>
+      <ul>
+        <li>Whether they have a job, their monthly income, and how much they have saved</li>
+        <li>Their goals, target amounts, target dates, payday, and weekly savings amount</li>
+        <li>Which weeks they saved, the steps and calendar tasks they added, and how many friends they plan to refer</li>
+      </ul>
+      <p>
+        The resident sees the full plan. The owner, administrators, and the assigned
+        house manager see only whether a resident is on track, behind, or has no plan.
+        They do not see income, savings, or goal amounts in the app. Thrive amounts are
+        never sent to advertising platforms.
+      </p>
+      <p>
+        Thrive includes an AI money coach. When a resident writes to the coach, the
+        message, the recent conversation, and a short summary of their Thrive plan
+        (income, savings, goals, and rent) are sent through our website host (Vercel)
+        to an AI provider (OpenAI) to write a reply. The coach only discusses NCL-related
+        money planning. We do not save the chat after the conversation ends, and the
+        coach cannot save a goal or task unless the resident taps to add it. Do not type
+        health details, account numbers, or passwords into the coach. Coach replies are
+        general guidance, not financial, legal, or tax advice.
+      </p>
+
       <p>
         You can close your own house login inside the app under Delete my login.
         That turns off the PIN immediately. Applications, move-in history, and other
