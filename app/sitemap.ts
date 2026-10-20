@@ -52,6 +52,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
+      url: "https://www.newcreationliving.org/calculate",
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
       url: "https://www.newcreationliving.org/quickeval",
       lastModified: now,
       changeFrequency: "monthly",
