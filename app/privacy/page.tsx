@@ -224,21 +224,45 @@ export default async function PrivacyPage() {
         yet. When a resident uses it, the app stores:
       </p>
       <ul>
-        <li>Whether they have a job, their monthly income, and how much they have saved</li>
+        <li>
+          Answers to the Thrive money questions: how and how often they are paid, take-home
+          pay, how steady it is, benefits received and amounts, whether they have checking
+          or savings and the balances, monthly bills, money sent to others, and a target date
+        </li>
+        <li>
+          Answers for the goal they pick, which can include debts (type, balance, rate,
+          minimum payment, and whether it is behind or in collections), a credit score
+          range and credit report questions, rent and moving plans, home buying plans, and
+          car details such as price range, trade-in, and insurance
+        </li>
+        <li>Their reminder choice and whether they want a weekly check-in with staff</li>
         <li>Their goals, target amounts, target dates, payday, and weekly savings amount</li>
         <li>Which weeks they saved, the steps and calendar tasks they added, and how many friends they plan to refer</li>
       </ul>
       <p>
-        The resident sees the full plan. The owner, administrators, and the assigned
-        house manager see only whether a resident is on track, behind, or has no plan.
-        They do not see income, savings, or goal amounts in the app. Thrive amounts are
-        never sent to advertising platforms.
+        Every Thrive question can be skipped with &quot;I don&apos;t know&quot; or
+        &quot;I&apos;d rather not say&quot;. Thrive never asks for and does not collect
+        Social Security numbers, bank or card account numbers, PINs, passwords, or
+        logins to banks, lenders, or credit bureaus. Do not type them into any answer or
+        into the coach.
+      </p>
+      <p>
+        The resident sees the full plan. At the end of the money questions, the resident
+        chooses whether NCL staff can see their answers. If they say no, the owner,
+        administrators, and the assigned house manager see only whether the resident is on
+        track, behind, or has no plan. If they say yes, the owner and administrators can
+        also see the answers, the reminder choice, and the check-in request so they can
+        help. House managers still see only the on-track status. The resident can change
+        this choice at any time by updating their answers. Thrive amounts are never sent to
+        advertising platforms.
       </p>
       <p>
         Thrive includes an AI money coach. When a resident writes to the coach, the
-        message, the recent conversation, and a short summary of their Thrive plan
-        (income, savings, goals, and rent) are sent through our website host (Vercel)
-        to an AI provider (OpenAI) to write a reply. The coach only discusses NCL-related
+        message, the recent conversation, and a short computed summary of their Thrive plan
+        (income, money left over each month, the monthly goal amount, rent, each
+        goal&apos;s target, and any warning flags, such as a payday loan or a debt in
+        collections) are sent through our website host (Vercel) to an AI provider (OpenAI)
+        to write a reply. The raw answers are not sent. The coach only discusses NCL-related
         money planning. We do not save the chat after the conversation ends, and the
         coach cannot save a goal or task unless the resident taps to add it. Do not type
         health details, account numbers, or passwords into the coach. Coach replies are
