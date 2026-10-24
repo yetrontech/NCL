@@ -4,9 +4,9 @@ import { SiteContentProvider } from "@/components/SiteContentProvider";
 import { loadSiteContent } from "@/lib/site-content-server";
 
 export const metadata: Metadata = {
-  title: "Move-Out Calculator — New Creation Living",
+  title: "Make Your Money Go Further — New Creation Living",
   description:
-    "See how fast you could save for your own apartment or home while living at New Creation Living for $798 a month, everything included.",
+    "See how to reach your goals faster, without earning more. Find out how fast you could save for your own apartment or home while living at New Creation Living for $798 a month, everything included.",
   alternates: { canonical: "/calculate" },
 };
 

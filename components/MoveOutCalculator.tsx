@@ -126,10 +126,11 @@ export default function MoveOutCalculator({ phone }: { phone: string }) {
 
       <main className="calc-main">
         <div className="calc-intro">
-          <span className="eyebrow">Move-out calculator</span>
-          <h1 className="onboarding-title">How fast could you get your own place?</h1>
+          <span className="eyebrow">Savings calculator</span>
+          <h1 className="onboarding-title">Make Your Money Go Further</h1>
           <p className="schedule-lead">
-            Put in what you earn and what you pay now. See how much you could save for an apartment or a home while
+            See how to reach your goals faster, without earning more. Put in what you earn and what you pay now. See
+            how much you could save for an apartment or a home while
             living at New Creation Living for {formatMoney(MONTHLY_RENT)} a month, with everything included. We do not
             save your answers.
           </p>
