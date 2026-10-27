@@ -1,7 +1,12 @@
-import { APPLYING_FOR_OPTIONS } from "@/lib/residency-fields";
+import {
+  APPLYING_FOR_OPTIONS,
+  APPLYING_WITH_DEPENDANTS,
+  APPLYING_WITH_SPOUSE,
+} from "@/lib/residency-fields";
 
 /** Same choice as the full application: housing for one person only. */
 export const QUICK_EVAL_MYSELF = "Myself";
+export const QUICK_EVAL_PETS = "Myself and my pets";
 
 export type QuickEvalStep = {
   id: string;
@@ -11,6 +16,7 @@ export type QuickEvalStep = {
   fitAnswer?: string;
   /** This answer ends the check as not a fit. */
   denyAnswer?: string;
+  denyAnswers?: readonly string[];
 };
 
 const YES_NO = ["Yes", "No"] as const;
@@ -40,6 +46,14 @@ const HOUSING: QuickEvalStep = {
   id: "housing",
   prompt: "Are you applying for yourself only, or will others be living with you?",
   options: APPLYING_FOR_OPTIONS,
+  denyAnswers: [APPLYING_WITH_SPOUSE, QUICK_EVAL_PETS],
+};
+
+const UNDERAGE: QuickEvalStep = {
+  id: "underage",
+  prompt: "Are any of them under 18?",
+  options: YES_NO,
+  denyAnswer: "Yes",
 };
 
 const OTHER_INCOME: QuickEvalStep = {
@@ -72,12 +86,19 @@ const HOME: QuickEvalStep = {
 /** Benefit, medications, and conviction. Two of these three still count as a fit. */
 export const QUICK_EVAL_PASS_AT = 2;
 
+export function stepDenies(step: QuickEvalStep, value: string): boolean {
+  return value === step.denyAnswer || Boolean(step.denyAnswers?.includes(value));
+}
+
 export function quickEvalSteps(answers: Record<string, string>): QuickEvalStep[] {
-  const withSomeone = Boolean(answers.housing) && answers.housing !== QUICK_EVAL_MYSELF;
+  const housing = answers.housing;
+  const dependants = housing === APPLYING_WITH_DEPENDANTS;
+  const withAdults = dependants && answers.underage === "No";
   return [
     SCORED[0],
     HOUSING,
-    ...(withSomeone ? [OTHER_INCOME, LIVE_SEPARATE] : []),
+    ...(dependants ? [UNDERAGE] : []),
+    ...(withAdults ? [OTHER_INCOME, LIVE_SEPARATE] : []),
     SCORED[1],
     SCORED[2],
     DRUG_FREE,
@@ -90,9 +111,10 @@ export function quickEvalScore(answers: Record<string, string>): number {
 }
 
 export function isQuickEvalDenied(answers: Record<string, string>): boolean {
-  return quickEvalSteps(answers).some(
-    (step) => Boolean(step.denyAnswer) && answers[step.id] === step.denyAnswer
-  );
+  return quickEvalSteps(answers).some((step) => {
+    const value = answers[step.id];
+    return Boolean(value) && stepDenies(step, value);
+  });
 }
 
 export function isQuickEvalFit(answers: Record<string, string>): boolean {

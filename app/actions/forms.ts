@@ -134,6 +134,22 @@ function storedHowHeard(howHeard: string, howHeardOther: string): string {
     : howHeard;
 }
 
+function payDaysFromForm(formData: FormData): number[] {
+  const raw = text(formData, "pay_days", 120);
+  return [
+    ...new Set(
+      raw
+        .split(/[,\s]+/)
+        .map((part) => Number(part))
+        .filter((day) => Number.isInteger(day) && day >= 1 && day <= 31)
+    ),
+  ].sort((left, right) => left - right);
+}
+
+function formatPayDays(days: number[]): string {
+  return days.join(", ");
+}
+
 export async function submitApplication(formData: FormData): Promise<FormActionResult> {
   const income_source = text(formData, "income_source");
   const how_heard_other = text(formData, "how_heard_other");
@@ -159,6 +175,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
     sober_length:
       text(formData, "substance_abuse_history") === "Yes" ? text(formData, "sober_length") : "",
     monthly_benefit_amount: text(formData, "monthly_benefit_amount"),
+    pay_days: payDaysFromForm(formData),
     medical_prescriptions: text(formData, "medical_prescriptions"),
     medical_explanation: text(formData, "medical_explanation"),
     drug_free_commitment: text(formData, "drug_free_commitment"),
@@ -213,6 +230,10 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
 
   if (payload.benefit_type === "Other" && !income_source) {
     return { ok: false, error: "Please tell us how you are receiving income." };
+  }
+
+  if (payload.pay_days.length === 0) {
+    return { ok: false, error: "Please tell us which days of the month you get paid." };
   }
 
   if (payload.how_heard === "Other" && !how_heard_other) {
@@ -351,6 +372,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
           payload.benefit_type === "Other" ? income_source : undefined,
         "How much are you receiving from your Income monthly?":
           payload.monthly_benefit_amount,
+        "Which days of the month do you get paid?": formatPayDays(payload.pay_days),
         "How soon are you looking to move into one of our homes?":
           payload.move_timeline,
         "How did you hear about us?": how_heard,

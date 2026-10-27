@@ -1316,6 +1316,34 @@
       border-color: var(--navy);
     }
 
+    .field-hint {
+      margin: 0 0 10px;
+      color: var(--muted, #5c6370);
+      font-size: 0.9rem;
+    }
+
+    .pay-day-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .pay-day {
+      border: 1.5px solid var(--line);
+      background: var(--cream);
+      border-radius: 10px;
+      min-height: 40px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .pay-day.is-on {
+      background: var(--navy);
+      color: white;
+      border-color: var(--navy);
+    }
+
     .submit-btn {
       width: 100%;
       background: var(--navy);

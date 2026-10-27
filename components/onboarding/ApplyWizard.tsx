@@ -47,6 +47,7 @@ const initial = {
   medicare_medicaid: "",
   income_source: "",
   monthly_benefit_amount: "",
+  pay_days: "",
   move_timeline: "",
   how_heard: "",
   how_heard_other: "",
@@ -89,6 +90,15 @@ function cleanPromoCode(value: string | undefined): string {
   return (value || "").replace(/[^A-Za-z0-9 _-]/g, "").slice(0, 40).trim();
 }
 
+function payDaysFromValue(value: string): number[] {
+  return value
+    .split(",")
+    .map((part) => Number(part))
+    .filter((day) => Number.isInteger(day) && day >= 1 && day <= 31);
+}
+
+const MONTH_DAYS = Array.from({ length: 31 }, (_, index) => index + 1);
+
 export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
   const [step, setStep] = useState(0);
   const [data, setData] = useState({ ...initial, promo_code: cleanPromoCode(promoCode) });
@@ -123,6 +133,9 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
       }
       if (!data.benefit_type || !data.monthly_benefit_amount || !data.move_timeline) {
         return "Please complete all fields on this step.";
+      }
+      if (!payDaysFromValue(data.pay_days).length) {
+        return "Please tell us which days of the month you get paid.";
       }
       if (data.benefit_type === "Other" && !data.income_source) {
         return "Please tell us how you are receiving income.";
@@ -459,6 +472,32 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
                 value={data.monthly_benefit_amount}
                 onChange={(e) => setField("monthly_benefit_amount", e.target.value)}
               />
+            </div>
+            <div className="field">
+              <label>Which days of the month do you get paid?</label>
+              <p className="field-hint">Tap every payday. Pick at least one.</p>
+              <div className="pay-day-grid">
+                {MONTH_DAYS.map((day) => {
+                  const selected = payDaysFromValue(data.pay_days).includes(day);
+                  return (
+                    <button
+                      key={day}
+                      type="button"
+                      className={selected ? "pay-day is-on" : "pay-day"}
+                      aria-pressed={selected}
+                      onClick={() => {
+                        const current = payDaysFromValue(data.pay_days);
+                        const next = selected
+                          ? current.filter((item) => item !== day)
+                          : [...current, day].sort((left, right) => left - right);
+                        setField("pay_days", next.join(","));
+                      }}
+                    >
+                      {day}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
             {["SSI", "SSDI", "Social Security"].includes(data.benefit_type) && (
               <RadioGroup

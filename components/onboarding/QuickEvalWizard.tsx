@@ -3,7 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import OnboardingShell from "@/components/onboarding/OnboardingShell";
-import { QUICK_EVAL_MYSELF, isQuickEvalFit, quickEvalSteps } from "@/lib/quick-eval";
+import {
+  QUICK_EVAL_MYSELF,
+  QUICK_EVAL_PETS,
+  isQuickEvalFit,
+  quickEvalSteps,
+  stepDenies,
+} from "@/lib/quick-eval";
+import { APPLYING_WITH_DEPENDANTS, APPLYING_WITH_SPOUSE } from "@/lib/residency-fields";
 
 function telHref(phone: string): string {
   const digits = phone.replace(/\D/g, "");
@@ -25,13 +32,16 @@ export default function QuickEvalWizard({ phone }: { phone: string }) {
 
   function choose(value: string) {
     const next = { ...answers, [question.id]: value };
-    if (question.id === "housing" && value === QUICK_EVAL_MYSELF) {
-      delete next.other_income;
-      delete next.live_separate;
+    if (question.id === "housing") {
+      if (value !== APPLYING_WITH_DEPENDANTS) delete next.underage;
+      if (value === QUICK_EVAL_MYSELF || value === APPLYING_WITH_SPOUSE || value === QUICK_EVAL_PETS) {
+        delete next.other_income;
+        delete next.live_separate;
+      }
     }
     setAnswers(next);
 
-    if (question.denyAnswer && value === question.denyAnswer) {
+    if (stepDenies(question, value)) {
       setDone(true);
       return;
     }
