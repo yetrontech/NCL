@@ -521,11 +521,15 @@ function buildUserConfirmation(payload: NotificationPayload): {
       };
     case "tour_request": {
       const house =
-        typeof payload.details.House === "string" ? payload.details.House : null;
+        typeof payload.details.House === "string" && payload.details.House !== "Not chosen yet"
+          ? payload.details.House
+          : null;
       const time = typeof payload.details.Time === "string" ? payload.details.Time : null;
       const booked =
-        house && time && preferredDate
-          ? `Your tour at ${house} is set for ${preferredDate} at ${time}.`
+        time && preferredDate
+          ? house
+            ? `Your tour at ${house} is set for ${preferredDate} at ${time}.`
+            : `Your tour is set for ${preferredDate} at ${time}.`
           : preferredDate
             ? `Thank you for requesting a tour. We've received your preferred date of ${preferredDate} and will confirm a time with you soon.`
             : "Thank you for requesting a tour. We've received your request and will confirm a time with you soon.";
@@ -892,7 +896,7 @@ export async function notifyTourEvalDecision(input: {
         `Hi ${name},`,
         "Your answers were reviewed, and we would like to show you the house.",
         link
-          ? "Use the button below to pick a house and a time for your tour."
+          ? "Use the button below to pick a time for your tour."
           : "Our team will be in touch shortly about your tour.",
       ]
     : [

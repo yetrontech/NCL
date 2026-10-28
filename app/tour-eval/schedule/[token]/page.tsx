@@ -8,7 +8,7 @@ import { loadSiteContent } from "@/lib/site-content-server";
 
 export const metadata: Metadata = {
   title: "Schedule your tour — New Creation Living",
-  description: "Pick a house and a time for your tour.",
+  description: "Pick a time for your tour.",
   robots: { index: false, follow: false },
 };
 
@@ -46,11 +46,7 @@ export default async function TourEvalSchedulePage({
             ) : loaded.info.tourBooked ? (
               <p className="schedule-lead">Your tour is already scheduled. We will confirm by phone or email.</p>
             ) : (
-              <TourEvalScheduler
-                token={token}
-                firstName={loaded.info.firstName}
-                gender={loaded.info.gender === "Female" ? "Female" : "Male"}
-              />
+              <TourEvalScheduler token={token} firstName={loaded.info.firstName} />
             )}
           </div>
         </main>

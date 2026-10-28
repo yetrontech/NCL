@@ -1,3 +1,5 @@
+import { DIAGNOSIS_NONE, parseListedDiagnoses } from "@/lib/listed-diagnoses";
+
 /** Ideal responses that indicate a highly favorable applicant/referee. */
 const IDEAL_RESPONSES = {
   mobility_limitations: "No",
@@ -15,7 +17,7 @@ const IDEAL_RESPONSES = {
   communal_living_interference: "No",
 } as const;
 
-/** Shared apply/refer score keys. Diagnosis/prescriptions stay on the form but are not scored. */
+/** Shared apply/refer score keys. A listed diagnosis costs this one point and does not deny the application. */
 const APPLICATION_CRITERIA = [
   "mobility_limitations",
   "mental_limitations",
@@ -37,7 +39,18 @@ const REFERRAL_EXTRA_CRITERIA = [
 
 export type ResidencyScoreFields = Partial<
   Record<keyof typeof IDEAL_RESPONSES, string | null | undefined>
->;
+> & {
+  listed_diagnoses?: string[] | string | null;
+};
+
+/** "None of these" is the favorable answer. Any named diagnosis is not. */
+export function listedDiagnosisScoreAnswer(value: string[] | string | null | undefined): string {
+  const labels = Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string")
+    : parseListedDiagnoses(value || "[]");
+  if (labels.length === 0) return "";
+  return labels.every((item) => item === DIAGNOSIS_NONE) ? DIAGNOSIS_NONE : "Has a listed diagnosis";
+}
 
 export type FavorabilityScore = {
   score: number;
@@ -76,8 +89,9 @@ function buildScore(
   criteria: readonly (keyof typeof IDEAL_RESPONSES)[]
 ): FavorabilityScore {
   const present = answeredCriteria(input, criteria);
-  const max_score = present.length;
-  const score = scoreCriteria(input, present);
+  const listed = listedDiagnosisScoreAnswer(input.listed_diagnoses);
+  const max_score = present.length + (listed ? 1 : 0);
+  const score = scoreCriteria(input, present) + (listed === DIAGNOSIS_NONE ? 1 : 0);
   const percent = max_score === 0 ? 0 : Math.round((score / max_score) * 100);
 
   return {

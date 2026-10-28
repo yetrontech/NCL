@@ -410,6 +410,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
         "Mobility limitations explanation": answer(payload.mobility_explanation),
         "Do you have a mental diagnosis?": payload.mental_limitations,
         "What mental diagnosis do you have? (Please list prescriptions as well)": answer(payload.mental_explanation),
+        "Listed diagnoses": payload.listed_diagnoses.join(", "),
         "Do you manage medications independently?":
           payload.medications_independent,
         "Do you have any medical prescriptions/diagnosis?":
@@ -636,6 +637,7 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
         "Does the referee have a mental diagnosis?":
           payload.mental_limitations,
         "What mental diagnosis does the referee have?": answer(payload.mental_explanation),
+        "Listed diagnoses": payload.listed_diagnoses.join(", "),
         "Does the referee manage medications independently?":
           payload.medications_independent,
         "Does the referee have any medical prescriptions/diagnosis?":
@@ -692,51 +694,25 @@ function tourRpcMissing(message: string) {
   );
 }
 
-export async function listTourHouses(
-  gender: string
-): Promise<{ ok: true; houses: Array<{ id: string; name: string }> } | { ok: false; error: string }> {
-  try {
-    const { data, error } = await getServerSupabase().rpc("public_list_tour_houses", { p_gender: gender });
-    if (error) {
-      return {
-        ok: false,
-        error: tourRpcMissing(error.message)
-          ? "Run migrate_public_tour.sql in Supabase, then try again."
-          : error.message,
-      };
-    }
-    const row = data as { ok?: boolean; error?: string; houses?: Array<{ id?: string; name?: string }> } | null;
-    if (!row?.ok) return { ok: false, error: row?.error || "Could not load houses." };
-    const houses = (row.houses ?? [])
-      .filter((house) => typeof house.id === "string" && typeof house.name === "string")
-      .map((house) => ({ id: house.id as string, name: house.name as string }));
-    return { ok: true, houses };
-  } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "Could not load houses." };
-  }
-}
+const TOUR_SQL_HINT = "Run supabase/migrate_tour_availability.sql in Supabase, then try again.";
 
 export async function listTourSlots(
-  houseId: string,
   date: string
-): Promise<{ ok: true; slots: string[] } | { ok: false; error: string }> {
+): Promise<{ ok: true; slots: string[]; configured: boolean } | { ok: false; error: string }> {
   try {
     const { data, error } = await getServerSupabase().rpc("public_list_tour_slots", {
-      p_house_id: houseId,
       p_date: date,
     });
     if (error) {
       return {
         ok: false,
-        error: tourRpcMissing(error.message)
-          ? "Run migrate_public_tour.sql in Supabase, then try again."
-          : error.message,
+        error: tourRpcMissing(error.message) ? TOUR_SQL_HINT : error.message,
       };
     }
-    const row = data as { ok?: boolean; error?: string; slots?: unknown } | null;
+    const row = data as { ok?: boolean; error?: string; slots?: unknown; configured?: boolean } | null;
     if (!row?.ok) return { ok: false, error: row?.error || "Could not load times." };
     const slots = Array.isArray(row.slots) ? row.slots.filter((slot): slot is string => typeof slot === "string") : [];
-    return { ok: true, slots };
+    return { ok: true, slots, configured: row.configured !== false };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "Could not load times." };
   }
@@ -749,10 +725,9 @@ export async function submitTourRequest(formData: FormData): Promise<FormActionR
   const email = text(formData, "tour-email");
   const preferred_date = text(formData, "tour-date");
   const gender = text(formData, "tour-gender");
-  const house_id = text(formData, "tour-house");
   const tour_time = text(formData, "tour-time");
 
-  if (!first_name || !last_name || !phone || !email || !preferred_date || !gender || !house_id || !tour_time) {
+  if (!first_name || !last_name || !phone || !email || !preferred_date || !gender || !tour_time) {
     return { ok: false, error: "Please fill in all required fields." };
   }
 
@@ -763,7 +738,6 @@ export async function submitTourRequest(formData: FormData): Promise<FormActionR
       p_phone: phone,
       p_email: email,
       p_gender: gender,
-      p_house_id: house_id,
       p_date: preferred_date,
       p_time: tour_time,
     });
@@ -772,9 +746,7 @@ export async function submitTourRequest(formData: FormData): Promise<FormActionR
       console.error("Tour request submission failed:", error);
       return {
         ok: false,
-        error: tourRpcMissing(error.message)
-          ? "Run migrate_public_tour.sql in Supabase, then try again."
-          : error.message,
+        error: tourRpcMissing(error.message) ? TOUR_SQL_HINT : error.message,
       };
     }
 
@@ -789,12 +761,11 @@ export async function submitTourRequest(formData: FormData): Promise<FormActionR
       return { ok: false, error: row?.error || "Could not book that tour." };
     }
 
-    const houseName = row.houseName || "the house";
     const timeLabel = formatTourTime(tour_time);
     await notifyNewSubmission({
       kind: "tour_request",
       rowId: typeof row.id === "string" ? row.id : null,
-      summary: `${first_name} ${last_name} — ${houseName} — ${preferred_date} ${timeLabel}`,
+      summary: `${first_name} ${last_name} — ${preferred_date} ${timeLabel}`,
       userEmail: email,
       userName: first_name,
       notifyAllStaff: false,
@@ -805,13 +776,12 @@ export async function submitTourRequest(formData: FormData): Promise<FormActionR
         "Phone number": phone,
         "Email address": email,
         Gender: gender,
-        House: houseName,
         "Preferred tour date": preferred_date,
         Time: timeLabel,
       },
     });
 
-    return { ok: true, id: typeof row.id === "string" ? row.id : undefined, houseName };
+    return { ok: true, id: typeof row.id === "string" ? row.id : undefined };
   } catch (err) {
     console.error("Tour request submission failed:", err);
     return {

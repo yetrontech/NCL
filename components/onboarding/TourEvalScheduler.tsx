@@ -1,8 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { listTourHouses, listTourSlots } from "@/app/actions/forms";
+import { listTourSlots } from "@/app/actions/forms";
 import { bookApprovedTour } from "@/app/actions/tour-eval";
+
+function todayKey() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+}
 
 function formatSlot(value: string) {
   const [hourText, minuteText] = value.split(":");
@@ -13,66 +18,65 @@ function formatSlot(value: string) {
   return `${hour % 12 || 12}:${String(minute).padStart(2, "0")} ${suffix}`;
 }
 
+function formatDate(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+  if (!year || !month || !day) return value;
+  return new Date(year, month - 1, day).toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+}
+
 export default function TourEvalScheduler({
   token,
   firstName,
-  gender,
 }: {
   token: string;
   firstName: string;
-  gender: "Male" | "Female";
 }) {
-  const [houses, setHouses] = useState<Array<{ id: string; name: string }>>([]);
-  const [houseId, setHouseId] = useState("");
   const [date, setDate] = useState("");
   const [slots, setSlots] = useState<string[]>([]);
   const [time, setTime] = useState("");
   const [note, setNote] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [bookedHouse, setBookedHouse] = useState<string | null>(null);
+  const [booked, setBooked] = useState<{ date: string; time: string } | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
-    void listTourHouses(gender).then((result) => {
-      if (cancelled) return;
-      if (!result.ok) {
-        setNote(result.error);
-        return;
-      }
-      setHouses(result.houses);
-      setNote(result.houses.length === 0 ? "No houses are open for tours right now." : null);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [gender]);
-
-  useEffect(() => {
-    if (!houseId || !date) {
+    if (!date) {
       setSlots([]);
+      setTime("");
+      setNote(null);
       return;
     }
     let cancelled = false;
-    void listTourSlots(houseId, date).then((result) => {
+    void listTourSlots(date).then((result) => {
       if (cancelled) return;
       if (!result.ok) {
         setSlots([]);
+        setTime("");
         setNote(result.error);
         return;
       }
       setSlots(result.slots);
+      setTime("");
+      if (!result.configured) {
+        setNote("Tour times are not posted yet. Call (404) 731-2371.");
+        return;
+      }
       setNote(result.slots.length === 0 ? "No open times that day. Try another date." : null);
     });
     return () => {
       cancelled = true;
     };
-  }, [houseId, date]);
+  }, [date]);
 
-  if (bookedHouse) {
+  if (booked) {
     return (
       <p className="schedule-lead">
-        {firstName}, your tour at {bookedHouse} is requested. We will confirm by phone or email.
+        {firstName}, your tour is requested for {formatDate(booked.date)} at {formatSlot(booked.time)}. We will
+        confirm by phone or email.
       </p>
     );
   }
@@ -83,37 +87,33 @@ export default function TourEvalScheduler({
         event.preventDefault();
         setBusy(true);
         setError(null);
-        void bookApprovedTour(token, houseId, date, time).then((result) => {
+        void bookApprovedTour(token, date, time).then((result) => {
           setBusy(false);
           if (!result.ok) {
             setError(result.error);
             return;
           }
-          setBookedHouse(result.houseName);
+          setBooked({ date, time });
         });
       }}
     >
-      <p className="schedule-lead">Pick a house and a time. This link is just for you, {firstName}.</p>
-      <div className="field">
-        <label htmlFor="eval-house">House</label>
-        <select id="eval-house" required value={houseId} onChange={(event) => setHouseId(event.target.value)}>
-          <option value="">Select a house</option>
-          {houses.map((house) => (
-            <option key={house.id} value={house.id}>
-              {house.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      <p className="schedule-lead">Pick a date and a time. This link is just for you, {firstName}.</p>
       <div className="field-row">
         <div className="field">
           <label htmlFor="eval-date">Tour date</label>
-          <input id="eval-date" type="date" required value={date} onChange={(event) => setDate(event.target.value)} />
+          <input
+            id="eval-date"
+            type="date"
+            required
+            min={todayKey()}
+            value={date}
+            onChange={(event) => setDate(event.target.value)}
+          />
         </div>
         <div className="field">
           <label htmlFor="eval-time">Tour time</label>
           <select id="eval-time" required value={time} onChange={(event) => setTime(event.target.value)}>
-            <option value="">{slots.length ? "Select a time" : "Select a house and date"}</option>
+            <option value="">{slots.length ? "Select a time" : "Select a date"}</option>
             {slots.map((slot) => (
               <option key={slot} value={slot}>
                 {formatSlot(slot)}

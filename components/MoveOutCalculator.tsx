@@ -237,7 +237,12 @@ export default function MoveOutCalculator({ phone }: { phone: string }) {
 
       <main className="calc-main">
         <div className="calc-intro">
-          <h1 className="onboarding-title">What if your current income could take you further?</h1>
+          <h1 className="onboarding-title calc-title">
+            <span>What if your current income</span>
+            <span>
+              could take you <em>further?</em>
+            </span>
+          </h1>
           <p className="schedule-lead">
             Pick a goal for the next 1 to 5 years. The same income is shown two ways: a regular timeline, and an NCL
             fast-track. Living here is {formatMoney(MONTHLY_RENT)} a month, with everything included, so more of your

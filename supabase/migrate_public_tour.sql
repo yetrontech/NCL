@@ -1,3 +1,5 @@
+-- Older tour booking. migrate_tour_availability.sql replaces the house picker
+-- with owner-set hours. Run that file last if you re-run this one.
 -- Public tours pick a listed house and an open time.
 -- Busy blocks stay private. The visit is created so that house manager can acknowledge it.
 -- Safe to re-run. Run in the Supabase SQL editor after the house tour migrations.

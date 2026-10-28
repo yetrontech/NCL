@@ -158,10 +158,9 @@ export async function loadTourEvalSchedule(
 
 export async function bookApprovedTour(
   token: string,
-  houseId: string,
   date: string,
   time: string
-): Promise<{ ok: true; houseName: string } | { ok: false; error: string }> {
+): Promise<{ ok: true } | { ok: false; error: string }> {
   const loaded = await loadTourEvalSchedule(token);
   if (!loaded.ok) return loaded;
   if (loaded.info.tourBooked) {
@@ -174,7 +173,6 @@ export async function bookApprovedTour(
   form.set("tour-phone", loaded.info.phone);
   form.set("tour-email", loaded.info.email);
   form.set("tour-gender", loaded.info.gender);
-  form.set("tour-house", houseId);
   form.set("tour-date", date);
   form.set("tour-time", time);
   const booked = await submitTourRequest(form);
@@ -186,5 +184,5 @@ export async function bookApprovedTour(
       p_tour_id: booked.id,
     });
   }
-  return { ok: true, houseName: booked.houseName || "the house" };
+  return { ok: true };
 }
