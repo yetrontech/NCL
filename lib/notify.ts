@@ -7,6 +7,7 @@ export type SubmissionKind =
   | "application"
   | "referral"
   | "tour_request"
+  | "tour_evaluation"
   | "benefits_screening";
 
 export type NotificationPayload = {
@@ -27,6 +28,7 @@ const KIND_LABEL: Record<SubmissionKind, string> = {
   application: "Self Application",
   referral: "Referral",
   tour_request: "Tour Request",
+  tour_evaluation: "Tour Evaluation",
   benefits_screening: "Benefits Screening",
 };
 
@@ -34,6 +36,7 @@ const INBOX_KIND: Record<SubmissionKind, string> = {
   application: "applications",
   referral: "referrals",
   tour_request: "tours",
+  tour_evaluation: "tour_evals",
   benefits_screening: "screenings",
 };
 
@@ -562,6 +565,26 @@ function buildUserConfirmation(payload: NotificationPayload): {
           `If you have questions in the meantime, call us at ${SUPPORT_PHONE}.`,
         ]),
       };
+    case "tour_evaluation":
+      return {
+        subject: "We received your New Creation Living tour evaluation",
+        text: [
+          `Hi ${name},`,
+          "",
+          "Thank you. We received your answers and our team will review them.",
+          "If we can offer a tour, we will email you a link to pick a time.",
+          "",
+          `If you have questions in the meantime, call us at ${SUPPORT_PHONE}.`,
+          "",
+          "— New Creation Living",
+        ].join("\n"),
+        html: wrapUserEmailHtml([
+          `Hi ${name},`,
+          "Thank you. We received your answers and our team will review them.",
+          "If we can offer a tour, we will email you a link to pick a time.",
+          `If you have questions in the meantime, call us at ${SUPPORT_PHONE}.`,
+        ]),
+      };
     default:
       return null;
   }
@@ -748,9 +771,9 @@ function scheduleUrl(token: string) {
   return `${getSiteUrl()}/schedule/${encodeURIComponent(token)}`;
 }
 
-function scheduleCtaHtml(url: string): string {
+function scheduleCtaHtml(url: string, label = "Schedule your move-in"): string {
   return `<p style="margin:8px 0 20px;">
-    <a href="${escapeHtml(url)}" style="display:inline-block;background:#1B2B5E;color:#ffffff;padding:12px 22px;border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;">Schedule your move-in</a>
+    <a href="${escapeHtml(url)}" style="display:inline-block;background:#1B2B5E;color:#ffffff;padding:12px 22px;border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;">${escapeHtml(label)}</a>
   </p>
   <p style="margin:0 0 16px;font-size:14px;line-height:1.65;color:#5B6478;">If the button does not work, open this link:<br />
   <a href="${escapeHtml(url)}" style="color:#1B2B5E;word-break:break-all;">${escapeHtml(url)}</a></p>`;
@@ -841,6 +864,50 @@ export async function notifyApplicantDecision(input: DecisionEmailInput): Promis
   const text = [...paragraphs, ...(link ? ["Schedule your move-in:", link] : []), closing, "", "— New Creation Living"].join(
     "\n\n"
   );
+  const html = wrapUserEmailHtml(paragraphs, extraHtml);
+  await sendApplicantMail({ to, subject, text, html });
+}
+
+export async function notifyTourEvalDecision(input: {
+  status: "accepted" | "denied";
+  firstName: string;
+  email: string | null | undefined;
+  scheduleToken?: string | null;
+}): Promise<void> {
+  const to = (input.email || "").trim();
+  if (!to) throw new Error("This evaluation has no email address.");
+  if (!isValidEmailAddress(to)) {
+    throw new Error("This evaluation does not have a usable email address.");
+  }
+
+  const name = input.firstName.trim() || "there";
+  const accepted = input.status === "accepted";
+  const token = (input.scheduleToken || "").trim();
+  const link = accepted && token ? `${getSiteUrl()}/tour-eval/schedule/${encodeURIComponent(token)}` : "";
+  const subject = accepted
+    ? "You can schedule a tour at New Creation Living"
+    : "An update on your New Creation Living tour";
+  const paragraphs = accepted
+    ? [
+        `Hi ${name},`,
+        "Your answers were reviewed, and we would like to show you the house.",
+        link
+          ? "Use the button below to pick a house and a time for your tour."
+          : "Our team will be in touch shortly about your tour.",
+      ]
+    : [
+        `Hi ${name},`,
+        "Thank you for answering our questions. After review, we are not able to offer a tour at this time.",
+      ];
+  const closing = `If you have questions, call us at ${SUPPORT_PHONE}.`;
+  const extraHtml = `${link ? scheduleCtaHtml(link, "Schedule your tour") : ""}<p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#2D3748;">${escapeHtml(closing)}</p>`;
+  const text = [
+    ...paragraphs,
+    ...(link ? ["Schedule your tour:", link] : []),
+    closing,
+    "",
+    "— New Creation Living",
+  ].join("\n\n");
   const html = wrapUserEmailHtml(paragraphs, extraHtml);
   await sendApplicantMail({ to, subject, text, html });
 }

@@ -15,7 +15,9 @@ import {
   ROOMMATE_OPTIONS,
   YES_NO,
 } from "@/lib/residency-fields";
+import { listedDiagnosisError } from "@/lib/listed-diagnoses";
 import OnboardingShell from "./OnboardingShell";
+import { DiagnosisChecklist } from "./DiagnosisChecklist";
 import { NavButtons, RadioGroup, YesNoExplain } from "./FieldHelpers";
 
 type Status = "idle" | "submitting" | "success" | "error";
@@ -80,6 +82,7 @@ const initial = {
   payee_agreement: "",
   roommate_commitment: "",
   emergency_contact: "",
+  listed_diagnoses: "[]",
 };
 
 export default function ReferWizard() {
@@ -162,6 +165,8 @@ export default function ReferWizard() {
       if (data.medical_prescriptions === "Yes" && !data.medical_explanation) {
         return "Please explain medical prescriptions/diagnosis.";
       }
+      const diagnosisError = listedDiagnosisError(data.listed_diagnoses);
+      if (diagnosisError) return diagnosisError;
     }
     if (step === 5) {
       if (!data.crime_conviction) return "Please answer the conviction question.";
@@ -260,6 +265,12 @@ export default function ReferWizard() {
       <form onSubmit={handleContinue}>
         {step === 0 && (
           <>
+            <div className="field onboarding-callout" style={{ borderColor: "var(--gold)" }}>
+              <p>
+                We have systems to verify all information. Applicants who enter inaccurate or
+                false information will automatically be denied and blocked.
+              </p>
+            </div>
             <div className="field">
               <label htmlFor="referrer_name">Your name</label>
               <input
@@ -607,6 +618,11 @@ export default function ReferWizard() {
                 )}
               </>
             )}
+            <DiagnosisChecklist
+              label="Does the referee have any of these diagnoses? Select all that apply."
+              value={data.listed_diagnoses}
+              onChange={(value) => setField("listed_diagnoses", value)}
+            />
             <RadioGroup
               name="medications_independent"
               label="Does the referee manage medications independently?"

@@ -21,7 +21,9 @@ import {
   ROOMMATE_OPTIONS,
   YES_NO,
 } from "@/lib/residency-fields";
+import { listedDiagnosisError } from "@/lib/listed-diagnoses";
 import OnboardingShell from "./OnboardingShell";
+import { DiagnosisChecklist } from "./DiagnosisChecklist";
 import { NavButtons, RadioGroup, YesNoExplain } from "./FieldHelpers";
 
 type Status = "idle" | "submitting" | "success" | "error";
@@ -84,6 +86,7 @@ const initial = {
   payee_agreement: "",
   roommate_commitment: "",
   emergency_contact: "",
+  listed_diagnoses: "[]",
 };
 
 function cleanPromoCode(value: string | undefined): string {
@@ -210,6 +213,8 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
       if (data.medical_prescriptions === "Yes" && !data.medical_explanation) {
         return "Please explain your medical prescriptions/diagnosis.";
       }
+      const diagnosisError = listedDiagnosisError(data.listed_diagnoses);
+      if (diagnosisError) return diagnosisError;
     }
     if (step === 4) {
       if (!data.crime_conviction) return "Please answer the conviction question.";
@@ -301,6 +306,12 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
       <form onSubmit={handleContinue}>
         {step === 0 && (
           <>
+            <div className="field onboarding-callout" style={{ borderColor: "var(--gold)" }}>
+              <p>
+                We have systems to verify all information. Applicants who enter inaccurate or
+                false information will automatically be denied and blocked.
+              </p>
+            </div>
             <div className="field-row">
               <div className="field">
                 <label htmlFor="first_name">First name</label>
@@ -729,6 +740,10 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
                 )}
               </>
             )}
+            <DiagnosisChecklist
+              value={data.listed_diagnoses}
+              onChange={(value) => setField("listed_diagnoses", value)}
+            />
             <RadioGroup
               name="medications_independent"
               label="Do you manage medications independently?"

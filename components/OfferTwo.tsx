@@ -2,6 +2,7 @@ import Link from "next/link";
 import BedCount from "@/components/BedCount";
 import BrandLogo from "@/components/BrandLogo";
 import OfferCorners from "@/components/OfferCorners";
+import { OfferUntil } from "@/components/OfferUntil";
 
 const PROGRAMS = [
   {
@@ -11,10 +12,6 @@ const PROGRAMS = [
   {
     title: "NCL Thrive",
     body: "We help you find work and build the skills that raise your income.",
-  },
-  {
-    title: "NCL Benefits",
-    body: "Free help getting on SNAP, SSDI, and VA benefits, so you save more and keep more of every month.",
   },
   {
     title: "NCL Guide",
@@ -55,6 +52,7 @@ export default function OfferTwo({
             starting next month.
           </h1>
           <p className="offer2-package">(Stability Speedrun Package)</p>
+          <OfferUntil placement="headline" />
           <div className="offer2-video">
             <iframe
               src="https://www.youtube.com/embed/of_l6QMH0Ug"
@@ -108,9 +106,7 @@ export default function OfferTwo({
             <li>How did you get so far ahead?</li>
             <li>What changed?</li>
           </ul>
-          <p className="offer2-sale">
-            Only you will know. <span>New location sale with limited space.</span>
-          </p>
+          <OfferUntil placement="sale" />
           <p className="guide-offer-eligible">See if you&apos;re eligible below!</p>
         </article>
 

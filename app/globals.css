@@ -3174,6 +3174,28 @@
       margin: 0;
     }
 
+    .diagnosis-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .diagnosis-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 1rem;
+      line-height: 1.45;
+      cursor: pointer;
+    }
+
+    .diagnosis-option input {
+      margin-top: 4px;
+      width: 18px;
+      height: 18px;
+      flex: none;
+    }
+
     .onboarding-aside {
       color: #6B7280;
       font-size: 0.95rem;

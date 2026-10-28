@@ -341,6 +341,9 @@ export default function MoveOutCalculator({ phone }: { phone: string }) {
             </div>
 
             <div className="calc-cta">
+              <Link href="/tour-eval" className="btn btn-primary">
+                Request a tour
+              </Link>
               <Link href="/apply" className="btn btn-primary">
                 Apply today
               </Link>

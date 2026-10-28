@@ -13,13 +13,14 @@ import {
   YES_NO,
 } from "@/lib/residency-fields";
 import { ensureReviewTask } from "@/lib/staff-tasks";
+import { listedDiagnosesFromRaw } from "@/lib/listed-diagnoses";
 
 function isAllowed(value: string, options: readonly string[]) {
   return options.includes(value);
 }
 
 export type FormActionResult =
-  | { ok: true }
+  | { ok: true; id?: string; houseName?: string }
   | { ok: false; error: string };
 
 function newRowId(): string {
@@ -150,6 +151,10 @@ function formatPayDays(days: number[]): string {
   return days.join(", ");
 }
 
+function listedDiagnosesFromForm(formData: FormData): string[] {
+  return listedDiagnosesFromRaw(text(formData, "listed_diagnoses", 4000));
+}
+
 export async function submitApplication(formData: FormData): Promise<FormActionResult> {
   const income_source = text(formData, "income_source");
   const how_heard_other = text(formData, "how_heard_other");
@@ -193,6 +198,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
     how_heard: text(formData, "how_heard"),
     move_timeline: text(formData, "move_timeline"),
     emergency_contact: text(formData, "emergency_contact"),
+    listed_diagnoses: listedDiagnosesFromForm(formData),
     ...followUp,
   };
 
@@ -234,6 +240,10 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
 
   if (payload.pay_days.length === 0) {
     return { ok: false, error: "Please tell us which days of the month you get paid." };
+  }
+
+  if (payload.listed_diagnoses.length === 0) {
+    return { ok: false, error: "Please select any diagnoses that apply, or None of these." };
   }
 
   if (payload.how_heard === "Other" && !how_heard_other) {
@@ -482,6 +492,7 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
     how_heard: text(formData, "how_heard"),
     move_timeline: text(formData, "move_timeline"),
     emergency_contact: text(formData, "emergency_contact"),
+    listed_diagnoses: listedDiagnosesFromForm(formData),
     ...followUp,
   };
 
@@ -551,6 +562,10 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
 
   const followError = intakeFollowUpError(followUp, payload.benefit_type, payload.mental_limitations);
   if (followError) return { ok: false, error: followError };
+
+  if (payload.listed_diagnoses.length === 0) {
+    return { ok: false, error: "Please select any diagnoses that apply, or None of these." };
+  }
 
   const favorability = scoreReferral(payload);
   const benefit_type = storedBenefitType(payload.benefit_type, income_source);
@@ -796,7 +811,7 @@ export async function submitTourRequest(formData: FormData): Promise<FormActionR
       },
     });
 
-    return { ok: true };
+    return { ok: true, id: typeof row.id === "string" ? row.id : undefined, houseName };
   } catch (err) {
     console.error("Tour request submission failed:", err);
     return {

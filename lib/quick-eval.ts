@@ -1,3 +1,4 @@
+import { listedDiagnosisError } from "@/lib/listed-diagnoses";
 import {
   APPLYING_FOR_OPTIONS,
   APPLYING_WITH_DEPENDANTS,
@@ -17,6 +18,8 @@ export type QuickEvalStep = {
   /** This answer ends the check as not a fit. */
   denyAnswer?: string;
   denyAnswers?: readonly string[];
+  /** Checkbox step. The answer is a JSON list and does not deny anyone. */
+  multi?: boolean;
 };
 
 const YES_NO = ["Yes", "No"] as const;
@@ -69,6 +72,13 @@ const LIVE_SEPARATE: QuickEvalStep = {
   denyAnswer: "No",
 };
 
+const DIAGNOSES: QuickEvalStep = {
+  id: "diagnoses",
+  prompt: "Do you have any of these diagnoses?",
+  options: [],
+  multi: true,
+};
+
 const DRUG_FREE: QuickEvalStep = {
   id: "drug_free",
   prompt: "Can you commit to no drugs?",
@@ -100,6 +110,7 @@ export function quickEvalSteps(answers: Record<string, string>): QuickEvalStep[]
     ...(dependants ? [UNDERAGE] : []),
     ...(withAdults ? [OTHER_INCOME, LIVE_SEPARATE] : []),
     SCORED[1],
+    DIAGNOSES,
     SCORED[2],
     DRUG_FREE,
     HOME,
@@ -121,5 +132,6 @@ export function isQuickEvalFit(answers: Record<string, string>): boolean {
   if (isQuickEvalDenied(answers)) return false;
   const steps = quickEvalSteps(answers);
   if (steps.some((step) => !answers[step.id])) return false;
+  if (steps.some((step) => step.multi && listedDiagnosisError(answers[step.id] || "[]"))) return false;
   return quickEvalScore(answers) >= QUICK_EVAL_PASS_AT;
 }
