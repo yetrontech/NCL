@@ -95,3 +95,99 @@ export function monthsLabel(months: number) {
   const yearText = `${years} ${years === 1 ? "year" : "years"}`;
   return rest === 0 ? yearText : `${yearText}, ${rest} ${rest === 1 ? "month" : "months"}`;
 }
+
+export type RoadmapGoal = "car" | "apartment" | "credit" | "savings";
+
+export const ROADMAP_GOALS: { id: RoadmapGoal; label: string; amountLabel: string; ready: string }[] = [
+  { id: "car", label: "A car", amountLabel: "What you want to save for the car", ready: "Car savings ready" },
+  {
+    id: "apartment",
+    label: "My own apartment",
+    amountLabel: "Rent at your next place",
+    ready: "Ready for your apartment",
+  },
+  {
+    id: "credit",
+    label: "Better credit",
+    amountLabel: "What you want to pay down",
+    ready: "Paydown complete",
+  },
+  { id: "savings", label: "Savings", amountLabel: "How much you want saved", ready: "Savings goal reached" },
+];
+
+export type RoadmapMark = {
+  monthIndex: number;
+  date: Date;
+  label: string;
+};
+
+const MARKS = [
+  { share: 0.25, label: "A quarter of the way" },
+  { share: 0.5, label: "Halfway" },
+  { share: 0.75, label: "Three quarters of the way" },
+  { share: 1, label: "" },
+];
+
+export function roadmapTarget(goal: RoadmapGoal, amount: number) {
+  if (goal === "apartment") return goalTarget({ goal: "apartment", apartmentRent: amount, homePrice: 0 });
+  const target = money(amount);
+  const label =
+    goal === "car" ? "Car savings" : goal === "credit" ? "Balance to pay down" : "Savings goal";
+  return { target, lines: [{ label, amount: target }] };
+}
+
+export function calculateRoadmap(input: Omit<CalcInput, "goal" | "apartmentRent" | "homePrice"> & {
+  goal: RoadmapGoal;
+  amount: number;
+}): CalcResult {
+  const { target, lines } = roadmapTarget(input.goal, input.amount);
+  const share = Math.min(1, Math.max(0.1, input.saveShare));
+  const need = Math.max(0, target - money(input.savedNow));
+  const now = side(input.income, input.housingNow, input.billsNow, share, need);
+  const ncl = side(input.income, MONTHLY_RENT, 0, share, need);
+  const monthsSooner =
+    Number.isFinite(now.months) && Number.isFinite(ncl.months) ? Math.max(0, now.months - ncl.months) : 0;
+  return {
+    target,
+    targetLines: lines,
+    now,
+    ncl,
+    extraPerMonth: Math.max(0, ncl.savePerMonth - now.savePerMonth),
+    monthsSooner,
+    savedFirstYear: Math.max(0, (ncl.savePerMonth - now.savePerMonth) * 12),
+  };
+}
+
+export function roadmapMarks(
+  monthsToGoal: number,
+  horizonYears: number,
+  readyLabel: string,
+  start = new Date()
+): RoadmapMark[] {
+  const origin = new Date(start.getFullYear(), start.getMonth(), 1);
+  const horizon = Math.max(1, horizonYears) * 12;
+  if (!Number.isFinite(monthsToGoal)) return [];
+  if (monthsToGoal <= 0) {
+    return [{ monthIndex: 0, date: origin, label: readyLabel }];
+  }
+
+  const byMonth = new Map<number, string>();
+  for (const mark of [...MARKS].reverse()) {
+    const monthIndex = Math.ceil(monthsToGoal * mark.share);
+    if (monthIndex > horizon) continue;
+    if (mark.share < 1 && monthIndex >= monthsToGoal) continue;
+    byMonth.set(monthIndex, mark.share === 1 ? readyLabel : mark.label);
+  }
+
+  return [...byMonth.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([monthIndex, label]) => ({
+      monthIndex,
+      label,
+      date: new Date(origin.getFullYear(), origin.getMonth() + monthIndex, 1),
+    }));
+}
+
+export function monthStart(start: Date, offset: number) {
+  return new Date(start.getFullYear(), start.getMonth() + offset, 1);
+}

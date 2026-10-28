@@ -6,7 +6,7 @@ import { loadSiteContent } from "@/lib/site-content-server";
 export const metadata: Metadata = {
   title: "What if your current income could take you further? — New Creation Living",
   description:
-    "See how to reach your goals faster, without earning more. Find out how fast you could save for your own apartment or home while living at New Creation Living for $798 a month, everything included.",
+    "Pick a goal for the next 1 to 5 years. Compare a regular timeline with an NCL fast-track, and export the calendars.",
   alternates: { canonical: "/calculate" },
 };
 
