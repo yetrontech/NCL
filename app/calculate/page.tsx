@@ -4,7 +4,7 @@ import { SiteContentProvider } from "@/components/SiteContentProvider";
 import { loadSiteContent } from "@/lib/site-content-server";
 
 export const metadata: Metadata = {
-  title: "Make Your Money Go Further — New Creation Living",
+  title: "What if your current income could take you further? — New Creation Living",
   description:
     "See how to reach your goals faster, without earning more. Find out how fast you could save for your own apartment or home while living at New Creation Living for $798 a month, everything included.",
   alternates: { canonical: "/calculate" },

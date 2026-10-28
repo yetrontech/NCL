@@ -126,8 +126,7 @@ export default function MoveOutCalculator({ phone }: { phone: string }) {
 
       <main className="calc-main">
         <div className="calc-intro">
-          <span className="eyebrow">Savings calculator</span>
-          <h1 className="onboarding-title">Make Your Money Go Further</h1>
+          <h1 className="onboarding-title">What if your current income could take you further?</h1>
           <p className="schedule-lead">
             See how to reach your goals faster, without earning more. Put in what you earn and what you pay now. See
             how much you could save for an apartment or a home while
