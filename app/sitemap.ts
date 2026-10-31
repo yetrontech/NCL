@@ -52,12 +52,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
-      url: "https://www.newcreationliving.org/freemarta",
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
       url: "https://www.newcreationliving.org/tourgift",
       lastModified: now,
       changeFrequency: "monthly",

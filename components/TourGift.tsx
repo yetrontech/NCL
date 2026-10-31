@@ -2,11 +2,16 @@ import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
 import MartaArrow from "@/components/MartaArrow";
 import OfferCorners from "@/components/OfferCorners";
+import { TOUR_REWARDS } from "@/lib/quick-eval";
 
 const STEPS = [
   { n: "01", title: "Request a tour", body: "Request a tour. It takes less than a minute." },
   { n: "02", title: "Tour Scheduling", body: "Once approved, we will call/email with tour date and time." },
-  { n: "03", title: "Leave", body: "Leave with a $20 Gift Card for Gas or a package kit." },
+  {
+    n: "03",
+    title: "Leave",
+    body: "Leave with a $20 MARTA card, a $20 Gift Card for Gas, or a package kit.",
+  },
 ] as const;
 
 const OFFERS = [
@@ -35,7 +40,7 @@ export default function TourGift() {
         </Link>
 
         <article className="marta-ad">
-          <p className="marta-kicker">Free $20 gas card or package kit</p>
+          <p className="marta-kicker">Free tour gift</p>
           <h1>
             <span className="marta-line">
               We&apos;ll <em>pay you</em>
@@ -43,15 +48,17 @@ export default function TourGift() {
             <span className="marta-line">to tour our homes</span>
           </h1>
           <p className="marta-lead">
-            Come see the house. Leave with a $20 Gift Card for Gas or a package kit.
+            Come see the house. Leave with a $20 MARTA card, a $20 Gift Card for Gas, or a package kit.
           </p>
 
           <div className="marta-ticket">
             <div>
-              <span>Tour bonus</span>
-              <strong>$20</strong>
-              <em>Gift card for gas</em>
-              <p className="marta-also">or a package kit with a tire inflator, car charger, and phone mount</p>
+              <span>Pick one</span>
+              <ul className="marta-gifts">
+                {TOUR_REWARDS.map((gift) => (
+                  <li key={gift}>{gift}</li>
+                ))}
+              </ul>
             </div>
             <p>
               <span className="marta-stamp">Free</span>

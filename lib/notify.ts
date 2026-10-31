@@ -256,6 +256,20 @@ function buildStaffEmailHtml(payload: NotificationPayload, label: string): strin
 </html>`;
 }
 
+export const THRIVE_REPORT_EMAIL = "seun.realestates@gmail.com";
+
+/** Monday morning totals. Totals only — no resident money, debt, or benefits. */
+export async function sendThriveWeeklyReport(text: string): Promise<void> {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error("RESEND_API_KEY missing");
+  }
+  await sendResendEmail({
+    to: THRIVE_REPORT_EMAIL,
+    subject: "Thrive weekly report",
+    text,
+  });
+}
+
 async function sendResendEmail(opts: {
   to: string;
   subject: string;
