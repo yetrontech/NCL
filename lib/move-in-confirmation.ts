@@ -91,3 +91,51 @@ export function buildMoveInConfirmation(input: {
 
   return { subject, paragraphs, extraHtml, text };
 }
+
+export function buildTourConfirmation(input: {
+  firstName: string;
+  whenLabel: string;
+  houseId?: string | null;
+}): {
+  subject: string;
+  paragraphs: string[];
+  extraHtml: string;
+  text: string;
+} {
+  const name = input.firstName.trim() || "there";
+  const meet = houseMeetInfo(input.houseId);
+  const subject = "Your New Creation Living tour is confirmed";
+  const paragraphs = [
+    `Hi ${name},`,
+    "Your tour with New Creation Living is confirmed. Here's where to meet:",
+  ];
+
+  const extraHtml = `
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:4px 0 20px;background:#F7F4EE;border:1px solid #E8E2D6;border-radius:10px;">
+      <tr>
+        <td style="padding:18px 18px 8px;">
+          <p style="margin:0 0 10px;font-size:13px;letter-spacing:1.4px;text-transform:uppercase;font-weight:700;color:#B8963E;">Where and when to meet</p>
+          <p style="margin:0 0 8px;font-size:16px;line-height:1.65;color:#2D3748;"><strong>House:</strong> ${escapeHtml(meet.name)}</p>
+          <p style="margin:0 0 8px;font-size:16px;line-height:1.65;color:#2D3748;"><strong>Address:</strong> ${escapeHtml(meet.address)}</p>
+          <p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#2D3748;"><strong>Day and time:</strong> ${escapeHtml(input.whenLabel)}</p>
+        </td>
+      </tr>
+    </table>
+    <p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#2D3748;">If you have questions, call us at (404) 731-2371.</p>
+  `;
+
+  const text = [
+    ...paragraphs,
+    "",
+    "Where and when to meet",
+    `House: ${meet.name}`,
+    `Address: ${meet.address}`,
+    `Day and time: ${input.whenLabel}`,
+    "",
+    "If you have questions, call us at (404) 731-2371.",
+    "",
+    "— New Creation Living",
+  ].join("\n");
+
+  return { subject, paragraphs, extraHtml, text };
+}

@@ -5,13 +5,7 @@ import { DiagnosisChecklist } from "@/components/onboarding/DiagnosisChecklist";
 import OnboardingShell from "@/components/onboarding/OnboardingShell";
 import { submitTourEval, type TourEvalContact } from "@/app/actions/tour-eval";
 import { listedDiagnosisError } from "@/lib/listed-diagnoses";
-import {
-  QUICK_EVAL_MYSELF,
-  QUICK_EVAL_PETS,
-  quickEvalSteps,
-  stepDenies,
-} from "@/lib/quick-eval";
-import { APPLYING_WITH_DEPENDANTS, APPLYING_WITH_SPOUSE } from "@/lib/residency-fields";
+import { quickEvalSteps, stepDenies } from "@/lib/quick-eval";
 
 const EMPTY_CONTACT: TourEvalContact = {
   firstName: "",
@@ -38,6 +32,7 @@ export default function TourEvalWizard({ phone }: { phone: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [diagnosisError, setDiagnosisError] = useState("");
+  const [picked, setPicked] = useState("");
 
   const steps = quickEvalSteps(answers);
   const found = steps.findIndex((step) => step.id === stepId);
@@ -60,13 +55,6 @@ export default function TourEvalWizard({ phone }: { phone: string }) {
 
   function choose(value: string) {
     const next = { ...answers, [question.id]: value };
-    if (question.id === "housing") {
-      if (value !== APPLYING_WITH_DEPENDANTS) delete next.underage;
-      if (value === QUICK_EVAL_MYSELF || value === APPLYING_WITH_SPOUSE || value === QUICK_EVAL_PETS) {
-        delete next.other_income;
-        delete next.live_separate;
-      }
-    }
     setAnswers(next);
     if (stepDenies(question, value)) {
       void finish(next);
@@ -78,7 +66,14 @@ export default function TourEvalWizard({ phone }: { phone: string }) {
       void finish(next);
       return;
     }
-    setStepId(upcoming[at + 1].id);
+    const following = upcoming[at + 1].id;
+    setStepId(following);
+    setPicked(next[following] || "");
+  }
+
+  function goBack(id: string) {
+    setStepId(id);
+    setPicked(answers[id] || "");
   }
 
   function continueDiagnoses() {
@@ -94,7 +89,9 @@ export default function TourEvalWizard({ phone }: { phone: string }) {
       void finish(answers);
       return;
     }
-    setStepId(upcoming[at + 1].id);
+    const following = upcoming[at + 1].id;
+    setStepId(following);
+    setPicked(answers[following] || "");
   }
 
   if (done) {
@@ -226,7 +223,7 @@ export default function TourEvalWizard({ phone }: { phone: string }) {
             <button
               type="button"
               className="btn btn-ghost"
-              onClick={() => (index === 0 ? setOnContact(true) : setStepId(steps[index - 1].id))}
+              onClick={() => (index === 0 ? setOnContact(true) : goBack(steps[index - 1].id))}
             >
               Back
             </button>
@@ -237,15 +234,17 @@ export default function TourEvalWizard({ phone }: { phone: string }) {
         </>
       ) : (
         <>
-          <p className="schedule-lead">Tap the answer that fits you.</p>
+          <p className="schedule-lead">Select an answer, then tap Next.</p>
+          {question.note ? <p className="quick-eval-note">{question.note}</p> : null}
           <div className={stacked ? "quick-eval-choices is-list" : "quick-eval-choices"}>
             {question.options.map((option) => (
               <button
                 key={option}
                 type="button"
-                className="quick-eval-choice"
+                className={option === picked ? "quick-eval-choice is-selected" : "quick-eval-choice"}
+                aria-pressed={option === picked}
                 disabled={busy}
-                onClick={() => choose(option)}
+                onClick={() => setPicked(option)}
               >
                 {option}
               </button>
@@ -255,9 +254,12 @@ export default function TourEvalWizard({ phone }: { phone: string }) {
             <button
               type="button"
               className="btn btn-ghost"
-              onClick={() => (index === 0 ? setOnContact(true) : setStepId(steps[index - 1].id))}
+              onClick={() => (index === 0 ? setOnContact(true) : goBack(steps[index - 1].id))}
             >
               Back
+            </button>
+            <button type="button" className="btn btn-primary" disabled={busy || !picked} onClick={() => choose(picked)}>
+              {busy ? "Sending…" : "Next"}
             </button>
           </div>
         </>

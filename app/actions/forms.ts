@@ -68,12 +68,12 @@ function storedBenefitType(benefitType: string, incomeSource: string): string {
     : benefitType;
 }
 
-const COVERAGE_BENEFITS = ["SSI", "SSDI", "Social Security"];
+const MEDICARE_BENEFITS = ["SSI", "SSDI", "Social Security", "Job"];
 
 function intakeFollowUp(formData: FormData, benefitType: string) {
   const mental = text(formData, "mental_limitations");
   const has_care_provider = mental === "Yes" ? text(formData, "has_care_provider") : "";
-  const asksCoverage = COVERAGE_BENEFITS.includes(benefitType);
+  const asksMedicare = MEDICARE_BENEFITS.includes(benefitType);
   const provider = has_care_provider === "Yes";
   return {
     former_address: text(formData, "former_address", 400),
@@ -83,7 +83,8 @@ function intakeFollowUp(formData: FormData, benefitType: string) {
     care_provider_name: provider ? text(formData, "care_provider_name", 120) : "",
     care_provider_phone: provider ? text(formData, "care_provider_phone", 40) : "",
     care_provider_address: provider ? text(formData, "care_provider_address", 400) : "",
-    medicare_medicaid: asksCoverage ? text(formData, "medicare_medicaid", 16) : "",
+    medicare_medicaid: asksMedicare ? text(formData, "medicare_medicaid", 16) : "",
+    work_insurance: benefitType === "Job" ? text(formData, "work_insurance", 240) : "",
   };
 }
 
@@ -104,8 +105,11 @@ function intakeFollowUpError(
   ) {
     return "Please share the therapist or doctor's name, phone number, and address.";
   }
-  if (COVERAGE_BENEFITS.includes(benefitType) && !isAllowed(fields.medicare_medicaid, YES_NO)) {
+  if (MEDICARE_BENEFITS.includes(benefitType) && !isAllowed(fields.medicare_medicaid, YES_NO)) {
     return "Please answer the Medicare or Medicaid question.";
+  }
+  if (benefitType === "Job" && !fields.work_insurance.trim()) {
+    return "Please tell us what work insurance is being received.";
   }
   return null;
 }
@@ -126,6 +130,7 @@ function intakeFollowUpDetails(fields: ReturnType<typeof intakeFollowUp>) {
       ? answer(fields.care_provider_address)
       : undefined,
     "Do you have Medicare or Medicaid?": fields.medicare_medicaid || undefined,
+    "What work insurance are you receiving?": fields.work_insurance || undefined,
   };
 }
 
@@ -192,7 +197,6 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
     spouse_live_separately: text(formData, "spouse_live_separately"),
     memory_loss: text(formData, "memory_loss"),
     home_not_short_term: text(formData, "home_not_short_term"),
-    payee_agreement: text(formData, "payee_agreement"),
     roommate_commitment: text(formData, "roommate_commitment"),
     referring_party_info: text(formData, "referring_party_info"),
     how_heard: text(formData, "how_heard"),
@@ -223,7 +227,6 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
     "value_understanding",
     "living_with_others",
     "home_not_short_term",
-    "payee_agreement",
     "roommate_commitment",
     "referring_party_info",
     "how_heard",
@@ -432,7 +435,6 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
           payload.value_understanding,
         "Do you understand that this is a home and not short-term housing?":
           payload.home_not_short_term,
-        "Representative payee agreement": payload.payee_agreement,
         "Roommate-style housing commitment": payload.roommate_commitment,
         "Emergency contact": answer(payload.emergency_contact),
         ...intakeFollowUpDetails(followUp),
@@ -488,7 +490,6 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
     value_understanding: text(formData, "value_understanding"),
     living_with_others: text(formData, "living_with_others"),
     home_not_short_term: text(formData, "home_not_short_term"),
-    payee_agreement: text(formData, "payee_agreement"),
     roommate_commitment: text(formData, "roommate_commitment"),
     how_heard: text(formData, "how_heard"),
     move_timeline: text(formData, "move_timeline"),
@@ -522,7 +523,6 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
     "value_understanding",
     "living_with_others",
     "home_not_short_term",
-    "payee_agreement",
     "roommate_commitment",
     "how_heard",
     "move_timeline",
@@ -661,7 +661,6 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
           payload.value_understanding,
         "Does the referee understand that this is a home and not short-term housing?":
           payload.home_not_short_term,
-        "Representative payee agreement": payload.payee_agreement,
         "Roommate-style housing commitment": payload.roommate_commitment,
         "Emergency contact": answer(payload.emergency_contact),
         ...intakeFollowUpDetails(followUp),

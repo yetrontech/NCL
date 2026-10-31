@@ -17,7 +17,6 @@ import {
   GENDER_OPTIONS,
   HOW_HEARD_OPTIONS,
   MOVE_TIMELINE_OPTIONS,
-  PAYEE_OPTIONS,
   ROOMMATE_OPTIONS,
   YES_NO,
 } from "@/lib/residency-fields";
@@ -83,8 +82,8 @@ const initial = {
   drug_free_commitment: "",
   value_understanding: "",
   home_not_short_term: "",
-  payee_agreement: "",
   roommate_commitment: "",
+  work_insurance: "",
   emergency_contact: "",
   listed_diagnoses: "[]",
 };
@@ -144,10 +143,13 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
         return "Please tell us how you are receiving income.";
       }
       if (
-        ["SSI", "SSDI", "Social Security"].includes(data.benefit_type) &&
+        ["SSI", "SSDI", "Social Security", "Job"].includes(data.benefit_type) &&
         !data.medicare_medicaid
       ) {
         return "Please answer the Medicare or Medicaid question.";
+      }
+      if (data.benefit_type === "Job" && !data.work_insurance.trim()) {
+        return "Please tell us what work insurance you are receiving.";
       }
     }
     if (step === 2) {
@@ -238,7 +240,6 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
         !data.drug_free_commitment ||
         !data.value_understanding ||
         !data.home_not_short_term ||
-        !data.payee_agreement ||
         !data.roommate_commitment
       ) {
         return "Please complete all commitment questions.";
@@ -458,7 +459,8 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
               onChange={(v) => {
                 setField("benefit_type", v);
                 if (v !== "Other") setField("income_source", "");
-                if (!["SSI", "SSDI", "Social Security"].includes(v)) setField("medicare_medicaid", "");
+                if (!["SSI", "SSDI", "Social Security", "Job"].includes(v)) setField("medicare_medicaid", "");
+                if (v !== "Job") setField("work_insurance", "");
               }}
             />
             {data.benefit_type === "Other" && (
@@ -510,7 +512,7 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
                 })}
               </div>
             </div>
-            {["SSI", "SSDI", "Social Security"].includes(data.benefit_type) && (
+            {["SSI", "SSDI", "Social Security", "Job"].includes(data.benefit_type) && (
               <RadioGroup
                 name="medicare_medicaid"
                 label="Do you have Medicare or Medicaid?"
@@ -518,6 +520,18 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
                 value={data.medicare_medicaid}
                 onChange={(v) => setField("medicare_medicaid", v)}
               />
+            )}
+            {data.benefit_type === "Job" && (
+              <div className="field">
+                <label htmlFor="work_insurance">What work insurance are you receiving?</label>
+                <p className="field-hint">If you have more than one, list them.</p>
+                <input
+                  id="work_insurance"
+                  required
+                  value={data.work_insurance}
+                  onChange={(e) => setField("work_insurance", e.target.value)}
+                />
+              </div>
             )}
             <RadioGroup
               name="move_timeline"
@@ -831,35 +845,29 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
               value={data.home_not_short_term}
               onChange={(v) => setField("home_not_short_term", v)}
             />
-            <div className="field onboarding-callout">
+            <div className="field onboarding-callout roommate-privacy">
               <p>
-                At New Creation Living, we are a registered Georgia business and an approved
-                representative payee through the Social Security Administration. To support your
-                long-term stability, we receive your monthly benefit on your behalf, cover your
-                housing, and return what&apos;s left directly to you — so your home is always secure,
-                your money is always accounted for, and you never have to worry about losing your
-                housing over a missed payment.
+                Our housing is roommate-style, meaning you will share a room with some other
+                residents. But sharing a room doesn&apos;t mean giving up your privacy.
               </p>
-            </div>
-            <RadioGroup
-              name="payee_agreement"
-              label="Representative payee agreement"
-              options={PAYEE_OPTIONS}
-              value={data.payee_agreement}
-              onChange={(v) => setField("payee_agreement", v)}
-            />
-            <div className="field onboarding-callout">
+              <p>We take your safety, comfort, and personal space seriously. That&apos;s why we provide:</p>
+              <ul>
+                <li>Serious Resident Screening to help create a safe, respectful living environment.</li>
+                <li>Floor-to-Ceiling Privacy Dividers to give you your own personal space.</li>
+                <li>Personal Access Codes so each resident has their own personalized access.</li>
+                <li>Common-Area Security Cameras to help protect residents and discourage misconduct.</li>
+                <li>An On-Site House Manager to help maintain a safe, respectful home.</li>
+                <li>Anonymous Reporting so you can report concerns privately.</li>
+                <li>
+                  Paid Hotel Stays for additional privacy when you need a break. Our Bronze, Gold, and
+                  Platinum memberships may even offer monthly hotel stays.
+                </li>
+                <li>Personal Safes and Nightstands to help you secure and organize your belongings.</li>
+              </ul>
               <p>
-                Yes, you&apos;ll share the home but you&apos;ll have your own bed, personal door code,
-                privacy, and clear house rules, alongside a small group of vetted adults who have
-                passed background checks.
-              </p>
-              <p>
-                Our in-house management creates the structure, safety, and accountability that make
-                shared living feel like a real home—not a chaotic roommate situation.
-              </p>
-              <p>
-                For $26.60 a day, invest in your security, dignity, and future.
+                At New Creation Living, we believe affordable housing should still offer dignity,
+                privacy, and peace of mind. You deserve a place where you feel safe, respected, and
+                at home.
               </p>
             </div>
             <RadioGroup

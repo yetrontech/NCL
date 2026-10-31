@@ -3174,6 +3174,27 @@
       margin: 0;
     }
 
+    .roommate-privacy p + p,
+    .roommate-privacy ul {
+      margin-top: 12px;
+    }
+
+    .roommate-privacy ul {
+      margin-bottom: 0;
+      padding-left: 1.15rem;
+    }
+
+    .roommate-privacy li {
+      color: #2D3748;
+      font-size: 1rem;
+      line-height: 1.65;
+      margin: 0 0 8px;
+    }
+
+    .roommate-privacy li:last-child {
+      margin-bottom: 0;
+    }
+
     .diagnosis-list {
       display: flex;
       flex-direction: column;
@@ -3245,6 +3266,15 @@
       max-width: 36rem;
     }
 
+    .quick-eval-note {
+      margin: -8px auto 18px;
+      max-width: 36rem;
+      color: var(--muted, #5c6370);
+      font-size: 0.92rem;
+      line-height: 1.5;
+      text-align: center;
+    }
+
     .quick-eval-qr {
       display: flex;
       justify-content: center;
@@ -3288,6 +3318,16 @@
     .quick-eval-choice:focus-visible {
       border-color: var(--navy);
       outline: none;
+    }
+
+    .quick-eval-choice.is-selected {
+      border-color: var(--navy);
+      background: var(--navy);
+      color: white;
+    }
+
+    .quick-eval-choices.is-list {
+      grid-template-columns: 1fr;
     }
 
     .schedule-page .onboarding-callout a,

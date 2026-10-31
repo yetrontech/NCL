@@ -947,6 +947,36 @@ export async function notifyMoveInDate(input: {
   });
 }
 
+export async function notifyTourDate(input: {
+  firstName: string;
+  email: string | null | undefined;
+  date: string;
+  time: string;
+  houseId?: string | null;
+}): Promise<void> {
+  const to = (input.email || "").trim();
+  if (!to) {
+    throw new Error("This application has no email address.");
+  }
+  if (!isValidEmailAddress(to)) {
+    throw new Error("This application does not have a usable email address.");
+  }
+
+  const { buildTourConfirmation } = await import("@/lib/move-in-confirmation");
+  const confirmation = buildTourConfirmation({
+    firstName: input.firstName,
+    whenLabel: formatMoveInWhen(input.date, input.time),
+    houseId: input.houseId,
+  });
+  const html = wrapUserEmailHtml(confirmation.paragraphs, confirmation.extraHtml);
+  await sendApplicantMail({
+    to,
+    subject: confirmation.subject,
+    text: confirmation.text,
+    html,
+  });
+}
+
 export async function notifyNewSubmission(payload: NotificationPayload): Promise<void> {
   const tasks = [sendStaffEmail(payload), sendUserConfirmation(payload)];
   if (payload.notifyAllStaff !== false) {

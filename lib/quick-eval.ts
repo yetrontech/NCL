@@ -1,17 +1,13 @@
 import { listedDiagnosisError } from "@/lib/listed-diagnoses";
-import {
-  APPLYING_FOR_OPTIONS,
-  APPLYING_WITH_DEPENDANTS,
-  APPLYING_WITH_SPOUSE,
-} from "@/lib/residency-fields";
+import { APPLYING_FOR_OPTIONS } from "@/lib/residency-fields";
 
 /** Same choice as the full application: housing for one person only. */
 export const QUICK_EVAL_MYSELF = "Myself";
-export const QUICK_EVAL_PETS = "Myself and my pets";
 
 export type QuickEvalStep = {
   id: string;
   prompt: string;
+  note?: string;
   options: readonly string[];
   /** A matching answer counts toward the score. Gates are not scored. */
   fitAnswer?: string;
@@ -45,31 +41,19 @@ const SCORED: QuickEvalStep[] = [
   },
 ];
 
+const MALE: QuickEvalStep = {
+  id: "male",
+  prompt: "Are you male?",
+  note: "We are accepting only male applicants.",
+  options: YES_NO,
+  denyAnswer: "No",
+};
+
 const HOUSING: QuickEvalStep = {
   id: "housing",
   prompt: "Are you applying for yourself only, or will others be living with you?",
   options: APPLYING_FOR_OPTIONS,
-  denyAnswers: [APPLYING_WITH_SPOUSE, QUICK_EVAL_PETS],
-};
-
-const UNDERAGE: QuickEvalStep = {
-  id: "underage",
-  prompt: "Are any of them under 18?",
-  options: YES_NO,
-  denyAnswer: "Yes",
-};
-
-const OTHER_INCOME: QuickEvalStep = {
-  id: "other_income",
-  prompt: "Is that person receiving income?",
-  options: YES_NO,
-};
-
-const LIVE_SEPARATE: QuickEvalStep = {
-  id: "live_separate",
-  prompt: "Are you willing to live separately?",
-  options: YES_NO,
-  denyAnswer: "No",
+  denyAnswers: APPLYING_FOR_OPTIONS.filter((option) => option !== QUICK_EVAL_MYSELF),
 };
 
 const DIAGNOSES: QuickEvalStep = {
@@ -100,21 +84,8 @@ export function stepDenies(step: QuickEvalStep, value: string): boolean {
   return value === step.denyAnswer || Boolean(step.denyAnswers?.includes(value));
 }
 
-export function quickEvalSteps(answers: Record<string, string>): QuickEvalStep[] {
-  const housing = answers.housing;
-  const dependants = housing === APPLYING_WITH_DEPENDANTS;
-  const withAdults = dependants && answers.underage === "No";
-  return [
-    SCORED[0],
-    HOUSING,
-    ...(dependants ? [UNDERAGE] : []),
-    ...(withAdults ? [OTHER_INCOME, LIVE_SEPARATE] : []),
-    SCORED[1],
-    DIAGNOSES,
-    SCORED[2],
-    DRUG_FREE,
-    HOME,
-  ];
+export function quickEvalSteps(_answers: Record<string, string>): QuickEvalStep[] {
+  return [SCORED[0], MALE, HOUSING, SCORED[1], DIAGNOSES, SCORED[2], DRUG_FREE, HOME];
 }
 
 export function quickEvalScore(answers: Record<string, string>): number {

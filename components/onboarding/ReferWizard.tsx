@@ -10,7 +10,6 @@ import {
   GENDER_OPTIONS,
   HOW_HEARD_OPTIONS,
   MOVE_TIMELINE_OPTIONS,
-  PAYEE_OPTIONS,
   REFERRER_ROLES,
   ROOMMATE_OPTIONS,
   YES_NO,
@@ -79,8 +78,8 @@ const initial = {
   drug_free_commitment: "",
   value_understanding: "",
   home_not_short_term: "",
-  payee_agreement: "",
   roommate_commitment: "",
+  work_insurance: "",
   emergency_contact: "",
   listed_diagnoses: "[]",
 };
@@ -122,10 +121,13 @@ export default function ReferWizard() {
         return "Please tell us how you heard about us.";
       }
       if (
-        ["SSI", "SSDI", "Social Security"].includes(data.benefit_type) &&
+        ["SSI", "SSDI", "Social Security", "Job"].includes(data.benefit_type) &&
         !data.medicare_medicaid
       ) {
         return "Please answer the Medicare or Medicaid question.";
+      }
+      if (data.benefit_type === "Job" && !data.work_insurance.trim()) {
+        return "Please tell us what work insurance the referee is receiving.";
       }
     }
     if (step === 3) {
@@ -197,7 +199,6 @@ export default function ReferWizard() {
         !data.drug_free_commitment ||
         !data.value_understanding ||
         !data.home_not_short_term ||
-        !data.payee_agreement ||
         !data.roommate_commitment
       ) {
         return "Please complete all commitment questions.";
@@ -408,7 +409,8 @@ export default function ReferWizard() {
               onChange={(v) => {
                 setField("benefit_type", v);
                 if (v !== "Other") setField("income_source", "");
-                if (!["SSI", "SSDI", "Social Security"].includes(v)) setField("medicare_medicaid", "");
+                if (!["SSI", "SSDI", "Social Security", "Job"].includes(v)) setField("medicare_medicaid", "");
+                if (v !== "Job") setField("work_insurance", "");
               }}
             />
             {data.benefit_type === "Other" && (
@@ -434,7 +436,7 @@ export default function ReferWizard() {
                 onChange={(e) => setField("monthly_benefit_amount", e.target.value)}
               />
             </div>
-            {["SSI", "SSDI", "Social Security"].includes(data.benefit_type) && (
+            {["SSI", "SSDI", "Social Security", "Job"].includes(data.benefit_type) && (
               <RadioGroup
                 name="medicare_medicaid"
                 label="Does the referee have Medicare or Medicaid?"
@@ -442,6 +444,18 @@ export default function ReferWizard() {
                 value={data.medicare_medicaid}
                 onChange={(v) => setField("medicare_medicaid", v)}
               />
+            )}
+            {data.benefit_type === "Job" && (
+              <div className="field">
+                <label htmlFor="work_insurance">What work insurance is the referee receiving?</label>
+                <p className="field-hint">If they have more than one, list them.</p>
+                <input
+                  id="work_insurance"
+                  required
+                  value={data.work_insurance}
+                  onChange={(e) => setField("work_insurance", e.target.value)}
+                />
+              </div>
             )}
             <RadioGroup
               name="move_timeline"
@@ -723,20 +737,6 @@ export default function ReferWizard() {
               options={YES_NO}
               value={data.home_not_short_term}
               onChange={(v) => setField("home_not_short_term", v)}
-            />
-            <div className="field onboarding-callout">
-              <p>
-                We are an approved representative payee through the Social Security Administration.
-                We receive the monthly benefit on the referee&apos;s behalf, cover housing, and return
-                what&apos;s left so their home stays secure.
-              </p>
-            </div>
-            <RadioGroup
-              name="payee_agreement"
-              label="Representative payee agreement"
-              options={PAYEE_OPTIONS}
-              value={data.payee_agreement}
-              onChange={(v) => setField("payee_agreement", v)}
             />
             <div className="field onboarding-callout">
               <p>

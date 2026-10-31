@@ -10,7 +10,6 @@ const IDEAL_RESPONSES = {
   drug_free_commitment: "Yes",
   value_understanding: "Yes",
   home_not_short_term: "Yes",
-  payee_agreement: "Yes, I understand and agree",
   roommate_commitment: "I am ready",
   aggression_history: "No",
   elopement_risk: "No",
@@ -27,7 +26,6 @@ const APPLICATION_CRITERIA = [
   "drug_free_commitment",
   "value_understanding",
   "home_not_short_term",
-  "payee_agreement",
   "roommate_commitment",
 ] as const satisfies ReadonlyArray<keyof typeof IDEAL_RESPONSES>;
 

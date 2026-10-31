@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { notifyMoveInDate } from "@/lib/notify";
+import { notifyMoveInDate, notifyTourDate } from "@/lib/notify";
 import { getSupabase } from "@/lib/supabase";
 
 type ReviewableTable = "applications" | "referrals";
@@ -59,6 +59,7 @@ export async function POST(request: Request) {
     const payload = data as {
       ok?: boolean;
       error?: string;
+      kind?: string;
       firstName?: string;
       email?: string | null;
       date?: string;
@@ -72,13 +73,15 @@ export async function POST(request: Request) {
       );
     }
     try {
-      await notifyMoveInDate({
+      const details = {
         firstName: payload.firstName || "",
         email: payload.email,
         date: payload.date,
         time: payload.time,
         houseId: typeof payload.houseId === "string" ? payload.houseId : null,
-      });
+      };
+      if (payload.kind === "tour") await notifyTourDate(details);
+      else await notifyMoveInDate(details);
       return NextResponse.json({ ok: true });
     } catch (err) {
       console.error("Move-in date email failed:", err);
