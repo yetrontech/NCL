@@ -4,7 +4,7 @@ import { useState } from "react";
 import { DiagnosisChecklist } from "@/components/onboarding/DiagnosisChecklist";
 import OnboardingShell from "@/components/onboarding/OnboardingShell";
 import { submitTourEval, type TourEvalContact } from "@/app/actions/tour-eval";
-import { listedDiagnosisError } from "@/lib/listed-diagnoses";
+import { DIAGNOSIS_OTHER, listedDiagnosisError, parseListedDiagnoses } from "@/lib/listed-diagnoses";
 import { quickEvalSteps, stepDenies } from "@/lib/quick-eval";
 
 const EMPTY_CONTACT: TourEvalContact = {
@@ -33,6 +33,7 @@ export default function TourEvalWizard({ phone }: { phone: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [diagnosisError, setDiagnosisError] = useState("");
+  const [otherDiagnosis, setOtherDiagnosis] = useState("");
   const [picked, setPicked] = useState("");
 
   const steps = quickEvalSteps(answers);
@@ -79,16 +80,23 @@ export default function TourEvalWizard({ phone }: { phone: string }) {
   }
 
   function continueDiagnoses() {
+    const selected = parseListedDiagnoses(answers.diagnoses || "[]");
     const message = listedDiagnosisError(answers.diagnoses || "[]");
     if (message) {
       setDiagnosisError(message);
       return;
     }
+    if (selected.includes(DIAGNOSIS_OTHER) && !otherDiagnosis.trim()) {
+      setDiagnosisError("Type the other psychotic disorder.");
+      return;
+    }
     setDiagnosisError("");
-    const upcoming = quickEvalSteps(answers);
+    const next = { ...answers, diagnoses_other: otherDiagnosis.trim() };
+    setAnswers(next);
+    const upcoming = quickEvalSteps(next);
     const at = upcoming.findIndex((step) => step.id === "diagnoses");
     if (at === -1 || at >= upcoming.length - 1) {
-      void finish(answers);
+      void finish(next);
       return;
     }
     const following = upcoming[at + 1].id;
@@ -227,6 +235,11 @@ export default function TourEvalWizard({ phone }: { phone: string }) {
           <p className="schedule-lead">Select every one that applies. This does not decide the tour by itself.</p>
           <DiagnosisChecklist
             value={answers.diagnoses || "[]"}
+            otherDetail={otherDiagnosis}
+            onOtherDetailChange={(value) => {
+              setDiagnosisError("");
+              setOtherDiagnosis(value);
+            }}
             onChange={(value) => {
               setDiagnosisError("");
               setAnswers({ ...answers, diagnoses: value });
@@ -254,6 +267,24 @@ export default function TourEvalWizard({ phone }: { phone: string }) {
         <>
           <p className="schedule-lead">Select an answer, then tap Next.</p>
           {question.note ? <p className="quick-eval-note">{question.note}</p> : null}
+          {question.radios ? (
+            <fieldset className="tour-gift-choices">
+              <legend>Choose one</legend>
+              {question.options.map((option) => (
+                <label key={option}>
+                  <input
+                    type="radio"
+                    name={question.id}
+                    value={option}
+                    checked={picked === option}
+                    disabled={busy}
+                    onChange={() => setPicked(option)}
+                  />
+                  {option}
+                </label>
+              ))}
+            </fieldset>
+          ) : (
           <div className={stacked ? "quick-eval-choices is-list" : "quick-eval-choices"}>
             {question.options.map((option) => (
               <button
@@ -268,6 +299,7 @@ export default function TourEvalWizard({ phone }: { phone: string }) {
               </button>
             ))}
           </div>
+          )}
           <div className="onboarding-nav">
             <button
               type="button"

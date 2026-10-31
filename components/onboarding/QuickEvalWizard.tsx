@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { DiagnosisChecklist } from "@/components/onboarding/DiagnosisChecklist";
 import OnboardingShell from "@/components/onboarding/OnboardingShell";
-import { listedDiagnosisError } from "@/lib/listed-diagnoses";
+import { DIAGNOSIS_OTHER, listedDiagnosisError, parseListedDiagnoses } from "@/lib/listed-diagnoses";
 import { isQuickEvalFit, quickEvalSteps, stepDenies } from "@/lib/quick-eval";
 
 function telHref(phone: string): string {
@@ -19,6 +19,7 @@ export default function QuickEvalWizard({ phone }: { phone: string }) {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [done, setDone] = useState(false);
   const [diagnosisError, setDiagnosisError] = useState("");
+  const [otherDiagnosis, setOtherDiagnosis] = useState("");
   const [picked, setPicked] = useState("");
 
   const steps = quickEvalSteps(answers);
@@ -53,9 +54,14 @@ export default function QuickEvalWizard({ phone }: { phone: string }) {
   }
 
   function continueDiagnoses() {
+    const selected = parseListedDiagnoses(answers.diagnoses || "[]");
     const error = listedDiagnosisError(answers.diagnoses || "[]");
     if (error) {
       setDiagnosisError(error);
+      return;
+    }
+    if (selected.includes(DIAGNOSIS_OTHER) && !otherDiagnosis.trim()) {
+      setDiagnosisError("Type the other psychotic disorder.");
       return;
     }
     setDiagnosisError("");
@@ -76,6 +82,7 @@ export default function QuickEvalWizard({ phone }: { phone: string }) {
     setPicked("");
     setDone(false);
     setDiagnosisError("");
+    setOtherDiagnosis("");
   }
 
   if (done) {
@@ -142,6 +149,11 @@ export default function QuickEvalWizard({ phone }: { phone: string }) {
           </p>
           <DiagnosisChecklist
             value={answers.diagnoses || "[]"}
+            otherDetail={otherDiagnosis}
+            onOtherDetailChange={(value) => {
+              setDiagnosisError("");
+              setOtherDiagnosis(value);
+            }}
             onChange={(value) => {
               setDiagnosisError("");
               setAnswers({ ...answers, diagnoses: value });
@@ -167,6 +179,23 @@ export default function QuickEvalWizard({ phone }: { phone: string }) {
         <>
       <p className="schedule-lead">Select an answer, then tap Next. We do not save these answers.</p>
       {question.note ? <p className="quick-eval-note">{question.note}</p> : null}
+      {question.radios ? (
+        <fieldset className="tour-gift-choices">
+          <legend>Choose one</legend>
+          {question.options.map((option) => (
+            <label key={option}>
+              <input
+                type="radio"
+                name={question.id}
+                value={option}
+                checked={picked === option}
+                onChange={() => setPicked(option)}
+              />
+              {option}
+            </label>
+          ))}
+        </fieldset>
+      ) : (
       <div className={stacked ? "quick-eval-choices is-list" : "quick-eval-choices"}>
         {question.options.map((option) => (
           <button
@@ -180,6 +209,7 @@ export default function QuickEvalWizard({ phone }: { phone: string }) {
           </button>
         ))}
       </div>
+      )}
       <div className="onboarding-nav">
         {index > 0 ? (
           <button type="button" className="btn btn-ghost" onClick={() => goBack(steps[index - 1].id)}>

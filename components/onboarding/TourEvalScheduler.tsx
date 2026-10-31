@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { listTourSlots } from "@/app/actions/forms";
 import { bookApprovedTour } from "@/app/actions/tour-eval";
+import { TOUR_REWARDS } from "@/lib/quick-eval";
 
 function todayKey() {
   const now = new Date();
@@ -41,7 +42,8 @@ export default function TourEvalScheduler({
   const [note, setNote] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [booked, setBooked] = useState<{ date: string; time: string } | null>(null);
+  const [gift, setGift] = useState("");
+  const [booked, setBooked] = useState<{ date: string; time: string; gift: string } | null>(null);
 
   useEffect(() => {
     if (!date) {
@@ -75,8 +77,8 @@ export default function TourEvalScheduler({
   if (booked) {
     return (
       <p className="schedule-lead">
-        {firstName}, your tour is requested for {formatDate(booked.date)} at {formatSlot(booked.time)}. We will
-        confirm by phone or email.
+        {firstName}, your tour is requested for {formatDate(booked.date)} at {formatSlot(booked.time)}. Your gift is
+        the {booked.gift}. We will confirm by phone or email.
       </p>
     );
   }
@@ -87,13 +89,13 @@ export default function TourEvalScheduler({
         event.preventDefault();
         setBusy(true);
         setError(null);
-        void bookApprovedTour(token, date, time).then((result) => {
+        void bookApprovedTour(token, date, time, gift).then((result) => {
           setBusy(false);
           if (!result.ok) {
             setError(result.error);
             return;
           }
-          setBooked({ date, time });
+          setBooked({ date, time, gift });
         });
       }}
     >
@@ -122,9 +124,25 @@ export default function TourEvalScheduler({
           </select>
         </div>
       </div>
+      <fieldset className="tour-gift-choices">
+        <legend>Choose your gift</legend>
+        {TOUR_REWARDS.map((option) => (
+          <label key={option}>
+            <input
+              type="radio"
+              name="tour-gift"
+              value={option}
+              required
+              checked={gift === option}
+              onChange={() => setGift(option)}
+            />
+            {option}
+          </label>
+        ))}
+      </fieldset>
       {note ? <p className="form-note">{note}</p> : null}
       {error ? <p className="form-note" style={{ color: "#C0392B" }}>{error}</p> : null}
-      <button type="submit" className="btn btn-primary" disabled={busy}>
+      <button type="submit" className="btn btn-primary" disabled={busy || !gift}>
         {busy ? "Scheduling…" : "Schedule my tour"}
       </button>
     </form>

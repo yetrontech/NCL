@@ -13,6 +13,7 @@ export const LISTED_DIAGNOSES = [
 ] as const;
 
 export const DIAGNOSIS_NONE = "None of these";
+export const DIAGNOSIS_OTHER = "Other psychotic disorders";
 
 export const DIAGNOSIS_OPTIONS = [...LISTED_DIAGNOSES, DIAGNOSIS_NONE] as const;
 

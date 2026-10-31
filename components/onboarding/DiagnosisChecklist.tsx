@@ -3,6 +3,7 @@
 import {
   DIAGNOSIS_HONESTY,
   DIAGNOSIS_OPTIONS,
+  DIAGNOSIS_OTHER,
   parseListedDiagnoses,
   toggleListedDiagnosis,
 } from "@/lib/listed-diagnoses";
@@ -11,12 +12,17 @@ export function DiagnosisChecklist({
   value,
   onChange,
   label = "Do you have any of these diagnoses? Select all that apply.",
+  otherDetail,
+  onOtherDetailChange,
 }: {
   value: string;
   onChange: (value: string) => void;
   label?: string;
+  otherDetail?: string;
+  onOtherDetailChange?: (value: string) => void;
 }) {
   const selected = new Set(parseListedDiagnoses(value));
+  const showOther = Boolean(onOtherDetailChange) && selected.has(DIAGNOSIS_OTHER);
   return (
     <div className="field">
       <label>{label}</label>
@@ -25,14 +31,28 @@ export function DiagnosisChecklist({
       </div>
       <div className="diagnosis-list">
         {DIAGNOSIS_OPTIONS.map((option) => (
-          <label className="diagnosis-option" key={option}>
-            <input
-              type="checkbox"
-              checked={selected.has(option)}
-              onChange={() => onChange(toggleListedDiagnosis(value, option))}
-            />
-            <span>{option}</span>
-          </label>
+          <div key={option}>
+            <label className="diagnosis-option">
+              <input
+                type="checkbox"
+                checked={selected.has(option)}
+                onChange={() => onChange(toggleListedDiagnosis(value, option))}
+              />
+              <span>{option}</span>
+            </label>
+            {option === DIAGNOSIS_OTHER && showOther ? (
+              <div className="field diagnosis-other">
+                <label htmlFor="other-psychotic">Which other psychotic disorder?</label>
+                <input
+                  id="other-psychotic"
+                  type="text"
+                  value={otherDetail ?? ""}
+                  maxLength={200}
+                  onChange={(event) => onOtherDetailChange?.(event.target.value)}
+                />
+              </div>
+            ) : null}
+          </div>
         ))}
       </div>
     </div>

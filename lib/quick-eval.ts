@@ -21,7 +21,19 @@ export type QuickEvalStep = {
   denyAnswers?: readonly string[];
   /** Checkbox step. The answer is a JSON list and does not deny anyone. */
   multi?: boolean;
+  /** Render the choices as radio buttons. This answer is not scored. */
+  radios?: boolean;
 };
+
+export const TOUR_REWARDS = [
+  "$20 MARTA card",
+  "Gas card",
+  "Tire inflator, car charger, and phone mount",
+] as const;
+
+export function isTourReward(value: string): boolean {
+  return (TOUR_REWARDS as readonly string[]).includes(value);
+}
 
 const YES_NO = ["Yes", "No"] as const;
 
@@ -82,6 +94,14 @@ const HOME: QuickEvalStep = {
   denyAnswer: "No",
 };
 
+const REWARD: QuickEvalStep = {
+  id: "reward",
+  prompt: "Which reward do you want?",
+  note: "You choose one when you finish. This does not change whether you are a fit.",
+  options: TOUR_REWARDS,
+  radios: true,
+};
+
 /** Benefit, medications, and conviction. Two of these three still count as a fit. */
 export const QUICK_EVAL_PASS_AT = 2;
 
@@ -90,7 +110,7 @@ export function stepDenies(step: QuickEvalStep, value: string): boolean {
 }
 
 export function quickEvalSteps(_answers: Record<string, string>): QuickEvalStep[] {
-  return [SCORED[0], MALE, HOUSING, SCORED[1], DIAGNOSES, SCORED[2], DRUG_FREE, HOME];
+  return [SCORED[0], MALE, HOUSING, SCORED[1], DIAGNOSES, SCORED[2], DRUG_FREE, HOME, REWARD];
 }
 
 export function quickEvalScore(answers: Record<string, string>): number {

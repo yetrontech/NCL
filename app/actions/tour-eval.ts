@@ -1,9 +1,9 @@
 "use server";
 
 import { createClient } from "@supabase/supabase-js";
-import { parseListedDiagnoses } from "@/lib/listed-diagnoses";
+import { DIAGNOSIS_OTHER, parseListedDiagnoses } from "@/lib/listed-diagnoses";
 import { notifyNewSubmission } from "@/lib/notify";
-import { isQuickEvalFit, quickEvalSteps, type QuickEvalStep } from "@/lib/quick-eval";
+import { isQuickEvalFit, isTourReward, quickEvalSteps, type QuickEvalStep } from "@/lib/quick-eval";
 import { submitTourRequest } from "@/app/actions/forms";
 
 export type TourEvalContact = {
@@ -31,9 +31,12 @@ function clip(value: string, max: number) {
   return value.trim().slice(0, max);
 }
 
-function readableAnswer(step: QuickEvalStep, value: string) {
+function readableAnswer(step: QuickEvalStep, value: string, answers: Record<string, string>) {
   if (!step.multi) return value;
-  const labels = parseListedDiagnoses(value);
+  const note = (answers.diagnoses_other || "").trim();
+  const labels = parseListedDiagnoses(value).map((label) =>
+    label === DIAGNOSIS_OTHER && note ? `${label}: ${note}` : label
+  );
   return labels.length > 0 ? labels.join("; ") : value;
 }
 
@@ -61,13 +64,16 @@ export async function submitTourEval(
   if (gender !== "Male" && gender !== "Female") {
     return { ok: false, error: "Select a gender." };
   }
+  if (!isTourReward(answers.reward || "")) {
+    return { ok: false, error: "Choose a reward." };
+  }
 
   const labeled = quickEvalSteps(answers)
     .filter((step) => answers[step.id])
     .map((step) => ({
       id: step.id,
       prompt: step.prompt,
-      answer: readableAnswer(step, answers[step.id]),
+      answer: readableAnswer(step, answers[step.id], answers),
     }));
   if (labeled.length === 0) {
     return { ok: false, error: "Answer the questions, then send it again." };
@@ -159,7 +165,8 @@ export async function loadTourEvalSchedule(
 export async function bookApprovedTour(
   token: string,
   date: string,
-  time: string
+  time: string,
+  gift: string
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const loaded = await loadTourEvalSchedule(token);
   if (!loaded.ok) return loaded;
@@ -175,6 +182,7 @@ export async function bookApprovedTour(
   form.set("tour-gender", loaded.info.gender);
   form.set("tour-date", date);
   form.set("tour-time", time);
+  form.set("tour-gift", gift);
   const booked = await submitTourRequest(form);
   if (!booked.ok) return booked;
 

@@ -730,6 +730,7 @@ export async function submitTourRequest(formData: FormData): Promise<FormActionR
   const preferred_date = text(formData, "tour-date");
   const gender = text(formData, "tour-gender");
   const tour_time = text(formData, "tour-time");
+  const tour_gift = text(formData, "tour-gift");
 
   if (!first_name || !last_name || !phone || !email || !preferred_date || !gender || !tour_time) {
     return { ok: false, error: "Please fill in all required fields." };
@@ -782,6 +783,7 @@ export async function submitTourRequest(formData: FormData): Promise<FormActionR
         Gender: gender,
         "Preferred tour date": preferred_date,
         Time: timeLabel,
+        "Tour gift": tour_gift || undefined,
       },
     });
 
