@@ -166,6 +166,7 @@ export default function QuickEvalWizard({ phone }: { phone: string }) {
       ) : (
         <>
       <p className="schedule-lead">Select an answer, then tap Next. We do not save these answers.</p>
+      {index === 0 ? <p className="male-only-note">We are accepting only male applicants.</p> : null}
       {question.note ? <p className="quick-eval-note">{question.note}</p> : null}
       <div className={stacked ? "quick-eval-choices is-list" : "quick-eval-choices"}>
         {question.options.map((option) => (

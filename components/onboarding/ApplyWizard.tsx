@@ -10,10 +10,6 @@ import {
   APPLYING_WITH_DEPENDANTS,
   APPLYING_WITH_SPOUSE,
   BENEFIT_OPTIONS,
-  DEPENDENT_KIND_OPTIONS,
-  DEPENDENTS_ADULTS,
-  DEPENDENTS_UNDERAGE,
-  DEPENDENTS_WORKING,
   GENDER_OPTIONS,
   HOW_HEARD_OPTIONS,
   MOVE_TIMELINE_OPTIONS,
@@ -21,6 +17,7 @@ import {
   YES_NO,
 } from "@/lib/residency-fields";
 import { listedDiagnosisError } from "@/lib/listed-diagnoses";
+import { isAllowedHousehold } from "@/lib/quick-eval";
 import OnboardingShell from "./OnboardingShell";
 import { DiagnosisChecklist } from "./DiagnosisChecklist";
 import { NavButtons, RadioGroup, YesNoExplain } from "./FieldHelpers";
@@ -107,10 +104,9 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
 
-  const applyingWithDependants = data.living_with_others === APPLYING_WITH_DEPENDANTS;
-  const applyingWithSpouse = data.living_with_others === APPLYING_WITH_SPOUSE;
-  const dependantsNotAFit = data.dependents_kind === DEPENDENTS_UNDERAGE;
-  const spouseNotAFit = applyingWithSpouse && data.spouse_live_separately === "No";
+  const notAFit =
+    data.gender === "Female" ||
+    (data.living_with_others !== "" && !isAllowedHousehold(data.living_with_others));
 
   function setField<K extends keyof typeof initial>(key: K, value: string) {
     setData((prev) => ({ ...prev, [key]: value }));
@@ -120,6 +116,9 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
     if (step === 0) {
       if (!data.first_name || !data.last_name || !data.phone || !data.email || !data.gender || !data.date_of_birth) {
         return "Please complete all fields on this step.";
+      }
+      if (data.gender === "Female") {
+        return "Unfortunately we aren't the best fit for you.";
       }
     }
     if (step === 1) {
@@ -156,33 +155,11 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
       if (!data.living_with_others) {
         return "Please complete all fields on this step.";
       }
+      if (!isAllowedHousehold(data.living_with_others)) {
+        return "Unfortunately we aren't the best fit for you.";
+      }
       if (!data.former_address.trim() || !data.former_contact.trim()) {
         return "Please share the most recent address and a contact there.";
-      }
-      if (applyingWithDependants) {
-        if (dependantsNotAFit) {
-          return "Unfortunately we aren't the best fit for households with underage dependents.";
-        }
-        if (
-          data.dependents_kind !== DEPENDENTS_ADULTS &&
-          data.dependents_kind !== DEPENDENTS_WORKING
-        ) {
-          return "Please tell us whether the dependants are adults on a fixed income, working adults, or underage.";
-        }
-        if (
-          data.dependents_kind === DEPENDENTS_ADULTS &&
-          (!data.dependent_name || !data.dependent_income)
-        ) {
-          return "Please share the adult dependant's name and how much they receive.";
-        }
-      }
-      if (applyingWithSpouse) {
-        if (spouseNotAFit) {
-          return "Unfortunately we aren't the best fit for you.";
-        }
-        if (data.spouse_live_separately !== "Yes") {
-          return "Please answer whether you are willing to live separately from your spouse.";
-        }
       }
     }
     if (step === 3) {
@@ -379,8 +356,14 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
                     <option key={option}>{option}</option>
                   ))}
                 </select>
+                <p className="male-only-note">We are accepting only male applicants.</p>
               </div>
             </div>
+            {data.gender === "Female" ? (
+              <div className="field onboarding-callout" style={{ borderColor: "var(--gold)" }}>
+                <p>Unfortunately we aren&apos;t the best fit for you.</p>
+              </div>
+            ) : null}
           </>
         )}
 
@@ -594,85 +577,11 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
                 ))}
               </select>
             </div>
-            {applyingWithDependants && (
-              <>
-                <p className="onboarding-aside onboarding-dependants-note">
-                  This housing is best for serving adults with no underage dependents. If the
-                  dependants are of legal age, they must be{" "}
-                  <span className="onboarding-gold">on a fixed income</span>,{" "}
-                  <span className="onboarding-gold">be a working adult</span> or{" "}
-                  <span className="onboarding-gold">have their rent covered by the fixed income adult</span>.
-                </p>
-                <RadioGroup
-                  name="dependents_kind"
-                  label="Are the dependants adults on a fixed income, working adults or underage?"
-                  options={DEPENDENT_KIND_OPTIONS}
-                  emphasize
-                  value={data.dependents_kind}
-                  onChange={(value) => {
-                    setData((prev) => ({
-                      ...prev,
-                      dependents_kind: value,
-                      dependent_name: value === DEPENDENTS_ADULTS ? prev.dependent_name : "",
-                      dependent_income: value === DEPENDENTS_ADULTS ? prev.dependent_income : "",
-                    }));
-                  }}
-                />
-                {data.dependents_kind === DEPENDENTS_ADULTS && (
-                  <>
-                    <div className="field">
-                      <label htmlFor="dependent_name">Dependent&apos;s name</label>
-                      <input
-                        id="dependent_name"
-                        required
-                        placeholder="If more than one, list each name"
-                        value={data.dependent_name}
-                        onChange={(e) => setField("dependent_name", e.target.value)}
-                      />
-                    </div>
-                    <div className="field">
-                      <label htmlFor="dependent_income">
-                        How much do they receive?
-                      </label>
-                      <input
-                        id="dependent_income"
-                        required
-                        placeholder="e.g. $943 / month"
-                        value={data.dependent_income}
-                        onChange={(e) => setField("dependent_income", e.target.value)}
-                      />
-                    </div>
-                  </>
-                )}
-                {dependantsNotAFit && (
-                  <div
-                    className="field onboarding-callout"
-                    style={{ marginTop: 8, borderColor: "var(--gold)" }}
-                  >
-                    <p>Unfortunately we aren&apos;t the best fit for you.</p>
-                  </div>
-                )}
-              </>
-            )}
-            {applyingWithSpouse && (
-              <>
-                <RadioGroup
-                  name="spouse_live_separately"
-                  label="Are you willing to live separately from your spouse?"
-                  options={YES_NO}
-                  value={data.spouse_live_separately}
-                  onChange={(value) => setField("spouse_live_separately", value)}
-                />
-                {spouseNotAFit && (
-                  <div
-                    className="field onboarding-callout"
-                    style={{ marginTop: 8, borderColor: "var(--gold)" }}
-                  >
-                    <p>Unfortunately we aren&apos;t the best fit for you.</p>
-                  </div>
-                )}
-              </>
-            )}
+            {data.living_with_others && !isAllowedHousehold(data.living_with_others) ? (
+              <div className="field onboarding-callout" style={{ borderColor: "var(--gold)" }}>
+                <p>Unfortunately we aren&apos;t the best fit for you.</p>
+              </div>
+            ) : null}
           </>
         )}
 
@@ -910,7 +819,7 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
 
         <NavButtons
           showBack={step > 0}
-          showNext={!(step === 2 && (dependantsNotAFit || spouseNotAFit))}
+          showNext={!notAFit}
           onBack={() => {
             setError("");
             setStep((s) => s - 1);

@@ -1,8 +1,13 @@
 import { listedDiagnosisError } from "@/lib/listed-diagnoses";
 import { APPLYING_FOR_OPTIONS } from "@/lib/residency-fields";
 
-/** Same choice as the full application: housing for one person only. */
+/** Same choices as the full application. Pets can continue. A spouse or dependants cannot. */
 export const QUICK_EVAL_MYSELF = "Myself";
+export const QUICK_EVAL_PETS = "Myself and my pets";
+
+export function isAllowedHousehold(value: string): boolean {
+  return value === QUICK_EVAL_MYSELF || value === QUICK_EVAL_PETS;
+}
 
 export type QuickEvalStep = {
   id: string;
@@ -41,19 +46,11 @@ const SCORED: QuickEvalStep[] = [
   },
 ];
 
-const MALE: QuickEvalStep = {
-  id: "male",
-  prompt: "Are you male?",
-  note: "We are accepting only male applicants.",
-  options: YES_NO,
-  denyAnswer: "No",
-};
-
 const HOUSING: QuickEvalStep = {
   id: "housing",
   prompt: "Are you applying for yourself only, or will others be living with you?",
   options: APPLYING_FOR_OPTIONS,
-  denyAnswers: APPLYING_FOR_OPTIONS.filter((option) => option !== QUICK_EVAL_MYSELF),
+  denyAnswers: APPLYING_FOR_OPTIONS.filter((option) => !isAllowedHousehold(option)),
 };
 
 const DIAGNOSES: QuickEvalStep = {
@@ -85,7 +82,7 @@ export function stepDenies(step: QuickEvalStep, value: string): boolean {
 }
 
 export function quickEvalSteps(_answers: Record<string, string>): QuickEvalStep[] {
-  return [SCORED[0], MALE, HOUSING, SCORED[1], DIAGNOSES, SCORED[2], DRUG_FREE, HOME];
+  return [SCORED[0], HOUSING, SCORED[1], DIAGNOSES, SCORED[2], DRUG_FREE, HOME];
 }
 
 export function quickEvalScore(answers: Record<string, string>): number {

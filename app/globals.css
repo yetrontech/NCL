@@ -3266,13 +3266,21 @@
       max-width: 36rem;
     }
 
-    .quick-eval-note {
+    .quick-eval-note,
+    .male-only-note {
       margin: -8px auto 18px;
       max-width: 36rem;
-      color: var(--muted, #5c6370);
-      font-size: 0.92rem;
-      line-height: 1.5;
+      color: #c0392b;
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.45;
       text-align: center;
+    }
+
+    .field .male-only-note {
+      margin: 8px 0 0;
+      max-width: none;
+      text-align: left;
     }
 
     .quick-eval-qr {

@@ -14,6 +14,7 @@ import {
 } from "@/lib/residency-fields";
 import { ensureReviewTask } from "@/lib/staff-tasks";
 import { listedDiagnosesFromRaw } from "@/lib/listed-diagnoses";
+import { isAllowedHousehold } from "@/lib/quick-eval";
 
 function isAllowed(value: string, options: readonly string[]) {
   return options.includes(value);
@@ -255,6 +256,10 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
 
   if (!isAllowed(payload.living_with_others, APPLYING_FOR_OPTIONS)) {
     return { ok: false, error: "Please select who you are applying for." };
+  }
+
+  if (payload.gender === "Female" || !isAllowedHousehold(payload.living_with_others)) {
+    return { ok: false, error: "Unfortunately we aren't the best fit for you." };
   }
 
   if (!isAllowed(payload.memory_loss, YES_NO)) {

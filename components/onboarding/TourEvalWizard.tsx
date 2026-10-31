@@ -29,6 +29,7 @@ export default function TourEvalWizard({ phone }: { phone: string }) {
   const [stepId, setStepId] = useState("benefit");
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [done, setDone] = useState(false);
+  const [held, setHeld] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [diagnosisError, setDiagnosisError] = useState("");
@@ -57,7 +58,8 @@ export default function TourEvalWizard({ phone }: { phone: string }) {
     const next = { ...answers, [question.id]: value };
     setAnswers(next);
     if (stepDenies(question, value)) {
-      void finish(next);
+      setHeld(true);
+      setDone(true);
       return;
     }
     const upcoming = quickEvalSteps(next);
@@ -92,6 +94,17 @@ export default function TourEvalWizard({ phone }: { phone: string }) {
     const following = upcoming[at + 1].id;
     setStepId(following);
     setPicked(answers[following] || "");
+  }
+
+  if (done && held) {
+    return (
+      <OnboardingShell title="Tour evaluation" subtitle="Tour evaluation" step={totalSteps - 1} totalSteps={totalSteps}>
+        <p className="schedule-lead">Unfortunately we aren&apos;t the best fit for you.</p>
+        <p className="schedule-lead">
+          Questions? Call <a href={`tel:${phone.replace(/\D/g, "")}`}>{phone}</a>.
+        </p>
+      </OnboardingShell>
+    );
   }
 
   if (done) {
@@ -163,6 +176,7 @@ export default function TourEvalWizard({ phone }: { phone: string }) {
             <option value="Male">Male</option>
             <option value="Female">Female</option>
           </select>
+          <p className="male-only-note">We are accepting only male applicants.</p>
         </div>
         {error ? (
           <div className="field onboarding-callout" style={{ borderColor: "var(--gold)" }}>
@@ -177,6 +191,10 @@ export default function TourEvalWizard({ phone }: { phone: string }) {
               const message = contactError(contact);
               if (message) {
                 setError(message);
+                return;
+              }
+              if (contact.gender === "Female") {
+                setError("Unfortunately we aren't the best fit for you.");
                 return;
               }
               setError("");
