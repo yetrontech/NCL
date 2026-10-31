@@ -16,6 +16,15 @@ import {
 } from "@/lib/move-out-calculator";
 import { formatMoney, MONTHLY_RENT } from "@/lib/thrive-plan";
 
+function OfferArrow({ flip = false }: { flip?: boolean }) {
+  return (
+    <svg className={flip ? "calc-offer-arrow is-end" : "calc-offer-arrow"} viewBox="0 0 78 36" aria-hidden="true">
+      <path d="M4 18 H56" />
+      <path d="M44 6 L68 18 L44 30" />
+    </svg>
+  );
+}
+
 const STAYS = [
   { id: "motel", label: "Motel or hotel", amount: MOTEL_MONTH },
   { id: "alone", label: "Renting on my own", amount: 1200 },
@@ -276,9 +285,14 @@ export default function MoveOutCalculator({ phone }: { phone: string }) {
               could take you <em>further?</em>
             </span>
           </h1>
-          <p className="calc-offer">
-            <Link href="/offer2">See our limited-time offer</Link>
-          </p>
+          <div className="calc-offer">
+            <OfferArrow />
+            <Link href="/offer2">
+              <span>Limited time</span>
+              See our limited-time offer
+            </Link>
+            <OfferArrow flip />
+          </div>
           <p className="schedule-lead">
             Pick a goal for the next 1 to 5 years. The same income is shown two ways: a regular timeline, and an NCL
             fast-track. Living here is {formatMoney(MONTHLY_RENT)} a month, with everything included, so more of your

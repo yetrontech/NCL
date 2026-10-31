@@ -27,8 +27,8 @@ export type QuickEvalStep = {
 
 export const TOUR_REWARDS = [
   "$20 MARTA card",
-  "Gas card",
-  "Tire inflator, car charger, and phone mount",
+  "$20 Gift Card for Gas",
+  "Package kit with tire inflator, car charger, and phone mount",
 ] as const;
 
 export function isTourReward(value: string): boolean {
