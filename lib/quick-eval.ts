@@ -46,6 +46,14 @@ const SCORED: QuickEvalStep[] = [
   },
 ];
 
+const MALE: QuickEvalStep = {
+  id: "male",
+  prompt: "Are you male?",
+  note: "We are accepting only male applicants.",
+  options: YES_NO,
+  denyAnswer: "No",
+};
+
 const HOUSING: QuickEvalStep = {
   id: "housing",
   prompt: "Are you applying for yourself only, or will others be living with you?",
@@ -82,7 +90,7 @@ export function stepDenies(step: QuickEvalStep, value: string): boolean {
 }
 
 export function quickEvalSteps(_answers: Record<string, string>): QuickEvalStep[] {
-  return [SCORED[0], HOUSING, SCORED[1], DIAGNOSES, SCORED[2], DRUG_FREE, HOME];
+  return [SCORED[0], MALE, HOUSING, SCORED[1], DIAGNOSES, SCORED[2], DRUG_FREE, HOME];
 }
 
 export function quickEvalScore(answers: Record<string, string>): number {

@@ -276,6 +276,9 @@ export default function MoveOutCalculator({ phone }: { phone: string }) {
               could take you <em>further?</em>
             </span>
           </h1>
+          <p className="calc-offer">
+            <Link href="/offer2">See our limited-time offer</Link>
+          </p>
           <p className="schedule-lead">
             Pick a goal for the next 1 to 5 years. The same income is shown two ways: a regular timeline, and an NCL
             fast-track. Living here is {formatMoney(MONTHLY_RENT)} a month, with everything included, so more of your
@@ -536,12 +539,6 @@ export default function MoveOutCalculator({ phone }: { phone: string }) {
                 onExport={() => downloadCalendar("ncl-fast-track.ics", "NCL fast-track", fastMarks)}
               />
             </div>
-            <p className="calc-offer">
-              <Link href="/offer2">
-                See our limited time offer below on how we will help you achieve your financial goals, increase
-                stability while providing you a home!
-              </Link>
-            </p>
           </section>
         </div>
       </main>
