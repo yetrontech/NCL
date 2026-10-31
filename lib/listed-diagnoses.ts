@@ -56,3 +56,17 @@ export function listedDiagnosesFromRaw(raw: string): string[] {
   if (picked.includes(DIAGNOSIS_NONE)) return [DIAGNOSIS_NONE];
   return LISTED_DIAGNOSES.filter((item) => picked.includes(item));
 }
+
+export function otherDiagnosisDetailError(raw: string, detail: string): string | null {
+  if (parseListedDiagnoses(raw).includes(DIAGNOSIS_OTHER) && !detail.trim()) {
+    return "Type the other psychotic disorder.";
+  }
+  return null;
+}
+
+/** Keeps the typed disorder on the existing diagnosis list. No new column. */
+export function withOtherDiagnosisNote(labels: string[], detail: string): string[] {
+  const note = detail.trim().slice(0, 200);
+  if (!note) return labels;
+  return labels.map((label) => (label === DIAGNOSIS_OTHER ? `${DIAGNOSIS_OTHER}: ${note}` : label));
+}

@@ -5926,6 +5926,19 @@
       animation: marta-pop 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) 0.55s both;
     }
 
+    .marta-ticket .marta-also {
+      display: block;
+      margin: 12px 0 0;
+      padding: 0;
+      background: transparent;
+      color: var(--navy);
+      font-family: Fraunces, Georgia, serif;
+      font-size: 1.15rem;
+      font-weight: 560;
+      line-height: 1.25;
+      text-align: left;
+    }
+
     .marta-gifts {
       list-style: none;
       margin: 12px 0 0;

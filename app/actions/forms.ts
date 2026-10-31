@@ -13,7 +13,7 @@ import {
   YES_NO,
 } from "@/lib/residency-fields";
 import { ensureReviewTask } from "@/lib/staff-tasks";
-import { listedDiagnosesFromRaw } from "@/lib/listed-diagnoses";
+import { DIAGNOSIS_OTHER, listedDiagnosesFromRaw, withOtherDiagnosisNote } from "@/lib/listed-diagnoses";
 import { isAllowedHousehold } from "@/lib/quick-eval";
 
 function isAllowed(value: string, options: readonly string[]) {
@@ -161,10 +161,21 @@ function listedDiagnosesFromForm(formData: FormData): string[] {
   return listedDiagnosesFromRaw(text(formData, "listed_diagnoses", 4000));
 }
 
+function applicationDiagnoses(formData: FormData): { labels: string[]; error: string | null } {
+  const labels = listedDiagnosesFromForm(formData);
+  const note = text(formData, "listed_diagnoses_other", 200);
+  if (labels.includes(DIAGNOSIS_OTHER) && !note) {
+    return { labels, error: "Type the other psychotic disorder." };
+  }
+  return { labels: withOtherDiagnosisNote(labels, note), error: null };
+}
+
 export async function submitApplication(formData: FormData): Promise<FormActionResult> {
   const income_source = text(formData, "income_source");
   const how_heard_other = text(formData, "how_heard_other");
   const followUp = intakeFollowUp(formData, text(formData, "benefit_type"));
+  const diagnoses = applicationDiagnoses(formData);
+  if (diagnoses.error) return { ok: false, error: diagnoses.error };
   const payload = {
     first_name: text(formData, "first_name"),
     last_name: text(formData, "last_name"),
@@ -203,7 +214,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
     how_heard: text(formData, "how_heard"),
     move_timeline: text(formData, "move_timeline"),
     emergency_contact: text(formData, "emergency_contact"),
-    listed_diagnoses: listedDiagnosesFromForm(formData),
+    listed_diagnoses: diagnoses.labels,
     ...followUp,
   };
 

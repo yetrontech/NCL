@@ -2,16 +2,11 @@ import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
 import MartaArrow from "@/components/MartaArrow";
 import OfferCorners from "@/components/OfferCorners";
-import { TOUR_REWARDS } from "@/lib/quick-eval";
 
 const STEPS = [
   { n: "01", title: "Request a tour", body: "Request a tour. It takes less than a minute." },
   { n: "02", title: "Tour Scheduling", body: "Once approved, we will call/email with tour date and time." },
-  {
-    n: "03",
-    title: "Choose",
-    body: "At the end, pick a $20 MARTA card, a $20 Gift Card for Gas, or a package kit with a tire inflator, car charger, and phone mount.",
-  },
+  { n: "03", title: "Leave", body: "Leave with a $20 Gift Card for Gas or a package kit." },
 ] as const;
 
 const OFFERS = [
@@ -40,25 +35,23 @@ export default function TourGift() {
         </Link>
 
         <article className="marta-ad">
-          <p className="marta-kicker">Choose your tour gift</p>
+          <p className="marta-kicker">Free $20 gas card or package kit</p>
           <h1>
             <span className="marta-line">
-              Pick your <em>gift</em>
+              We&apos;ll <em>pay you</em>
             </span>
-            <span className="marta-line">when you tour</span>
+            <span className="marta-line">to tour our homes</span>
           </h1>
           <p className="marta-lead">
-            Schedule a tour. At the end, choose what you take home.
+            Come see the house. Leave with a $20 Gift Card for Gas or a package kit.
           </p>
 
           <div className="marta-ticket">
             <div>
-              <span>Pick one</span>
-              <ul className="marta-gifts">
-                {TOUR_REWARDS.map((gift) => (
-                  <li key={gift}>{gift}</li>
-                ))}
-              </ul>
+              <span>Tour bonus</span>
+              <strong>$20</strong>
+              <em>Gift card for gas</em>
+              <p className="marta-also">or a package kit with a tire inflator, car charger, and phone mount</p>
             </div>
             <p>
               <span className="marta-stamp">Free</span>
@@ -67,7 +60,7 @@ export default function TourGift() {
           </div>
 
           <Link href="/tour-eval" className="guide-offer-cta marta-cta">
-            Schedule a tour
+            Claim my tour gift
           </Link>
           <p className="marta-aside">No lease. No deposit. You are only coming to look.</p>
 

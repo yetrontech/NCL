@@ -16,7 +16,7 @@ import {
   ROOMMATE_OPTIONS,
   YES_NO,
 } from "@/lib/residency-fields";
-import { listedDiagnosisError } from "@/lib/listed-diagnoses";
+import { listedDiagnosisError, otherDiagnosisDetailError } from "@/lib/listed-diagnoses";
 import { isAllowedHousehold } from "@/lib/quick-eval";
 import OnboardingShell from "./OnboardingShell";
 import { DiagnosisChecklist } from "./DiagnosisChecklist";
@@ -83,6 +83,7 @@ const initial = {
   work_insurance: "",
   emergency_contact: "",
   listed_diagnoses: "[]",
+  listed_diagnoses_other: "",
 };
 
 function cleanPromoCode(value: string | undefined): string {
@@ -194,6 +195,8 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
       }
       const diagnosisError = listedDiagnosisError(data.listed_diagnoses);
       if (diagnosisError) return diagnosisError;
+      const otherDiagnosisError = otherDiagnosisDetailError(data.listed_diagnoses, data.listed_diagnoses_other);
+      if (otherDiagnosisError) return otherDiagnosisError;
     }
     if (step === 4) {
       if (!data.crime_conviction) return "Please answer the conviction question.";
@@ -665,6 +668,11 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
             )}
             <DiagnosisChecklist
               value={data.listed_diagnoses}
+              otherDetail={data.listed_diagnoses_other}
+              onOtherDetailChange={(value) => {
+                setError("");
+                setField("listed_diagnoses_other", value);
+              }}
               onChange={(value) => setField("listed_diagnoses", value)}
             />
             <RadioGroup
