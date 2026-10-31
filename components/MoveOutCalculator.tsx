@@ -78,14 +78,16 @@ function RoadmapCalendar({
   onExport: () => void;
 }) {
   const byMonth = new Map(marks.map((mark) => [mark.monthIndex, mark.label]));
-  const groups: { year: number; months: { offset: number; date: Date; label?: string }[] }[] = [];
+  const groups: { year: number; months: ({ offset: number; date: Date; label?: string } | null)[] }[] = [];
   for (let offset = 0; offset < years * 12; offset += 1) {
     const date = monthStart(start, offset);
     const year = date.getFullYear();
-    const last = groups[groups.length - 1];
-    const cell = { offset, date, label: byMonth.get(offset) };
-    if (!last || last.year !== year) groups.push({ year, months: [cell] });
-    else last.months.push(cell);
+    let last = groups[groups.length - 1];
+    if (!last || last.year !== year) {
+      last = { year, months: Array.from({ length: 12 }, () => null) };
+      groups.push(last);
+    }
+    last.months[date.getMonth()] = { offset, date, label: byMonth.get(offset) };
   }
 
   return (
@@ -96,19 +98,50 @@ function RoadmapCalendar({
           Export calendar
         </button>
       </div>
-      {groups.map((group) => (
-        <div key={group.year} className="calc-year">
-          <p>{group.year}</p>
-          <div className="calc-months">
-            {group.months.map((month) => (
-              <div key={month.offset} className={month.label ? "calc-month is-mark" : "calc-month"}>
-                <span>{month.date.toLocaleString("en-US", { month: "short" })}</span>
-                {month.label ? <strong>{month.label}</strong> : null}
-              </div>
-            ))}
+      {groups.map((group) => {
+        const marked = group.months.filter((month) => month?.label);
+        return (
+          <div key={group.year} className="calc-year">
+            <p>{group.year}</p>
+            <div className="calc-months">
+              {group.months.map((month, index) =>
+                month ? (
+                  <div
+                    key={month.offset}
+                    className={month.label ? "calc-month is-mark" : "calc-month"}
+                    title={
+                      month.label
+                        ? `${month.date.toLocaleString("en-US", { month: "long" })} · ${month.label}`
+                        : month.date.toLocaleString("en-US", { month: "long" })
+                    }
+                    aria-label={
+                      month.label
+                        ? `${month.date.toLocaleString("en-US", { month: "long" })}, ${month.label}`
+                        : month.date.toLocaleString("en-US", { month: "long" })
+                    }
+                  >
+                    <span>{month.date.toLocaleString("en-US", { month: "narrow" })}</span>
+                  </div>
+                ) : (
+                  <div key={`${group.year}-${index}`} className="calc-month is-empty" aria-hidden="true" />
+                )
+              )}
+            </div>
+            {marked.length > 0 ? (
+              <ul className="calc-legend">
+                {marked.map((month) =>
+                  month ? (
+                    <li key={month.offset}>
+                      <span>{month.date.toLocaleString("en-US", { month: "short" })}</span>
+                      {month.label}
+                    </li>
+                  ) : null
+                )}
+              </ul>
+            ) : null}
           </div>
-        </div>
-      ))}
+        );
+      })}
       {marks.length === 0 ? <p className="calc-hint">No milestone lands in these years.</p> : null}
     </article>
   );
@@ -475,17 +508,6 @@ export default function MoveOutCalculator({ phone }: { phone: string }) {
               laundry, and on-site management. No deposit stack. No surprise bills.
             </div>
 
-            <div className="calc-cta">
-              <Link href="/tour-eval" className="btn btn-primary">
-                Request a tour
-              </Link>
-              <Link href="/apply" className="btn btn-primary">
-                Apply today
-              </Link>
-              <Link href="/quickeval/check" className="btn btn-ghost">
-                See if I&apos;m a fit
-              </Link>
-            </div>
             <p className="calc-hint calc-call">
               Questions? Call <a href={telHref(phone)}>{phone}</a>.
             </p>

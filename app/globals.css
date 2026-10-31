@@ -5503,17 +5503,6 @@
       font-size: 0.95rem;
     }
 
-    .calc-cta {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .calc-cta .btn {
-      flex: 1 1 200px;
-      justify-content: center;
-    }
-
     .calc-call {
       margin-top: 0;
       text-align: center;
@@ -5579,52 +5568,80 @@
     }
 
     .calc-year {
-      margin-top: 12px;
+      display: grid;
+      grid-template-columns: 2.7rem 1fr;
+      gap: 3px 8px;
+      align-items: center;
+      margin-top: 8px;
     }
 
     .calc-year p {
       color: var(--navy);
       font-weight: 700;
-      font-size: 0.85rem;
-      letter-spacing: 0.06em;
-      margin-bottom: 6px;
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      margin: 0;
     }
 
     .calc-months {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 6px;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 2px;
     }
 
     .calc-month {
-      min-height: 52px;
+      display: grid;
+      place-items: center;
+      min-height: 22px;
       border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 6px 7px;
+      border-radius: 4px;
+      padding: 2px 0;
       background: var(--cream);
+    }
+
+    .calc-month.is-empty {
+      border-color: transparent;
+      background: transparent;
     }
 
     .calc-month span {
       display: block;
       color: #5B6478;
-      font-size: 0.75rem;
+      font-size: 0.62rem;
       font-weight: 700;
-      letter-spacing: 0.04em;
+      line-height: 1;
+      letter-spacing: 0;
       text-transform: uppercase;
     }
 
-    .calc-month strong {
-      display: block;
-      margin-top: 2px;
+    .calc-legend {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .calc-legend li {
       color: var(--navy);
       font-size: 0.72rem;
-      line-height: 1.25;
-      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .calc-legend span {
+      margin-right: 4px;
+      font-weight: 800;
     }
 
     .calc-month.is-mark {
       background: white;
       border-color: var(--gold);
+    }
+
+    .calc-month.is-mark span {
+      color: var(--navy);
     }
 
     .calc-calendar.is-ncl .calc-month.is-mark {
