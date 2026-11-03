@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { TrackedLink } from "@/components/TrackedLink";
 import BrandLogo from "@/components/BrandLogo";
 import { useCopy } from "@/components/SiteContentProvider";
 import {
@@ -287,10 +288,10 @@ export default function MoveOutCalculator({ phone }: { phone: string }) {
           </h1>
           <div className="calc-offer">
             <OfferArrow />
-            <Link href="/offer2">
+            <TrackedLink href="/offer2" click="calculate_offer">
               <span>Limited time</span>
               See our limited-time offer
-            </Link>
+            </TrackedLink>
             <OfferArrow flip />
           </div>
           <p className="schedule-lead">

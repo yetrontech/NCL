@@ -4910,12 +4910,16 @@
 
     .offer2-video {
       position: relative;
-      margin: 0 0 18px;
+      margin: 0;
       padding-bottom: 56.25%;
       height: 0;
       overflow: hidden;
       border-radius: 8px;
       background: #111;
+    }
+
+    .offer2-fit {
+      margin: 14px 0 20px;
     }
 
     .offer2-video iframe {

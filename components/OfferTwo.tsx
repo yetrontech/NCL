@@ -3,6 +3,7 @@ import BedCount from "@/components/BedCount";
 import BrandLogo from "@/components/BrandLogo";
 import OfferCorners from "@/components/OfferCorners";
 import { OfferUntil } from "@/components/OfferUntil";
+import { TrackedLink } from "@/components/TrackedLink";
 
 const PROGRAMS = [
   {
@@ -62,6 +63,9 @@ export default function OfferTwo({
               allowFullScreen
             />
           </div>
+          <TrackedLink href="/quickeval/check" click="offer_fit" className="guide-offer-cta offer2-fit">
+            See if you&apos;re a good fit
+          </TrackedLink>
           <p>
             Move in any day for <span className="offer-hit">$1</span>. Your rent doesn&apos;t start
             until the <span className="offer-hit">1st of next month</span>, then it&apos;s{" "}
@@ -107,7 +111,6 @@ export default function OfferTwo({
             <li>What changed?</li>
           </ul>
           <OfferUntil placement="sale" />
-          <p className="guide-offer-eligible">See if you&apos;re eligible below!</p>
         </article>
 
         {popup ? null : (
@@ -128,14 +131,6 @@ export default function OfferTwo({
           </div>
         </article>
         )}
-
-        <article className="guide-card offer2-card offer2-eligible" id="eligibility">
-          <p className="guide-kicker">Eligibility</p>
-          <h2>See if you&apos;re eligible</h2>
-          <Link href="/quickeval/check" className="guide-offer-cta">
-            See if you&apos;re a good fit
-          </Link>
-        </article>
 
         {popup ? null : (
         <p className="guide-footer">
