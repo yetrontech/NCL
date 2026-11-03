@@ -48,8 +48,8 @@ export default function OfferTwo({
         <article className="guide-card offer2-card">
           <BedCount initial={bedsRemaining} />
           <h1 id="offer2-offer-title">
-            Pay <span className="offer-hit">$1</span> today. Pay <span className="offer-hit">$199</span>{" "}
-            starting next month.
+            Pay <span className="offer-hit">$1</span> today. Pay as low as{" "}
+            <span className="offer-hit">$199</span> starting next month!
           </h1>
           <p className="offer2-package">(Stability Speedrun Package)</p>
           <OfferUntil placement="headline" />
@@ -74,12 +74,12 @@ export default function OfferTwo({
             Bring 2 and choose your reward: pay just <span className="offer-hit">$199 rent</span>{" "}
             next month, or get a <span className="offer-hit">one-year paid gym membership</span>.
             Every referral after that earns you another <span className="offer-hit">$199 month</span>.
-            No limit. Bring some friends and save almost <span className="offer-hit">$7,300</span>{" "}
-            a year by doing nothing more!
+            No limit. Bring some friends and potentially save{" "}
+            <span className="offer-hit">$7000+</span> annually!
           </p>
           <p>
-            Your time is money. Talk to 10 people looking for housing, and if nobody is interested,
-            we&apos;ll <span className="offer-hit">pay your hourly wage</span>.
+            Talk to 10 people looking for housing. If nobody is interested, we will pay you what you
+            earn per hour at your regular job for <span className="offer-hit">5 days of work</span>!
           </p>
           <p className="offer2-more">Plus, we help you earn more and keep more.</p>
 
