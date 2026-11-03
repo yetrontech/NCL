@@ -69,9 +69,10 @@ export default function OfferTwo({
           <p>
             Move in any day for <span className="offer-hit">$1</span>. Your rent doesn&apos;t start
             until the <span className="offer-hit">1st of next month</span>, then it&apos;s{" "}
-            <span className="offer-hit">$798/month</span>. Regardless of move-in day. No tricks.
-            Live here and decide from the inside if it&apos;s for you. If it&apos;s not for you,
-            leave with our blessing.
+            <span className="offer-hit">$798/month</span>. If you move in within the last 7 days of
+            the month then pay the next month&apos;s rent and we&apos;ll give you a 2 week 100%
+            refund guarantee. No tricks. Live here and decide from the inside if it&apos;s for you.
+            If it&apos;s not for you, leave with our blessing.
           </p>
           <p>
             Bring a friend and you both get <span className="offer-hit">$100 off</span> next month.
