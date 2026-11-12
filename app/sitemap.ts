@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { OFFERS_PAUSED } from "@/lib/offers-paused";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
@@ -45,18 +46,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.6,
     },
-    {
-      url: "https://www.newcreationliving.org/offer2",
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: "https://www.newcreationliving.org/tourgift",
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
+    ...(OFFERS_PAUSED
+      ? []
+      : [
+          {
+            url: "https://www.newcreationliving.org/offer2",
+            lastModified: now,
+            changeFrequency: "monthly" as const,
+            priority: 0.7,
+          },
+          {
+            url: "https://www.newcreationliving.org/tourgift",
+            lastModified: now,
+            changeFrequency: "monthly" as const,
+            priority: 0.7,
+          },
+        ]),
     {
       url: "https://www.newcreationliving.org/calculate",
       lastModified: now,

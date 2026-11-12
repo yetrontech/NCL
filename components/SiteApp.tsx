@@ -16,6 +16,7 @@ import LocationsPage from "@/components/pages/LocationsPage";
 import FaqPage from "@/components/pages/FaqPage";
 import { SiteContentProvider } from "@/components/SiteContentProvider";
 import OfferPopup from "@/components/OfferPopup";
+import { OFFERS_PAUSED } from "@/lib/offers-paused";
 import type { SiteContentMap } from "@/lib/site-content";
 
 export default function SiteApp({
@@ -55,7 +56,7 @@ export default function SiteApp({
       <LocationGalleryModal galleryId={galleryId} onClose={() => setGalleryId(null)} />
 
       <BackToTop />
-      <OfferPopup bedsRemaining={bedsRemaining} />
+      {OFFERS_PAUSED ? null : <OfferPopup bedsRemaining={bedsRemaining} />}
     </SiteContentProvider>
   );
 }
