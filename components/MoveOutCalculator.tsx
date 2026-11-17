@@ -15,7 +15,6 @@ import {
   type RoadmapGoal,
   type RoadmapMark,
 } from "@/lib/move-out-calculator";
-import { OFFERS_PAUSED } from "@/lib/offers-paused";
 import { formatMoney, MONTHLY_RENT } from "@/lib/thrive-plan";
 
 function OfferArrow({ flip = false }: { flip?: boolean }) {
@@ -287,16 +286,14 @@ export default function MoveOutCalculator({ phone }: { phone: string }) {
               could take you <em>further?</em>
             </span>
           </h1>
-          {OFFERS_PAUSED ? null : (
-            <div className="calc-offer">
-              <OfferArrow />
-              <TrackedLink href="/offer2" click="calculate_offer">
-                <span>Limited time</span>
-                See our limited-time offer
-              </TrackedLink>
-              <OfferArrow flip />
-            </div>
-          )}
+          <div className="calc-offer">
+            <OfferArrow />
+            <TrackedLink href="/offer1" click="calculate_offer">
+              <span>Limited time</span>
+              See our limited-time offer
+            </TrackedLink>
+            <OfferArrow flip />
+          </div>
           <p className="schedule-lead">
             Pick a goal for the next 1 to 5 years. The same income is shown two ways: a regular timeline, and an NCL
             fast-track. Living here is {formatMoney(MONTHLY_RENT)} a month, with everything included, so more of your
