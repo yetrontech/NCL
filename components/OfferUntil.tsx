@@ -9,14 +9,14 @@ function ordinal(day: number): string {
   return `${day}th`;
 }
 
-function endOfNextMonth(now = new Date()): string {
+export function offerDeadline(now = new Date()): string {
   const end = new Date(now.getFullYear(), now.getMonth() + 2, 0);
   const month = end.toLocaleDateString("en-US", { month: "long" });
   return `${month} ${ordinal(end.getDate())}`;
 }
 
 export function OfferUntil({ placement }: { placement: "headline" | "sale" }) {
-  const until = endOfNextMonth();
+  const until = offerDeadline();
   if (placement === "headline") {
     return (
       <p className="offer2-package">

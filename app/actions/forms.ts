@@ -63,6 +63,39 @@ function requireYesExplain(
   return null;
 }
 
+function goalFields(formData: FormData) {
+  const onProbation = text(formData, "on_probation");
+  return {
+    on_probation: onProbation,
+    probation_years: onProbation === "Yes" ? text(formData, "probation_years", 20) : "",
+    change_six_months: text(formData, "change_six_months", 800),
+    first_seven_days: text(formData, "first_seven_days", 800),
+    willing_goals: text(formData, "willing_goals"),
+  };
+}
+
+function goalError(fields: ReturnType<typeof goalFields>): string | null {
+  if (fields.on_probation !== "Yes" && fields.on_probation !== "No") {
+    return "Please answer the probation question.";
+  }
+  if (fields.on_probation === "Yes") {
+    const years = Number(fields.probation_years);
+    if (!fields.probation_years || !Number.isFinite(years) || years < 0 || years > 40) {
+      return "Please say how many years of probation are remaining.";
+    }
+  }
+  if (fields.change_six_months.trim().length < 8) {
+    return "Please answer what you want to change in the next 6 months.";
+  }
+  if (fields.first_seven_days.trim().length < 8) {
+    return "Please answer what you will do in the first 7 days.";
+  }
+  if (fields.willing_goals !== "Yes" && fields.willing_goals !== "No") {
+    return "Please answer whether you will set goals and check in.";
+  }
+  return null;
+}
+
 function storedBenefitType(benefitType: string, incomeSource: string): string {
   return benefitType === "Other" && incomeSource
     ? `Other — ${incomeSource}`
@@ -210,6 +243,7 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
     memory_loss: text(formData, "memory_loss"),
     home_not_short_term: text(formData, "home_not_short_term"),
     roommate_commitment: text(formData, "roommate_commitment"),
+    ...goalFields(formData),
     referring_party_info: text(formData, "referring_party_info"),
     how_heard: text(formData, "how_heard"),
     move_timeline: text(formData, "move_timeline"),
@@ -231,6 +265,10 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
     "mental_limitations",
     "medications_independent",
     "crime_conviction",
+    "on_probation",
+    "change_six_months",
+    "first_seven_days",
+    "willing_goals",
     "substance_abuse_history",
     "monthly_benefit_amount",
     "medical_prescriptions",
@@ -330,6 +368,9 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
     requireYesExplain(payload.medical_prescriptions, payload.medical_explanation, "medical prescriptions");
 
   if (explainError) return { ok: false, error: explainError };
+
+  const goals = goalError(payload);
+  if (goals) return { ok: false, error: goals };
 
   if (
     payload.substance_abuse_history === "Yes" &&
@@ -442,6 +483,15 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
         "Have you been convicted of a crime within the past 7 years?":
           payload.crime_conviction,
         "Conviction explanation": answer(payload.crime_explanation),
+        "Are you on probation?": payload.on_probation,
+        "How many years of probation are remaining?":
+          payload.on_probation === "Yes" ? answer(payload.probation_years) : undefined,
+        "What is one thing you want to change in the next 6 months, and what is one step you've already taken toward it?":
+          payload.change_six_months,
+        "What will you do in your first 7 days at NCL to move toward that goal?":
+          payload.first_seven_days,
+        "NCL residents set goals and check in the app. Are you willing to do that?":
+          payload.willing_goals,
         "Have you had a history of drug or alcohol abuse?":
           payload.substance_abuse_history,
         "Drug or alcohol abuse explanation": answer(payload.substance_abuse_explanation),
@@ -507,6 +557,7 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
     living_with_others: text(formData, "living_with_others"),
     home_not_short_term: text(formData, "home_not_short_term"),
     roommate_commitment: text(formData, "roommate_commitment"),
+    ...goalFields(formData),
     how_heard: text(formData, "how_heard"),
     move_timeline: text(formData, "move_timeline"),
     emergency_contact: text(formData, "emergency_contact"),
@@ -529,6 +580,10 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
     "mental_limitations",
     "medications_independent",
     "crime_conviction",
+    "on_probation",
+    "change_six_months",
+    "first_seven_days",
+    "willing_goals",
     "substance_abuse_history",
     "aggression_history",
     "elopement_risk",
@@ -568,6 +623,9 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
     requireYesExplain(payload.medical_prescriptions, payload.medical_explanation, "medical prescriptions");
 
   if (explainError) return { ok: false, error: explainError };
+
+  const goals = goalError(payload);
+  if (goals) return { ok: false, error: goals };
 
   if (
     payload.substance_abuse_history === "Yes" &&
@@ -664,6 +722,15 @@ export async function submitReferral(formData: FormData): Promise<FormActionResu
         "Has the referee been convicted of a crime within the past 7 years?":
           payload.crime_conviction,
         "Conviction explanation": answer(payload.crime_explanation),
+        "Is the referee on probation?": payload.on_probation,
+        "How many years of probation are remaining?":
+          payload.on_probation === "Yes" ? answer(payload.probation_years) : undefined,
+        "What is one thing the referee wants to change in the next 6 months, and what is one step they have already taken toward it?":
+          payload.change_six_months,
+        "What will the referee do in the first 7 days at NCL to move toward that goal?":
+          payload.first_seven_days,
+        "NCL residents set goals and check in the app. Is the referee willing to do that?":
+          payload.willing_goals,
         "Has the referee had a history of drug or alcohol abuse?":
           payload.substance_abuse_history,
         "Drug or alcohol abuse explanation": answer(payload.substance_abuse_explanation),

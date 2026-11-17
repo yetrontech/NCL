@@ -45,7 +45,10 @@ export default async function PrivacyPage() {
           contact, how you heard about us, and an optional promo code if you have one
           from an event or flyer. We also ask what mental diagnosis you have, what
           medical diagnosis you have, about mobility issues, medications, criminal
-          history, and substance use. A blank answer, “none,” or “N/A” means there is
+          history, whether you are on probation and how many years remain, one thing
+          you want to change in the next 6 months, your plan for your first 7 days,
+          whether you will set goals and check in through the house app, and substance
+          use. A blank answer, “none,” or “N/A” means there is
           no diagnosis. If you name a mental diagnosis and a therapist or doctor, we
           ask for that person’s name, phone number, and address. If your benefit is
           SSI, SSDI, or Social Security, we ask whether
@@ -54,7 +57,8 @@ export default async function PrivacyPage() {
         </li>
         <li>
           <strong>Referrals.</strong> The same kinds of details about the person being
-          referred, including address, mental diagnosis, medical diagnosis, and therapist or doctor
+          referred, including address, mental diagnosis, medical diagnosis, probation,
+          the 6-month change, the first 7 days, willingness to set goals in the app, and therapist or doctor
           contact when that applies, plus the referrer’s name, role, organization, and
           contact information (for example a social worker, discharge planner, VA staff
           member, or family member). A promo code is optional.
@@ -200,10 +204,23 @@ export default async function PrivacyPage() {
         <li>
           Health and housing answers already on an application, including mental
           diagnosis, medical diagnosis, medications, substance history, and criminal
-          history, for the owner, administrators, and the assigned house manager
+          history, and probation, for the owner, administrators, and the assigned house manager
         </li>
         <li>Safety tags and custom tags drawn from those answers</li>
-        <li>Points, notes, complaints, and house announcements</li>
+        <li>Points, notes, complaints, anonymous help requests, and house announcements</li>
+        <li>
+          Workout: current weight, goal weight, daily calories, and a weekly weight.
+          Only that resident sees these. The calorie number is a house starting point,
+          not medical advice.
+        </li>
+        <li>
+          Offers: one personal share link per resident, and a record of when the 25%
+          off coupon was redeemed. The owner is notified when it is redeemed.
+        </li>
+        <li>
+          Daily notes (a check-in, encouragement, a Bible verse, or a short quote) are
+          scheduled on the phone. They are not stored on our servers.
+        </li>
         <li>
           A push token from Apple or Google if you allow notifications, so the app can alert
           staff about a new form or a house announcement. The token is stored in our
@@ -220,8 +237,7 @@ export default async function PrivacyPage() {
       <p>
         NCL Thrive is a savings tool in the house app. It helps a resident set a money
         goal, such as a car, a home, or better credit, and save toward it each week.
-        Thrive is being rolled out in stages and may not be available to every resident
-        yet. When a resident uses it, the app stores:
+        Thrive is available to residents in the house app. When a resident uses it, the app stores:
       </p>
       <ul>
         <li>

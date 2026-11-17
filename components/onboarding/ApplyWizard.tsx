@@ -73,6 +73,11 @@ const initial = {
   memory_loss: "",
   crime_conviction: "",
   crime_explanation: "",
+  on_probation: "",
+  probation_years: "",
+  change_six_months: "",
+  first_seven_days: "",
+  willing_goals: "",
   substance_abuse_history: "",
   substance_abuse_explanation: "",
   sober_length: "",
@@ -214,6 +219,15 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
       ) {
         return "Please say how long you have been sober.";
       }
+      if (data.on_probation !== "Yes" && data.on_probation !== "No") {
+        return "Please answer the probation question.";
+      }
+      if (data.on_probation === "Yes") {
+        const years = Number(data.probation_years);
+        if (!data.probation_years.trim() || !Number.isFinite(years) || years < 0 || years > 40) {
+          return "Please say how many years of probation are remaining.";
+        }
+      }
     }
     if (step === 5) {
       if (
@@ -223,6 +237,15 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
         !data.roommate_commitment
       ) {
         return "Please complete all commitment questions.";
+      }
+      if (data.change_six_months.trim().length < 8) {
+        return "Please answer what you want to change in the next 6 months.";
+      }
+      if (data.first_seven_days.trim().length < 8) {
+        return "Please answer what you will do in your first 7 days.";
+      }
+      if (data.willing_goals !== "Yes" && data.willing_goals !== "No") {
+        return "Please answer whether you will set goals and check in.";
       }
     }
     return null;
@@ -710,6 +733,28 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
               onChange={(v) => setField("crime_conviction", v)}
               onExplainChange={(v) => setField("crime_explanation", v)}
             />
+            <RadioGroup
+              name="on_probation"
+              label="Are you on probation?"
+              options={YES_NO}
+              value={data.on_probation}
+              onChange={(v) => {
+                setField("on_probation", v);
+                if (v !== "Yes") setField("probation_years", "");
+              }}
+            />
+            {data.on_probation === "Yes" && (
+              <div className="field">
+                <label htmlFor="probation_years">If so, how many years remaining?</label>
+                <input
+                  id="probation_years"
+                  inputMode="decimal"
+                  required
+                  value={data.probation_years}
+                  onChange={(e) => setField("probation_years", e.target.value)}
+                />
+              </div>
+            )}
             <YesNoExplain
               name="substance_abuse_history"
               label="Have you had a history of drug or alcohol abuse?"
@@ -793,6 +838,39 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
               options={ROOMMATE_OPTIONS}
               value={data.roommate_commitment}
               onChange={(v) => setField("roommate_commitment", v)}
+            />
+            <div className="field">
+              <label htmlFor="change_six_months">
+                What is one thing you want to change in the next 6 months, and what is one step you&apos;ve already taken toward it?
+              </label>
+              <textarea
+                id="change_six_months"
+                rows={4}
+                required
+                maxLength={800}
+                value={data.change_six_months}
+                onChange={(e) => setField("change_six_months", e.target.value)}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="first_seven_days">
+                What will you do in your first 7 days at NCL to move toward that goal?
+              </label>
+              <textarea
+                id="first_seven_days"
+                rows={4}
+                required
+                maxLength={800}
+                value={data.first_seven_days}
+                onChange={(e) => setField("first_seven_days", e.target.value)}
+              />
+            </div>
+            <RadioGroup
+              name="willing_goals"
+              label="NCL residents set goals and check in the app. Are you willing to do that?"
+              options={YES_NO}
+              value={data.willing_goals}
+              onChange={(v) => setField("willing_goals", v)}
             />
           </>
         )}

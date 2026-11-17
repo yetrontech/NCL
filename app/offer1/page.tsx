@@ -1,17 +1,22 @@
 import type { Metadata } from "next";
-import GuideSignup from "@/components/GuideSignup";
+import OfferOne from "@/components/OfferOne";
 import { loadBedsRemaining } from "@/lib/beds";
-
-export const metadata: Metadata = {
-  title: "Free guides — New Creation Living",
-  description:
-    "A daily plan, an honest housing comparison, and what a fixed income actually covers in metro Atlanta.",
-  alternates: { canonical: "/offer1" },
-};
+import { loadSiteContent } from "@/lib/site-content-server";
 
 export const dynamic = "force-dynamic";
 
+export async function generateMetadata(): Promise<Metadata> {
+  const content = await loadSiteContent();
+  return {
+    title: content["offer1.seo_title"] || "Limited space offer — New Creation Living",
+    description:
+      content["offer1.seo_description"] ||
+      "Bring your friends and pay $125 in rent. The month you move in is free, with a 100% refund within 7 days.",
+    alternates: { canonical: "/offer1" },
+  };
+}
+
 export default async function OfferOnePage() {
-  const bedsRemaining = await loadBedsRemaining();
-  return <GuideSignup bedsRemaining={bedsRemaining} />;
+  const [content, bedsRemaining] = await Promise.all([loadSiteContent(), loadBedsRemaining()]);
+  return <OfferOne content={content} bedsRemaining={bedsRemaining} />;
 }
