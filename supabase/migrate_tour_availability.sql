@@ -1,5 +1,7 @@
 -- Owner-set tour hours. Guests pick a time from these ranges.
--- They do not pick a house. Safe to re-run after migrate_public_tour.sql.
+-- They do not pick a house. A general booking is placed on every house manager's calendar.
+-- Safe to re-run after migrate_public_tour.sql.
+-- Re-run this file to fix "column reference weekday is ambiguous" on the public tour form.
 
 create table if not exists public.tour_availability (
   id uuid primary key default gen_random_uuid(),
@@ -207,7 +209,7 @@ declare
   found text[] := '{}';
   slots jsonb := '[]'::jsonb;
   configured boolean;
-  weekday int;
+  day_of_week int;
 begin
   if p_date is null or p_date !~ '^\d{4}-\d{2}-\d{2}$' then
     return jsonb_build_object('ok', false, 'error', 'Pick a tour date.');
@@ -218,11 +220,11 @@ begin
     return jsonb_build_object('ok', true, 'configured', configured, 'slots', '[]'::jsonb);
   end if;
 
-  weekday := extract(dow from p_date::date)::int;
+  day_of_week := extract(dow from p_date::date)::int;
   for hours in
     select start_time, end_time
     from public.tour_availability
-    where tour_availability.weekday = weekday
+    where tour_availability.weekday = day_of_week
     order by start_time
   loop
     slot := hours.start_time;
@@ -385,16 +387,33 @@ begin
   if v_house is null then
     insert into public.house_calendar_events (
       kind, title, starts_at, ends_at, created_by, manager_id, source_kind, source_id
-    ) values (
+    )
+    select
       'tour',
       'Tour · ' || name,
       lower(span),
       upper(span),
       nullif(p_actor, ''),
-      null,
+      m.id,
       'tour',
       p_id
-    );
+    from public.house_profiles m
+    where m.role = 'house_manager';
+
+    if not found then
+      insert into public.house_calendar_events (
+        kind, title, starts_at, ends_at, created_by, manager_id, source_kind, source_id
+      ) values (
+        'tour',
+        'Tour · ' || name,
+        lower(span),
+        upper(span),
+        nullif(p_actor, ''),
+        null,
+        'tour',
+        p_id
+      );
+    end if;
     return jsonb_build_object(
       'ok', true,
       'startsAt', lower(span),
