@@ -1,7 +1,7 @@
--- Owner-set tour hours. Guests pick a time from these ranges.
--- They do not pick a house. A general booking is placed on every house manager's calendar.
+-- Tours use the same clock as move-in: 9:00 AM to 7:30 PM, every 30 minutes.
+-- A slot closes when a house manager marks themselves unavailable, or when it is already booked.
+-- Guests do not pick a house. A general booking is placed on every house manager's calendar.
 -- Safe to re-run after migrate_public_tour.sql.
--- Re-run this file to fix "column reference weekday is ambiguous" on the public tour form.
 
 create table if not exists public.tour_availability (
   id uuid primary key default gen_random_uuid(),
@@ -42,7 +42,7 @@ declare
   other jsonb;
   clean jsonb := '[]'::jsonb;
   names text[] := array['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  weekday int;
+  day_of_week int;
   start_text text;
   end_text text;
   start_at time;
@@ -61,14 +61,14 @@ begin
   for item in select value from jsonb_array_elements(p_windows)
   loop
     begin
-      weekday := (item->>'weekday')::int;
+      day_of_week := (item->>'weekday')::int;
     exception
       when others then
         return jsonb_build_object('ok', false, 'error', 'Pick a day for each range.');
     end;
     start_text := left(btrim(coalesce(item->>'start', '')), 5);
     end_text := left(btrim(coalesce(item->>'end', '')), 5);
-    if weekday is null or weekday < 0 or weekday > 6 then
+    if day_of_week is null or day_of_week < 0 or day_of_week > 6 then
       return jsonb_build_object('ok', false, 'error', 'Pick a day for each range.');
     end if;
     if start_text !~ '^\d{2}:\d{2}$' or end_text !~ '^\d{2}:\d{2}$' then
@@ -84,7 +84,7 @@ begin
     if end_at <= start_at or end_at - start_at < interval '30 minutes' then
       return jsonb_build_object(
         'ok', false,
-        'error', names[weekday + 1] || ' needs at least 30 minutes between the start and the end.'
+        'error', names[day_of_week + 1] || ' needs at least 30 minutes between the start and the end.'
       );
     end if;
 
@@ -93,22 +93,22 @@ begin
       other_weekday := (other->>'weekday')::int;
       other_start := (other->>'start')::time;
       other_end := (other->>'end')::time;
-      if other_weekday = weekday and start_at < other_end and end_at > other_start then
+      if other_weekday = day_of_week and start_at < other_end and end_at > other_start then
         return jsonb_build_object(
           'ok', false,
-          'error', names[weekday + 1] || ' has two ranges that overlap. Combine them into one.'
+          'error', names[day_of_week + 1] || ' has two ranges that overlap. Combine them into one.'
         );
       end if;
     end loop;
 
     clean := clean || jsonb_build_array(jsonb_build_object(
-      'weekday', weekday,
+      'weekday', day_of_week,
       'start', to_char(start_at, 'HH24:MI'),
       'end', to_char(end_at, 'HH24:MI')
     ));
   end loop;
 
-  delete from public.tour_availability;
+  delete from public.tour_availability where weekday between 0 and 6;
   insert into public.tour_availability (weekday, start_time, end_time)
   select
     (value->>'weekday')::smallint,
@@ -131,9 +131,7 @@ declare
   windows jsonb;
 begin
   actor := public._house_actor_from_token(p_token);
-  if actor is null or actor.id is null or not (
-    public._house_is_house_admin(actor) or actor.role = 'developer'
-  ) then
+  if actor is null or actor.id is null or actor.role not in ('owner', 'developer', 'administrator', 'house_manager') then
     return jsonb_build_object('ok', false, 'error', 'Not allowed.');
   end if;
 
@@ -159,9 +157,7 @@ declare
   actor public.house_profiles;
 begin
   actor := public._house_actor_from_token(p_token);
-  if actor is null or actor.id is null or not (
-    public._house_is_house_admin(actor) or actor.role = 'developer'
-  ) then
+  if actor is null or actor.id is null or actor.role not in ('owner', 'developer', 'administrator', 'house_manager') then
     return jsonb_build_object('ok', false, 'error', 'Not allowed.');
   end if;
   return public.replace_tour_availability(p_windows);
@@ -191,6 +187,21 @@ as $$
   );
 $$;
 
+create or replace function public._tour_blocked_by_unavailable(p_span tstzrange)
+returns boolean
+language sql
+stable
+set search_path = public
+as $$
+  select p_span is not null and exists (
+    select 1
+    from public.house_calendar_events e
+    where e.kind = 'manager_busy'
+      and e.starts_at < upper(p_span)
+      and e.ends_at > lower(p_span)
+  );
+$$;
+
 drop function if exists public.public_list_tour_slots(text, text);
 
 create or replace function public.public_list_tour_slots(p_date text)
@@ -201,55 +212,38 @@ security definer
 set search_path = public
 as $$
 declare
-  hours record;
-  slot time;
-  slot_end time;
+  slot time := time '09:00';
   span tstzrange;
   slot_text text;
   found text[] := '{}';
   slots jsonb := '[]'::jsonb;
-  configured boolean;
-  day_of_week int;
 begin
   if p_date is null or p_date !~ '^\d{4}-\d{2}-\d{2}$' then
     return jsonb_build_object('ok', false, 'error', 'Pick a tour date.');
   end if;
 
-  select exists (select 1 from public.tour_availability) into configured;
   if p_date::date < (timezone('America/New_York', now()))::date then
-    return jsonb_build_object('ok', true, 'configured', configured, 'slots', '[]'::jsonb);
+    return jsonb_build_object('ok', true, 'configured', true, 'slots', '[]'::jsonb);
   end if;
 
-  day_of_week := extract(dow from p_date::date)::int;
-  for hours in
-    select start_time, end_time
-    from public.tour_availability
-    where tour_availability.weekday = day_of_week
-    order by start_time
-  loop
-    slot := hours.start_time;
-    while slot < hours.end_time loop
-      slot_end := (slot + interval '30 minutes')::time;
-      exit when slot_end <= slot;
-      exit when slot_end > hours.end_time;
-      span := public.house_eastern_range(p_date, to_char(slot, 'HH24:MI'), 30);
-      slot_text := to_char(slot, 'HH24:MI');
-      if span is not null
-        and lower(span) > now()
-        and not slot_text = any(found)
-        and not public._tour_slot_taken(span)
-      then
-        found := found || slot_text;
-      end if;
-      slot := slot_end;
-    end loop;
+  while slot <= time '19:30' loop
+    span := public.house_eastern_range(p_date, to_char(slot, 'HH24:MI'), 30);
+    slot_text := to_char(slot, 'HH24:MI');
+    if span is not null
+      and lower(span) > now()
+      and not public._tour_slot_taken(span)
+      and not public._tour_blocked_by_unavailable(span)
+    then
+      found := found || slot_text;
+    end if;
+    slot := (slot + interval '30 minutes')::time;
   end loop;
 
   select coalesce(jsonb_agg(to_jsonb(item) order by item), '[]'::jsonb)
   into slots
   from unnest(found) as item;
 
-  return jsonb_build_object('ok', true, 'configured', configured, 'slots', slots);
+  return jsonb_build_object('ok', true, 'configured', true, 'slots', slots);
 end;
 $$;
 
@@ -277,7 +271,6 @@ declare
   gender text;
   slot text;
   span tstzrange;
-  allowed boolean;
   new_id uuid;
   synced jsonb;
 begin
@@ -306,16 +299,11 @@ begin
     return jsonb_build_object('ok', false, 'error', 'Pick an open time.');
   end if;
 
-  select exists (
-    select 1
-    from public.tour_availability w
-    where w.weekday = extract(dow from p_date::date)::int
-      and (lower(span) at time zone 'America/New_York')::time >= w.start_time
-      and (upper(span) at time zone 'America/New_York')::time <= w.end_time
-  ) into allowed;
-
-  if not allowed then
-    return jsonb_build_object('ok', false, 'error', 'That time is not open. Pick another.');
+  if slot < '09:00' or slot > '19:30' or right(slot, 3) not in (':00', ':30') then
+    return jsonb_build_object('ok', false, 'error', 'Pick a time between 9:00 AM and 7:30 PM.');
+  end if;
+  if public._tour_blocked_by_unavailable(span) then
+    return jsonb_build_object('ok', false, 'error', 'That time is unavailable. Pick another.');
   end if;
   if public._tour_slot_taken(span) then
     return jsonb_build_object('ok', false, 'error', 'That time was just taken. Pick another.');
@@ -457,6 +445,7 @@ revoke all on function public.replace_tour_availability(jsonb) from public;
 revoke all on function public.owner_list_tour_availability(uuid) from public;
 revoke all on function public.owner_set_tour_availability(uuid, jsonb) from public;
 revoke all on function public._tour_slot_taken(tstzrange) from public;
+revoke all on function public._tour_blocked_by_unavailable(tstzrange) from public;
 revoke all on function public.public_list_tour_slots(text) from public;
 revoke all on function public.public_book_tour(text, text, text, text, text, text, text) from public;
 
