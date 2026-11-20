@@ -1,5 +1,5 @@
 -- Tours use the move-in window: 9:00 AM to 7:30 PM, every 30 minutes.
--- A time is removed only when a house manager is marked unavailable, or the slot is already booked.
+-- A busy range removes only the 30-minute slots it overlaps. The rest of that day stays open.
 -- Safe to re-run. Run this in the Supabase SQL editor.
 
 create or replace function public._tour_blocked_by_unavailable(p_span tstzrange)
@@ -8,13 +8,14 @@ language sql
 stable
 set search_path = public
 as $$
-  select p_span is not null and exists (
-    select 1
-    from public.house_calendar_events e
-    where e.kind = 'manager_busy'
-      and e.starts_at < upper(p_span)
-      and e.ends_at > lower(p_span)
-  );
+  select p_span is not null
+    and exists (
+      select 1
+      from public.house_calendar_events e
+      where e.kind = 'manager_busy'
+        and e.starts_at < upper(p_span)
+        and e.ends_at > lower(p_span)
+    );
 $$;
 
 drop function if exists public.public_list_tour_slots(text, text);

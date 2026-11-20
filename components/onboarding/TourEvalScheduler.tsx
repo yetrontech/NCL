@@ -115,7 +115,7 @@ export default function TourEvalScheduler({
         <div className="field">
           <label htmlFor="eval-time">Tour time</label>
           <select id="eval-time" required value={time} onChange={(event) => setTime(event.target.value)}>
-            <option value="">{slots.length ? "Select a time" : "Select a date"}</option>
+            <option value="">{slots.length ? "Select a time" : date ? "No open times" : "Select a date"}</option>
             {slots.map((slot) => (
               <option key={slot} value={slot}>
                 {formatSlot(slot)}

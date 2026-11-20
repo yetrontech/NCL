@@ -1,6 +1,6 @@
 -- Tours use the same clock as move-in: 9:00 AM to 7:30 PM, every 30 minutes.
--- A slot closes when a house manager marks themselves unavailable, or when it is already booked.
--- Guests do not pick a house. A general booking is placed on every house manager's calendar.
+-- A busy range removes only the 30-minute slots it overlaps. The rest of that day stays open.
+-- Guests do not pick a house. A general booking is placed on every free house manager's calendar.
 -- Safe to re-run after migrate_public_tour.sql.
 
 create table if not exists public.tour_availability (
@@ -193,13 +193,14 @@ language sql
 stable
 set search_path = public
 as $$
-  select p_span is not null and exists (
-    select 1
-    from public.house_calendar_events e
-    where e.kind = 'manager_busy'
-      and e.starts_at < upper(p_span)
-      and e.ends_at > lower(p_span)
-  );
+  select p_span is not null
+    and exists (
+      select 1
+      from public.house_calendar_events e
+      where e.kind = 'manager_busy'
+        and e.starts_at < upper(p_span)
+        and e.ends_at > lower(p_span)
+    );
 $$;
 
 drop function if exists public.public_list_tour_slots(text, text);
@@ -386,7 +387,8 @@ begin
       'tour',
       p_id
     from public.house_profiles m
-    where m.role = 'house_manager';
+    where m.role = 'house_manager'
+      and not public.house_manager_is_busy(m.id, lower(span), upper(span));
 
     if not found then
       insert into public.house_calendar_events (
