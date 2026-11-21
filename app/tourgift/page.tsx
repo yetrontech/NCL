@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import TourGift from "@/components/TourGift";
-import { OFFERS_PAUSED } from "@/lib/offers-paused";
 
 export const metadata: Metadata = {
   title: "Free tour gift — New Creation Living",
@@ -11,6 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function TourGiftPage() {
-  if (OFFERS_PAUSED) redirect("/");
   return <TourGift />;
 }
