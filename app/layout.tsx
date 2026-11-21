@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { GOOGLE_TAG_MANAGER_ID } from "@/lib/google-ads";
+import { GROUNDTRUTH_GTID } from "@/lib/groundtruth";
 import { META_PIXEL_ID } from "@/lib/meta-pixel";
+import GroundTruthPixel from "@/components/GroundTruthPixel";
 import MetaPixel from "@/components/MetaPixel";
 import { loadSiteContent } from "@/lib/site-content-server";
 
@@ -74,6 +76,24 @@ export default function RootLayout({
             `,
           }}
         />
+        {/* GroundTruth pixel, server-rendered so geofence ad visits count on first paint. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.GTPX_DEBUG = false;
+              (function(g, r, o, u, n, d, t) {
+                g[n] = g[n] || function() {
+                  (g[n].q = g[n].q || []).push(arguments);
+                };
+                g[n].l = 1 * new Date();
+                t = r.createElement(o); t.async = 1; t.src = u;
+                r.getElementsByTagName('head')[0].appendChild(t);
+              })(window, document, 'script', 'https://analytics.groundtruth-data.com/pixel.v2.js', 'gtpx');
+              gtpx('init', { gtid: '${GROUNDTRUTH_GTID}' });
+              gtpx('pageview');
+            `,
+          }}
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
@@ -100,6 +120,7 @@ export default function RootLayout({
           />
         </noscript>
         <MetaPixel />
+        <GroundTruthPixel />
         {children}
       </body>
     </html>

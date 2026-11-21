@@ -89,8 +89,8 @@ export default async function PrivacyPage() {
       <p>
         The website also collects ordinary technical data: pages visited, approximate
         location from IP address, device and browser type, and whether a form was
-        submitted. Advertising and analytics tools (Google Tag Manager, Google Ads, and
-        Meta Pixel) help us know which ads and pages led someone to apply, refer, ask
+        submitted. Advertising and analytics tools (Google Tag Manager, Google Ads,
+        Meta Pixel, and GroundTruth) help us know which ads and pages led someone to apply, refer, ask
         about benefits, or schedule a tour. Those companies may set cookies or similar
         identifiers on your device. They do not receive the application itself, the
         promo code, health answers, addresses, or therapist contact.
