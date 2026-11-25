@@ -886,6 +886,69 @@ export async function notifyApplicantDecision(input: DecisionEmailInput): Promis
   await sendApplicantMail({ to, subject, text, html });
 }
 
+const RESIDENT_APP_ANDROID =
+  "https://play.google.com/apps/internaltest/4701044381408718509";
+const RESIDENT_APP_IOS = "https://testflight.apple.com/join/71Ds8fSS";
+
+export async function notifyNewResident(input: {
+  firstName: string;
+  email: string | null | undefined;
+  pin?: string | null;
+  setupCode?: string | null;
+}): Promise<void> {
+  const to = (input.email || "").trim();
+  if (!to) {
+    throw new Error("This resident has no email address.");
+  }
+  if (!isValidEmailAddress(to)) {
+    throw new Error("This resident does not have a usable email address.");
+  }
+
+  const name = input.firstName.trim() || "there";
+  const pin = (input.pin || "").trim();
+  const setupCode = (input.setupCode || "").trim();
+  const login = /^[0-9]{4}$/.test(pin)
+    ? `Your sign-in PIN is ${pin}. Open the app and enter that PIN on the first screen. Keep it to yourself.`
+    : /^[0-9]{6}$/.test(setupCode)
+      ? `After the app is installed, tap “New resident? Set your PIN.” Enter setup code ${setupCode}, then the last 4 digits of your phone number, and choose a 4-digit PIN. That PIN is how you sign in next time.`
+      : "Your house manager will give you what you need to sign in.";
+
+  const opening = [
+    `Hello ${name},`,
+    "Hope you are having an amazing day! Welcome to NCL!",
+    "As a new resident, to stay up to date with house activities and announcements, you will have to download the NCL app on your phone. Use the link for your phone below.",
+  ];
+  const closing = [
+    login,
+    "Please reply if you have any issues with setting up your account or reach out to the House Manager. Thank you!",
+    "Yours sincerely,",
+    "Constant N.",
+    "Yetron Tech",
+  ];
+  const extraHtml = `<p style="margin:0 0 8px;font-size:16px;line-height:1.65;color:#2D3748;">Android:</p>
+  <p style="margin:0 0 16px;">
+    <a href="${RESIDENT_APP_ANDROID}" style="color:#1B2B5E;word-break:break-all;">${RESIDENT_APP_ANDROID}</a>
+  </p>
+  <p style="margin:0 0 8px;font-size:16px;line-height:1.65;color:#2D3748;">Apple (iOS):</p>
+  <p style="margin:0 0 16px;">
+    <a href="${RESIDENT_APP_IOS}" style="color:#1B2B5E;word-break:break-all;">${RESIDENT_APP_IOS}</a>
+  </p>
+  ${paragraphsToHtml(closing)}`;
+  const text = [
+    ...opening,
+    `Android: ${RESIDENT_APP_ANDROID}`,
+    `Apple (iOS): ${RESIDENT_APP_IOS}`,
+    ...closing,
+  ].join("\n\n");
+  const html = wrapUserEmailHtml(opening, extraHtml);
+  await sendApplicantMail({
+    to,
+    subject: "Welcome to NCL",
+    text,
+    html,
+  });
+}
+
 export async function notifyTourEvalDecision(input: {
   status: "accepted" | "denied";
   firstName: string;
