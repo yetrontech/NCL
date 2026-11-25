@@ -143,14 +143,14 @@ export const SITE_CONTENT_FIELDS: SiteContentField[] = [
     section: "Home — Cost card",
     label: "Price amount",
     type: "text",
-    defaultValue: "$26.60",
+    defaultValue: "$250/week or $798/month",
   },
   {
     key: "home.cost.period",
     section: "Home — Cost card",
     label: "Price period",
     type: "text",
-    defaultValue: "/day",
+    defaultValue: "",
   },
   {
     key: "home.cost.note",

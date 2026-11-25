@@ -158,19 +158,15 @@ export default function HomePage({ bedsRemaining }: { bedsRemaining: number | nu
               <div
                 className="cost-big"
                 style={{
-                  fontSize: "3.8rem",
-                  justifyContent: "center",
-                  display: "flex",
-                  alignItems: "baseline",
+                  fontSize: "clamp(1.55rem, 3.4vw, 2.15rem)",
+                  lineHeight: 1.2,
+                  textWrap: "balance",
+                  color: "#FF5252",
+                  fontWeight: 800,
                 }}
               >
-                {" "}
-                <span style={{ color: "#FF5252", fontSize: "1.05em", fontWeight: 800 }}>
-                  {copy("home.cost.price")}
-                </span>
-                <span style={{ fontSize: "1.4rem", color: "var(--gold-light)", fontWeight: 700 }}>
-                  {copy("home.cost.period")}
-                </span>
+                {copy("home.cost.price")}
+                {copy("home.cost.period")}
               </div>
               <p
                 style={{

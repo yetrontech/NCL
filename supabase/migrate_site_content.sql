@@ -45,8 +45,8 @@ Sober & Drug Free Environment
 Access to Public Transportation
 Community Support
 On Site Management', 'Home — Cost card', 'Included items (one per line)', 'list', 14),
-  ('home.cost.price', '$26.60', 'Home — Cost card', 'Price amount', 'text', 15),
-  ('home.cost.period', '/day', 'Home — Cost card', 'Price period', 'text', 16),
+  ('home.cost.price', '$250/week or $798/month', 'Home — Cost card', 'Price amount', 'text', 15),
+  ('home.cost.period', '', 'Home — Cost card', 'Price period', 'text', 16),
   ('home.cost.note', '(Everything included at no cost. No hidden deposits/fees)', 'Home — Cost card', 'Price note', 'text', 17),
   ('home.philosophy.eyebrow', 'Our Philosophy', 'Home — Philosophy', 'Eyebrow', 'text', 18),
   ('home.philosophy.title', 'Independence forged through structure and accountability', 'Home — Philosophy', 'Headline', 'textarea', 19),
