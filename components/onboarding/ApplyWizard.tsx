@@ -76,6 +76,9 @@ const initial = {
   on_probation: "",
   probation_years: "",
   change_six_months: "",
+  recovery_partner_name: "",
+  recovery_partner_phone: "",
+  recovery_partner_email: "",
   first_seven_days: "",
   willing_goals: "",
   substance_abuse_history: "",
@@ -240,6 +243,15 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
       }
       if (data.change_six_months.trim().length < 8) {
         return "Please answer what you want to change in the next 6 months.";
+      }
+      if (!data.recovery_partner_name.trim() || !data.recovery_partner_phone.trim() || !data.recovery_partner_email.trim()) {
+        return "Please share their name, phone number, and email.";
+      }
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.recovery_partner_email.trim())) {
+        return "Enter a valid email for the person you may want to do this with.";
+      }
+      if (data.recovery_partner_phone.replace(/\D/g, "").length < 7) {
+        return "Enter a phone number for the person you may want to do this with.";
       }
       if (data.first_seven_days.trim().length < 8) {
         return "Please answer what you will do in your first 7 days.";
@@ -793,6 +805,46 @@ export default function ApplyWizard({ promoCode }: { promoCode?: string }) {
               value={data.drug_free_commitment}
               onChange={(v) => setField("drug_free_commitment", v)}
             />
+            <div className="field">
+              <label htmlFor="recovery_partner_name">
+                Studies show people who recover with community have a 50% higher chance of staying sober. Who do you know that you may want to do this with?
+              </label>
+              <input
+                id="recovery_partner_name"
+                required
+                maxLength={120}
+                placeholder="Name"
+                autoComplete="off"
+                value={data.recovery_partner_name}
+                onChange={(e) => setField("recovery_partner_name", e.target.value)}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="recovery_partner_phone">Phone number</label>
+              <input
+                id="recovery_partner_phone"
+                type="tel"
+                required
+                maxLength={40}
+                placeholder="Phone number"
+                autoComplete="off"
+                value={data.recovery_partner_phone}
+                onChange={(e) => setField("recovery_partner_phone", e.target.value)}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="recovery_partner_email">Email</label>
+              <input
+                id="recovery_partner_email"
+                type="email"
+                required
+                maxLength={120}
+                placeholder="Email"
+                autoComplete="off"
+                value={data.recovery_partner_email}
+                onChange={(e) => setField("recovery_partner_email", e.target.value)}
+              />
+            </div>
             <RadioGroup
               name="value_understanding"
               label="Do you understand that at just $26.60 a day, New Creation Living provides you a home with more value than any other housing solution/shelter? The average motel is $60 a night, which is $1,800 a month, not including all-inclusive options. Though homeless shelters are resourceful, they cost you safety, stability, and security. It is NOT a home. Are you willing to pay a flat bill $798 a month?"

@@ -248,6 +248,9 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
     how_heard: text(formData, "how_heard"),
     move_timeline: text(formData, "move_timeline"),
     emergency_contact: text(formData, "emergency_contact"),
+    recovery_partner_name: text(formData, "recovery_partner_name", 120),
+    recovery_partner_phone: text(formData, "recovery_partner_phone", 40),
+    recovery_partner_email: text(formData, "recovery_partner_email", 120).toLowerCase(),
     listed_diagnoses: diagnoses.labels,
     ...followUp,
   };
@@ -281,6 +284,9 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
     "referring_party_info",
     "how_heard",
     "move_timeline",
+    "recovery_partner_name",
+    "recovery_partner_phone",
+    "recovery_partner_email",
   ];
 
   if (required.some((key) => !payload[key])) {
@@ -371,6 +377,13 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
 
   const goals = goalError(payload);
   if (goals) return { ok: false, error: goals };
+
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(payload.recovery_partner_email)) {
+    return { ok: false, error: "Enter a valid email for the person you may want to do this with." };
+  }
+  if (payload.recovery_partner_phone.replace(/\D/g, "").length < 7) {
+    return { ok: false, error: "Enter a phone number for the person you may want to do this with." };
+  }
 
   if (
     payload.substance_abuse_history === "Yes" &&
@@ -488,6 +501,9 @@ export async function submitApplication(formData: FormData): Promise<FormActionR
           payload.on_probation === "Yes" ? answer(payload.probation_years) : undefined,
         "What is one thing you want to change in the next 6 months, and what is one step you've already taken toward it?":
           payload.change_six_months,
+        "Who do you know that you may want to recover with? Name": payload.recovery_partner_name,
+        "Who do you know that you may want to recover with? Phone": payload.recovery_partner_phone,
+        "Who do you know that you may want to recover with? Email": payload.recovery_partner_email,
         "What will you do in your first 7 days at NCL to move toward that goal?":
           payload.first_seven_days,
         "NCL residents set goals and check in the app. Are you willing to do that?":
